@@ -100,8 +100,47 @@ const motorReveal=(function(){
   };
 })();
 
-// ruby: a tall sparkle streaks left->right across the lower-middle edges,
-// then the upper-right facet glints. Then a pause, and the cycle repeats.
+// ruby: 丸い LED をひと粒ずつ「きらっ」と一瞬光らせる。
+// 1粒ずつ順にあちこちを閃かせて渡り歩く。
+(function(){
+  const host=document.querySelector('.ruby-led'); if(!host) return;
+  // 11列×9行の菱形グリッド上の点灯セル。[x,y] は host 幅/高に対する割合。
+  const LEDS=[
+    [.315,.052],[.408,.052],[.500,.052],[.592,.052],[.683,.052],
+    [.224,.167],[.316,.167],[.408,.167],[.500,.167],[.592,.167],[.683,.167],[.776,.167],
+    [.132,.281],[.224,.281],[.316,.281],[.408,.281],[.500,.281],[.592,.281],[.683,.281],[.775,.281],[.867,.281],
+    [.040,.395],[.132,.395],[.224,.395],[.316,.395],[.408,.395],[.500,.395],[.592,.395],[.683,.395],[.775,.395],[.867,.395],[.959,.395],
+    [.132,.507],[.224,.507],[.316,.507],[.408,.507],[.500,.507],[.592,.507],[.683,.507],[.775,.507],[.867,.507],
+    [.224,.619],[.316,.619],[.408,.619],[.500,.619],[.592,.619],[.683,.619],[.775,.619],
+    [.316,.730],[.408,.730],[.500,.730],[.592,.730],[.684,.730],
+    [.408,.839],[.500,.839],[.592,.839],
+    [.500,.950],
+  ];
+  const dots=LEDS.map(([x,y])=>{
+    const d=document.createElement('span'); d.className='led-glint';
+    d.style.left=(x*100).toFixed(2)+'%'; d.style.top=(y*100).toFixed(2)+'%';
+    host.appendChild(d); return d;
+  });
+  // ひと粒を一瞬光らせる。
+  const kira=d=>{
+    if(!d || d.classList.contains('kira')) return;
+    d.classList.add('kira');
+    d.addEventListener('animationend',()=>d.classList.remove('kira'),{once:true});
+  };
+  const pick=()=>dots[(Math.random()*dots.length)|0];
+  // 環境演出: 1粒ずつ、あちこちの LED を順に渡り歩く(同時多発させない)。
+  (function loop(){
+    kira(pick());
+    setTimeout(loop, 560+Math.random()*900);   // ≈0.56〜1.46s 間隔
+  })();
+  // モーター連動フック
+  window.rubyGlint=function(){
+    kira(pick());
+    if(Math.random()<0.4) setTimeout(()=>kira(pick()), 90+Math.random()*120);
+  };
+})();
+
+// (旧)ファセット演出: .ruby-facets SVG があった頃の線が走るきらめき。現行HTMLには無いので no-op。
 (function(){
   const svg=document.querySelector('.ruby-facets');
   if(!svg) return;
