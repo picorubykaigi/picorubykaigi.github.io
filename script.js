@@ -182,7 +182,7 @@ function bbSnapPos(part, left, top, W, H, stageH){
   return [x+nd[0], y+nd[1]];
 }
 
-// ---- 部品をドラッグ→穴にスナップ→配置をCookie保存(手触りの土台) ----
+// ---- 部品をドラッグ→穴にスナップ→配置をCookie保存 ----
 (function(){
   const stage=document.querySelector('.stage'); if(!stage) return;
   const setC=(k,v)=>{document.cookie=k+'='+v+';path=/;max-age=31536000';};
@@ -222,8 +222,21 @@ function bbSnapPos(part, left, top, W, H, stageH){
       el.style.left=p[0]+'px'; el.style.top=p[1]+'px'; el.style.right='auto'; el.style.bottom='auto'; }
     else if(el.dataset.part){
       const r=el.getBoundingClientRect(), sr=stage.getBoundingClientRect();
-      const [fx,fy]=computeSnap(el, r.left-sr.left, r.top-sr.top);
+      // 3部品は chip(=L-chika ソケットの列)を起点に、左→右へ chip,motor,battery と並べる
+      const TRAY_DX={chip:0, motor:72, battery:132};
+      const colX=()=>{ const lg=document.querySelector('.title .prk'); if(!lg) return r.left-sr.left;
+        return lg.getBoundingClientRect().right-stage.getBoundingClientRect().left+16+(TRAY_DX[id]||0); };
+      const [fx,fy]=computeSnap(el, colX(), r.top-sr.top);
       el.style.left=fx+'px'; el.style.top=fy+'px'; el.style.right='auto'; el.style.bottom='auto';
+      // ロゴはWebフォント(Bitcount)読込で幅が変わる→フォント確定後に列を再スナップ(未操作時のみ)。
+      // 1回計算だと実行時のフォント未適用幅で1セルずれることがあるため。
+      if(document.fonts && document.fonts.ready){
+        document.fonts.ready.then(()=>requestAnimationFrame(()=>{
+          if(getC('pos_'+id)||dragging||moved) return;
+          const [gx]=computeSnap(el, colX(), parseFloat(el.style.top)||0);
+          el.style.left=gx+'px';
+        }));
+      }
     }
     let sx,sy,ox,oy,moved=false,dragging=false;
     el.addEventListener('pointerdown',e=>{
@@ -265,6 +278,8 @@ function bbSnapPos(part, left, top, W, H, stageH){
   const parts=document.querySelectorAll('[data-part]'); // 挿す部品(バッテリー/チップ)
   const logo=document.querySelector('.title .prk');
   const scene=document.querySelector('.scene');
+  const ticketBtn=document.querySelector('.button-icon.ticket');
+  const proposalBtn=document.querySelector('.button-icon.proposal');
   if(!parts.length) return;
   const SW=54, SH=54;
   const connectSnd=()=>{ try{ const c=window.audioCtx&&window.audioCtx(); if(!c) return;
@@ -278,13 +293,17 @@ function bbSnapPos(part, left, top, W, H, stageH){
   const body=document.body;
   // 各ソケット: 所定の部品(part)が所定の位置(place)に挿さる演出ON。
   const SOCKETS=[
-    // チップ → 内側フィールド(ロゴ下) → PicoRubyKaigi がLチカ。スロットは部品サイズに合わせる
+    // チップ → ロゴ右(Kaigi の右隣・縦中央) → PicoRubyKaigi がLチカ。スロットは部品サイズに合わせる
     logo  && { part:'chip',    anchor:logo,  w:56, h:56,
-               place:(a,sr)=>({sx:a.left-sr.left+24, sy:a.bottom-sr.top+8}),
+               place:(a,sr)=>({sx:a.right-sr.left+16, sy:a.top-sr.top+(a.height-56)/2}),
                apply:on=>body.classList.toggle('fx-lchika-off', !on) },
     // バッテリー → 下の電源レール(赤+/青-)をまたぐ → ダークモード(暗闇でボードが光る)
     {            part:'battery', anchor:stage, w:27, h:46,
-               place:(a,sr)=>({sx:a.width-271, sy:a.height-69}), // 下レール・バッテリー部品の真下(イントロ動線)
+               place:(a,sr)=>{ // 下レール・参加登録とプロポーザルの間
+                 let cx=a.width-150;
+                 if(ticketBtn&&proposalBtn){ const tk=ticketBtn.getBoundingClientRect(), pr=proposalBtn.getBoundingClientRect();
+                   cx=(tk.right+pr.left)/2-sr.left; }
+                 return {sx:cx-27/2, sy:a.height-69}; },
                apply:on=>body.classList.toggle('dark', on) },
     // モーター → 内側フィールド → 動力でビルダーが動き出しキューブを組み立て
     scene && { part:'motor',   anchor:scene, w:44, h:57,
@@ -322,15 +341,15 @@ function bbSnapPos(part, left, top, W, H, stageH){
   requestAnimationFrame(frame);
 })();
 
-// ---- イントロ誘導: 一定時間どの部品も操作されなければ、バッテリーの真上に矢印をうっすら点滅 ----
+// ---- イントロ誘導: 一定時間どの部品も操作されなければ、最初のアクション=チップの真上に矢印を薄く点滅 ----
 (function(){
   const stage=document.querySelector('.stage'); if(!stage) return;
-  const bat=document.querySelector('.bb-battery'); if(!bat) return;
+  const chip=document.querySelector('.bb-chip'); if(!chip) return;
   const DELAY=4000;   // 4秒どの部品も操作されなければ矢印を出す
   let interacted=false, arrow=null;
   const hide=()=>{ if(arrow){ arrow.remove(); arrow=null; } document.body.classList.remove('intro-hint'); };
   const place=()=>{ if(!arrow) return;
-    const r=bat.getBoundingClientRect(), sr=stage.getBoundingClientRect();
+    const r=chip.getBoundingClientRect(), sr=stage.getBoundingClientRect();
     arrow.style.left=(r.left-sr.left+r.width/2)+'px';
     arrow.style.top=(r.top-sr.top-40)+'px';
   };

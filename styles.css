@@ -641,7 +641,7 @@ body:not(.fx-decor-off) .bb-motor.lit-src {
   100% { transform: translate(-.6px, .6px); }
 }
 
-/* イントロ誘導: 一定時間どの部品も操作されなければ、バッテリーの真上に矢印をうっすら点滅 */
+/* イントロ誘導: 一定時間どの部品も操作されなければ、チップの真上に矢印をうっすら点滅 */
 .intro-arrow {
   position: absolute;
   z-index: 9;
