@@ -66,33 +66,33 @@ body {
   padding: clamp(74px, 9vh, 92px) 3vw;
 }
 
-/* ===== TOP: date(left) | ruby(center) | keynote(right) ===== */
-.top {
+/* ===== INFO: date / venue / keynotes (centered, below logo) ===== */
+.info {
   width: 100%;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0;
-  margin-top: clamp(2px, 0.5vh, 8px);
-}
-
-.meta {
-  display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  gap: 10px;
-  text-align: right;
-  margin-top: clamp(6px, 1.5vh, 18px);
-  margin-right: clamp(0px, 0.4vw, 18px);
+  align-items: center;
+  text-align: center;
+  gap: clamp(6px, 1.1vh, 13px);
+  margin-top: clamp(4px, 1.2vh, 16px);
 }
 
 .when {
   font-family: 'Micro 5', sans-serif;
-  font-size: clamp(38px, 6.2vw, 76px);
+  font-size: clamp(32px, 5vw, 62px);
   line-height: .8;
   color: var(--ink);
   letter-spacing: .01em;
   margin-right: -.08em;
+}
+
+.when .dow {
+  font-family: 'Micro 5', sans-serif;
+  font-size: .6em; /* 日付より少し小さく */
+  color: var(--red);
+  letter-spacing: .08em;
+  margin-left: .3em;
+  vertical-align: baseline;
 }
 
 .where {
@@ -103,6 +103,7 @@ body {
   gap: 6px;
   color: var(--ink);
   white-space: nowrap;
+  margin-top: clamp(-12px, -1.2vh, -6px);
 }
 
 .where .micon {
@@ -115,12 +116,12 @@ body {
 
 .keynotes {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: flex-start;
-  gap: 0;
+  justify-content: center;
+  gap: clamp(14px, 2vw, 32px);
   text-align: left;
-  margin-left: clamp(0px, 0.4vw, 18px);
-  margin-top: clamp(-40px, -4vh, -12px);
+  margin-top: clamp(8px, 1.8vh, 26px);
 }
 
 .keynotes .keynote-label {
@@ -129,7 +130,14 @@ body {
   color: var(--red);
   letter-spacing: .14em;
   line-height: 1;
-  margin-bottom: .9em;
+  text-align: right;
+  margin-top: .35em;
+}
+
+.keynotes .keynote-names {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .keynotes .keynote-name {
@@ -141,22 +149,11 @@ body {
   align-items: center;
 }
 
-.keynotes .keynote-name.en { font-size: clamp(17px, 1.7vw, 27px); letter-spacing: .06em; }
-.keynotes .keynote-name.ja { font-size: clamp(20px, 2.05vw, 35px); }
+.keynotes .keynote-name.en { font-size: clamp(13px, 1.25vw, 19px); letter-spacing: .06em; }
+.keynotes .keynote-name.ja { font-size: clamp(15px, 1.45vw, 25px); }
 
 .keynotes .keynote-name + .keynote-name {
   margin-top: .38em;
-}
-
-.keynotes .keynote-name::before {
-  content: ">";
-  margin-right: 11px;
-  color: var(--ink);
-  font-family: 'Conti Neue 2P', monospace;
-  font-weight: normal;
-  letter-spacing: normal;
-  font-size: clamp(9px, 0.9vw, 14px);
-  transform: translateY(2px);   /* 視覚的な縦位置を少し下げる */
 }
 
 /* ===== SCENE: ruby + builders + cubes ===== */
@@ -164,7 +161,7 @@ body {
   position: relative;
   flex: 0 0 auto;
   width: clamp(230px, min(28vw, 45vh), 408px);
-  height: clamp(230px, min(28vw, 45vh), 408px);
+  height: clamp(44px, min(5.5vw, 9vh), 78px);
 }
 
 .ruby {
@@ -240,6 +237,7 @@ body {
 }
 
 .sparkle {
+  display: none; /* きらきらはいったん非表示 */
   position: absolute;
   width: 5px;
   height: 5px;
@@ -287,7 +285,7 @@ body {
   gap: 2px;
   padding: 4px 26px;
   text-align: center;
-  margin-top: clamp(-22px, -2.2vh, -8px);
+  margin-top: clamp(4px, 1.4vh, 18px);
 }
 
 .title .prk {
@@ -420,7 +418,7 @@ body {
   justify-content: center;
   align-items: center;
   gap: clamp(24px, 4.2vw, 64px);
-  margin-top: clamp(2px, 1vh, 14px);
+  margin-top: clamp(12px, 2.8vh, 38px);
 }
 
 .button-icon {
@@ -481,20 +479,6 @@ body {
 }
 
 @media (max-width: 860px) {
-  .top {
-    flex-direction: column;
-    gap: 18px;
-  }
-  .top .scene {
-    order: -1;
-  }
-  .meta,
-  .keynotes {
-    align-items: center;
-    text-align: center;
-    margin-left: 0;
-    margin-right: 0;
-  }
   .keynotes .keynote-name {
     white-space: normal;
   }
