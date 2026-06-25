@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<!-- OGP画像(1200x630)生成用ページ。index.html のデザイン(同じ styles.css / script.js / sound.js)を
+     そのまま採用し、パーツ位置だけ「Rubyのまわりに整列」させた状態に差し替える。 -->
+<base href="../">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PicoRubyKaigi 2026 Assemble — OGP</title>
+<link rel="icon" type="image/png" href="images/favicon.png">
+<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="stage">
+    <div class="wrap">
+
+      <div class="title">
+        <div class="prk"><span class="picoruby">PicoRuby</span><span class="kaigi">Kaigi</span></div>
+        <div class="year">2026</div>
+        <div class="assemble">- Assemble -</div>
+      </div>
+
+      <div class="scene">
+        <!-- LEDマトリクスの Ruby: 中央でルビーが点灯 -->
+        <div class="ruby-led" role="img" aria-label="Ruby"></div>
+      </div>
+
+      <!-- モバイル専用: 流れる電光掲示板の代わりに、日付+会場を静的・複数行(折り返し可)でページに馴染ませて表示。
+           会場名が長く1行マーキーだと「読める大きさ」と「1画面に収まる」が両立しないため。デスクトップはCSSで非表示。
+           置き場所はソケット(ルビー直下の組み立てバンド)と KEYNOTE の間。 -->
+      <div class="venue">
+        <div class="venue-when">2026.10.31. <span class="venue-dow">SAT</span></div>
+        <div class="venue-where"><svg class="venue-pin" viewBox="0 0 5 6" aria-hidden="true"><path d="M1 0h3v1h-3z M0 1h5v1h-5z M0 2h2v1h-2z M3 2h2v1h-2z M0 3h5v1h-5z M1 4h3v1h-3z M2 5h1v1h-1z"/></svg><a class="venue-place venue-link" href="https://hulic-hall.com/" target="_blank" rel="noopener">浅草橋ヒューリックホール＆カンファレンス</a></div>
+      </div>
+
+      <div class="info">
+        <div class="keynotes">
+          <span class="keynote-label">KEYNOTE</span>
+          <div class="keynote-names">
+            <span class="keynote-name en">hasumikin</span>
+            <span class="keynote-name ja">まつもとゆきひろ</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="button">
+        <!-- <a class="button-icon ticket" href="#ticket"><span class="button-label-jp">参加登録</span><span class="button-label-en">Get a Ticket</span></a> -->
+        <a class="button-icon proposal" href="#cfp"><span class="button-label-jp">プロポーザル</span><span class="button-label-en">Call for Proposal</span></a>
+        <a class="button-icon sponsor" href="#sponsor"><span class="button-label-jp">スポンサー</span><span class="button-label-en">Become a Sponsor</span></a>
+      </div>
+
+    </div>
+
+    <!-- 部品(ドラッグして所定のソケットに挿すと回路が成立) -->
+    <!-- chip → motor → battery -->
+    <!-- チップ → ロゴ右に挿す → PicoRubyKaigi がLチカ -->
+    <div class="bb-chip" data-part="chip" role="button" aria-label="PicoRubyチップ" style="right:238px; bottom:120px;"></div>
+    <!-- モーター → 内側フィールドに挿す → 動力でビルダーが動き出しキューブを組み立てる -->
+    <div class="bb-motor" data-part="motor" role="button" aria-label="モーター" style="right:160px; bottom:120px;"></div>
+    <!-- バッテリー → 電源レール(赤青)に挿す → ダークモード(暗闇でボードが光る) -->
+    <div class="bb-battery" data-part="battery" role="button" aria-label="バッテリー" style="right:100px; bottom:120px;"></div>
+    <!-- スピーカー → 下中央のソケットに挿す → 縁のマイコンボードが一斉に踊り出す(抜くと止まる) -->
+    <div class="bb-speaker" data-part="speaker" role="button" aria-label="スピーカー" style="right:40px; bottom:120px;"></div>
+    <!-- 7セグ → スピーカー左のソケットに挿す → 会期カウントダウンが点灯(普段は消灯)。中身はJSが生成 -->
+    <div class="bb-seg7" data-part="seg7" role="button" aria-label="カウントダウン表示" style="right:40px; bottom:200px;"></div>
+    <!-- パーティモード(ダーク+ダンス)の画面全体ディスコ照明。扇形の四隅光は形・明るさ一定のまま、
+         色相だけを 1/4 ずつ位相ずらしで巡らせる→色の変化が中心を移動していくように見える。最大でも薄め。
+         c1=左上→c2=右上→c3=右下→c4=左下 の時計回り順。 -->
+    <!-- ゆらめき用の乱流変位フィルタ(蝋燭の炎が風に揺れる質感)。baseFrequencyをアニメして有機的に揺らす -->
+    <svg width="0" height="0" aria-hidden="true" style="position:absolute">
+      <filter id="party-flicker" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.008 0.013" numOctaves="2" seed="7" result="n">
+          <animate attributeName="baseFrequency" dur="16s" repeatCount="indefinite"
+                   values="0.008 0.013; 0.012 0.018; 0.007 0.011; 0.010 0.015; 0.008 0.013"/>
+        </feTurbulence>
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="64" xChannelSelector="R" yChannelSelector="G">
+          <!-- 変位量を脈動させ、ノイズの位相によらず常にゆらぎが出るように(序盤も穏やかになりすぎない) -->
+          <animate attributeName="scale" dur="6.5s" repeatCount="indefinite" values="54;80;58;76;54"/>
+        </feDisplacementMap>
+      </filter>
+    </svg>
+    <div class="party-fx" aria-hidden="true">
+      <span class="pf c1"></span><span class="pf c2"></span><span class="pf c3"></span><span class="pf c4"></span>
+      <!-- 「色がちょっと違う中心」: 扇形の形でマスク→扇形の中にだけ色差が現れ、それが外周を時計回りに移動 -->
+      <span class="pf-hueclip"><span class="pf-hue"></span></span>
+    </div>
+
+    <!-- 縁をぐるりと囲むマイコンボード。スピーカーを挿すとビートに乗って踊る -->
+    <div class="dancers" aria-hidden="true"></div>
+
+    <!-- プラレール: 普段は画面右の外で待機(たまにチラ見せ)。motorを動輪に挿すと右→左へ走る -->
+    <div class="prarail" aria-hidden="true"></div>
+
+    <!-- 電光掲示板モジュールの脚(ピンヘッダ) -->
+    <div class="ticker-legs" aria-hidden="true"></div>
+    <!-- 電光掲示板 -->
+    <div class="ticker" aria-hidden="true">
+      <div class="ticker-track">
+        <span class="ticker-unit"><span class="ticker-item ticker-when">2026.10.31. <span class="ticker-dow">SAT</span></span><a class="ticker-item ticker-where" href="https://hulic-hall.com/" target="_blank" rel="noopener"><svg class="ticker-pin" viewBox="0 0 5 6" aria-hidden="true"><path d="M1 0h3v1h-3z M0 1h5v1h-5z M0 2h2v1h-2z M3 2h2v1h-2z M0 3h5v1h-5z M1 4h3v1h-3z M2 5h1v1h-1z"/></svg><span class="ticker-where-label"><span class="ticker-kanji">浅草橋</span>ヒューリックホール<span class="ticker-amp">＆</span>カンファレンス</span></a></span>
+      </div>
+    </div>
+  </div>
+
+<script src="sound.js"></script>
+
+<!-- OGP用: 7セグを88にする -->
+<script>
+(function(){
+  const RealDate=Date;
+  const FAKE=new RealDate('2026-09-30T12:00:00+09:00').getTime();   // 会期まで約31日(<100) → 2桁
+  function FakeDate(...a){ return a.length ? new RealDate(...a) : new RealDate(FAKE); }
+  FakeDate.now=()=>FAKE; FakeDate.parse=RealDate.parse; FakeDate.UTC=RealDate.UTC;
+  FakeDate.prototype=RealDate.prototype;
+  window.Date=FakeDate;
+})();
+</script>
+
+<script src="script.js"></script>
+
+<!-- ===== OGP用: パーツを「Rubyのまわりに整列」させる ===== -->
+<!-- index.html の通常挙動(ランダム散らし＋ドラッグで通電)を上書きし、静止画用に
+     seg7・speaker ―〔Ruby〕― motor・chip を横一列、battery を赤青レール上に固定配置する。
+     ソケットのヒント光は隠し、通電エフェクト(ダーク/ダンス/走行)は出さない。 -->
+<style>
+  .circuit-slot{ display:none !important; }      /* ソケットのヒント光を隠す */
+  [data-part]{ animation:none !important; }       /* イントロの誘導アニメ(未挿入部品の振動)を止める */
+
+  /* CTAボタンの文字は消し、下地の緑/黄のマイコン基板だけ残す。 */
+  .button-icon .button-label-jp,
+  .button-icon .button-label-en{ display:none !important; }
+  .button-icon{ cursor:default !important; }
+  /* 基板(CTAボード)は一旦なくす。 */
+  .button{ display:none !important; }
+
+  /* 日付・会場はモバイルスタイル(静的な .venue)で表示し、流れる電光掲示板は隠す。
+     (styles.css の @media max-width:767px の .venue 系をデスクトップ幅でも適用) */
+  .ticker, .ticker-legs{ display:none !important; }
+  .venue{ display:flex !important; flex-direction:column; align-items:center; text-align:center;
+          gap:0; color:var(--ink); width:100%; margin-top:50px; }   /* Ruby群↔会場群(下側)。日付以降をやや下げる / 日付↔会場は詰める */
+  /* 日付は大きい数字が左に偏り重心が左→少し右へずらして光学的に中央に見せる。 */
+  .venue-when{ font-family:'Micro 5',sans-serif; font-size:40px; letter-spacing:.08em; line-height:1;
+               position:relative; left:9px; }
+  .venue-dow{ font-size:.66em; letter-spacing:.04em; margin-left:-.28em; color:var(--red); }
+  .venue-where{ font-family:'Conti Neue 2P','DotGothic16',monospace; font-size:16px;
+                letter-spacing:.04em; line-height:1.15; max-width:94%; margin-top:-.1em; }   /* 日付との行間をせまく */
+  .venue-pin{ height:.92em; width:auto; fill:currentColor; shape-rendering:crispEdges;
+              vertical-align:-.06em; margin-right:.22em; }
+
+  /* KEYNOTE */
+  .keynotes{ flex-direction:column !important; align-items:center !important; gap:8px !important; }
+  .keynotes .keynote-label{ display:none !important; }   /* 中央の単一ラベルは消し、各基板の左上に付ける(下の::before) */
+  .keynotes .keynote-names{ flex-direction:row !important; align-items:center !important; gap:60px !important; }
+  /* styles.cssの縦積み用 .keynote-name+.keynote-name{margin-top:.38em} を横並びでは無効化してボードのy位置を揃える。 */
+  .keynotes .keynote-name + .keynote-name{ margin-top:0 !important; }
+  .keynotes .keynote-name{
+    position:relative;
+    display:inline-flex !important; align-items:center !important; justify-content:center !important;
+    height:78px; box-sizing:border-box;
+    background-repeat:no-repeat; background-position:center; background-size:contain;  /* アスペクト比を保つ */
+  }
+  /* 各基板の内側・お名前の左上に「KEYNOTE」ラベル(7セグのCOUNTDOWN風に基板へ印字された感じ)。 */
+  .keynotes .keynote-name::before{
+    content:"KEYNOTE"; position:absolute; left:32px; top:16px;
+    font-family:'Jersey 10','Micro 5',monospace; font-size:12px; font-weight:normal; letter-spacing:2px;
+    line-height:1; color:#fff; opacity:.72; white-space:nowrap; pointer-events:none;   /* PCBの白シルク印字風(非bold・うっすら) */
+  }
+  /* OGPは名前が窮屈なので横長にした専用基板を使う */
+  .keynotes .keynote-name.en{ aspect-ratio:2.90; background-image:url('images/board_green_long_t.png');
+    justify-content:flex-start !important;   /* hasumikinは頭を左に */
+    padding:0 50px 0 39px; font-size:14px; letter-spacing:.04em; color:#1f1d23; }
+  .keynotes .keynote-name.ja{ aspect-ratio:2.90; background-image:url('images/board_red_long_t.png');
+    padding:0 52px 0 34px; font-size:17px; letter-spacing:.03em; color:#1f1d23; }   /* padding-left大きめ=頭をほんのわずか右へ */
+
+  /* プラレールのチラ見せは静止画ではランダムに基板へ被るので隠す。 */
+  .prarail{ display:none !important; }
+  /* 縁の dancers(小さなマイコンボード)は静止画では散らかって見えるので隠す。 */
+  .dancers{ display:none !important; }
+  /* スピーカーの「♪音が鳴る」ヒント吹き出しは静止画では不要なので隠す。 */
+  .spk-hint{ display:none !important; }
+  /* 7セグの「COUNTDOWN」ラベルは消す。 */
+  .bb-seg7 .cd-lab{ display:none !important; }
+
+  /* ロゴを大きくする(OGPはSNSで縮小表示されるので主役を大きく)。行間は少し詰める。 */
+  .title .prk{ font-size:84px !important; }
+  /* PicoRubyの Ru/ub/by の字間をほんのわずか広げる(.l-chikaはscript.jsが各文字を包む)。 */
+  .title .prk .picoruby > .l-chika:nth-child(6){ margin-left:.07em !important; }   /* Ru */
+  .title .prk .picoruby > .l-chika:nth-child(7){ margin-left:.07em !important; }   /* ub */
+  .title .prk .picoruby > .l-chika:nth-child(8){ margin-left:.045em !important; }  /* by */
+  .title .year{ font-size:48px !important; margin-top:-.13em !important; }
+  .title .assemble{ font-size:25px !important; margin-top:-.25em !important; }
+
+  /* ロゴ拡大で縦が溢れ、絶対配置の電光掲示板(bottom:0)が630px外へ落ちるのを防ぐ。
+     上下パディングと各marginを詰めて全コンテンツを630px内に収める(=日付/会場を残す)。 */
+  /* 赤青レール↔ロゴの余白を大きめに(基板を外した分の余白をここへ)。 */
+  .wrap{ padding-top:94px !important; padding-bottom:12px !important; }
+  .title{ margin-top:4px !important; }
+  .scene{ margin-top:38px !important; }    /* ロゴ群↔Ruby群(上側)。Rubyがscene枠から上下に溢れる分、margin大きめでAssemble↔Ruby視覚gapを確保 */
+  .info{ margin-top:6px !important; }       /* 会場↔KEYNOTEは詰めて1群に */
+  .button{ margin-top:10px !important; }
+</style>
+<script>
+(function(){
+  const stage=document.querySelector('.stage');
+  const ruby=document.querySelector('.ruby-led');
+  if(!stage||!ruby) return;
+
+  // 各パーツの「Ruby中心からの配置オフセット」。横一列はRuby縦中心からやや下(+18px)に置き、
+  // 通電判定(ソケット中心±8px)に当たらないようにする=エフェクトを出さない。
+  const ROW_DY=-6;       // 横一列の中心YをRuby中心からずらす量(負=上)。元18から1レール(24px)上げて-6
+  const GAP_RUBY=88;     // Ruby端〜内側パーツの間隔(2レール分=元44の倍)
+  const GAP_PART=60;     // パーツ同士の間隔(2レール分=元30の倍)
+
+  function layout(){
+    const sr=stage.getBoundingClientRect();
+    const rr=ruby.getBoundingClientRect();
+    const rcx=rr.left-sr.left+rr.width/2;          // Ruby水平中心(stage基準)
+    const rcy=rr.top -sr.top +rr.height/2;          // Ruby垂直中心
+    const halfR=rr.width/2;
+
+    const el=id=>document.querySelector('.bb-'+id);
+    const W=id=>el(id)?el(id).offsetWidth:40;
+    const H=id=>el(id)?el(id).offsetHeight:40;
+
+    // 各パーツの中心X(横一列): 左から seg7, speaker, 〔Ruby〕, motor, chip
+    const cy=rcy+ROW_DY;
+    const spkCx = rcx - halfR - GAP_RUBY - W('speaker')/2;
+    const segCx = spkCx - W('speaker')/2 - GAP_PART - W('seg7')/2;
+    const motCx = rcx + halfR + GAP_RUBY + W('motor')/2;
+    const chpCx = motCx + W('motor')/2 + GAP_PART + W('chip')/2;
+
+    // battery: 画面上部の赤+/青-レールの中間に置く(サイズは元のまま)。
+    // レールは body 背景(赤 中心y≈14 / 青 中心y≈78)。stage上端基準でその中点≈46。
+    const batCx = rcx + 340, batCy = 46;
+
+    const put=(id, cx, ccy)=>{ const e=el(id); if(!e) return;
+      e.style.left=(cx-W(id)/2)+'px'; e.style.top=(ccy-H(id)/2)+'px';
+      e.style.right='auto'; e.style.bottom='auto'; };
+
+    put('seg7',    segCx, cy);
+    put('speaker', spkCx, cy);
+    put('motor',   motCx, cy);
+    put('chip',    chpCx, cy);
+    put('battery', batCx, batCy);
+  }
+
+  // seg7 カウントダウンを点灯させ、全セグメントON=「88」にする(実カウントダウン値だと
+  // 静止画として古びるため、全点灯の固定表示にする)。render() の上書きに勝つよう毎フレーム適用。
+  function litSeg(){
+    const seg=document.querySelector('.bb-seg7'); if(!seg) return;
+    seg.classList.add('lit');
+    seg.querySelectorAll('.s').forEach(s=>s.classList.add('on'));
+  }
+
+  // script.js の reflow/socket frame/カウントダウン render より後に毎フレーム上書きして固定する。
+  (function loop(){ layout(); litSeg(); requestAnimationFrame(loop); })();
+})();
+</script>
+</body>
+</html>
