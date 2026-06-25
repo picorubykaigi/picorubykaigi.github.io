@@ -192,6 +192,8 @@ body.dark .ruby-led::after {
    位置は script.js が画像から検出した 57 個の LED 中心(正規化座標)に合わせて生成。
    ::after(くっきり原画)より上に出すため z-index を持たせる。 */
 .led-glint {
+  --glint: 255, 255, 255;     /* きらめきの色(RGB)。ライト=白 / ダークは緑に差し替え */
+  --glint-bleed: var(--pink); /* にじみ(drop-shadow)の色 */
   position: absolute;
   width: 6.6%;              /* LED 直径(≈8.2%)より一回り小さい丸 */
   aspect-ratio: 1;
@@ -201,8 +203,18 @@ body.dark .ruby-led::after {
   opacity: 0;               /* .kira のときだけ一瞬点く */
   z-index: 1;
   pointer-events: none;
-  mix-blend-mode: screen;   /* 下の赤い LED を照り返す */
+  mix-blend-mode: screen;   /* 下の赤い LED を照り返す(白いきらめき向け) */
   will-change: opacity;
+}
+/* ダークモード: 緑に「発光」しているように。芯は赤ドット上で白く飛び(中心=白く明るい)、
+   外側へ向けて緑の光暈(drop-shadow)がにじむ。screen で光らせる(normal だとベタっと見える)。 */
+body.dark .led-glint {
+  --glint: 236, 255, 242;      /* 芯=ほぼ白(ほんのり緑)。screen で白く熱い中心になる */
+  --glint-bleed: rgb(86, 240, 150);
+}
+body.dark .led-glint.kira {
+  /* 緑の光暈を2枚重ねて、暗い背景にじんわり緑が発光して見えるように */
+  filter: drop-shadow(0 0 2px var(--glint-bleed)) drop-shadow(0 0 7px var(--glint-bleed));
 }
 /* 円の中を流れる光の面: "\" 方向(=対角に直交)の帯。左下から入って右上へ抜ける。
    なめらかさを抑え、輪郭くっきりの純白プラトーにする。プラトーは円より広く取り、
@@ -212,14 +224,14 @@ body.dark .ruby-led::after {
   position: absolute;
   left: -60%; top: -60%; width: 220%; height: 220%;
   background: linear-gradient(45deg,
-    rgba(255,255,255,0) 18%, #fff 22%, #fff 78%, rgba(255,255,255,0) 82%);
+    rgba(var(--glint),0) 18%, rgb(var(--glint)) 22%, rgb(var(--glint)) 78%, rgba(var(--glint),0) 82%);
   transform: translate(-80%, 80%); /* 初期は左下の外(まだ円に入っていない) */
 }
 /* ひと粒のきらめき: 左下から面積が増え → 一瞬まっ白 → 右上へ白い輝きが抜ける。
    面の移動は led-sweep(等速)、中央で opacity を短くホールドして「一瞬まっ白」を作る。 */
 .led-glint.kira {
   animation: led-kira .35s linear;
-  filter: drop-shadow(0 0 1.5px var(--pink)); /* facet の「ピンクのにじみ」を控えめに */
+  filter: drop-shadow(0 0 1.5px var(--glint-bleed)); /* にじみ(ライト=ピンク / ダーク=緑) */
 }
 .led-glint.kira::before { animation: led-sweep .35s linear; }
 @keyframes led-kira {
