@@ -724,7 +724,7 @@ function bbApplyGridShift(){
   // 輪として全体が回転: 全ボードの周回位置 f を時間で進める(リングに沿って循環)。
   // さらに各ボードを斜め(↗↙)方向に小さく揺らして「斜めに移動しながら」を添える。
   // 進行はスピーカー装着中(body.dance-on)だけ。位置は transform で更新(リフロー回避)。
-  let orbT=0, last=0, revealT=0, waveT=0;
+  let orbT=0, last=0, revealT=0, waveT=0, fadeKicked=false;
   const TILT=-45;                    // dancer の傾き(度): 左下→右上(↗)を向く
   const BOB=10;                      // 径方向(縦)の揺れ幅(px)。毎拍 ±BOB で反転
   const REVEAL_PER=0.07;             // 基盤が1枚増える間隔(秒)。全部出るまで ≒ n*0.07 秒
@@ -733,6 +733,10 @@ function bbApplyGridShift(){
   const WAVE_DUR=0.5;                // 最後の1枚が「ぱらぱらっ」と振れて消えるまでの秒数(少し短め)
   const FLAP=0.085;                  // 1フラップの秒数(短い=キレよく速い)。/ ↔ \ をスナップ往復
   const FLAP_ANG=52;                 // 振れ角(度)。± で / と \ になりXを描く
+  const FADE_BARS=4;                 // 踊り始めてから何小節でフェードアウトを始めるか(4/4拍子)
+  const FADE_START=FADE_BARS*4*beat; // フェード開始時刻(秒): 4小節=16拍ぶん経ったら
+  const MUSIC_FADE=6.0;              // 自動終了時の音楽フェードアウト秒数
+  const OUT_DUR=4.0;                // 4小節後、全基盤が消えきるまでの秒数(枚数によらず一定=徐々に1枚ずつ減る)
   // 2拍くりかえし: ①斜め移動(前進=接線方向 + 縦揺れ反転) → ②縦だけ(径方向の反転のみ)。
   // = x単独(横移動だけ)のフレームを作らない。各辺で接線/径方向に回すので全周で時計回り。
   const animate=ts=>{
@@ -741,13 +745,24 @@ function bbApplyGridShift(){
     const dancing=document.body.classList.contains('dance-on');
     if(geom){
       const {x0,y0,x1,y1,n}=geom;
-      // 出現は枚数を徐々に増やす(ふわっとフェードでなく1枚ずつ)。抜いたら少し速く減らす。
-      // 拍は音と同じ AudioContext 時計(danceClock)で刻む。無ければ orbT(rAF累積)にフォールバック。
+      // 拍時計: 音(danceClock)優先、無ければ orbT(rAF累積)にフォールバック。音を止めた後も orbT で進み続ける。
       const dc = window.danceClock ? window.danceClock() : null;
-      if(dancing){ orbT+=dt; revealT=Math.min(n*REVEAL_PER, revealT+dt); waveT=0; }
+      const clk = (dancing && dc!=null && dc>0) ? dc : orbT;
+      if(dancing){
+        orbT+=dt;
+        if(clk>=FADE_START){
+          // 4小節経過: 音楽をフェードアウト(一度だけ)。基盤は revealT を戻してゆっくり1枚ずつランダムに消す。
+          if(!fadeKicked){ fadeKicked=true; if(window.danceEnd) window.danceEnd(MUSIC_FADE); }
+          revealT=Math.max(0, revealT - dt*(n*REVEAL_PER)/OUT_DUR);   // OUT_DUR 秒で消えきる一定ペース(枚数によらず徐々に)
+        } else {
+          revealT=Math.min(n*REVEAL_PER, revealT+dt);   // 4小節までは1枚ずつ出現
+        }
+        waveT=0;
+      }
       else {
-        orbT=0;   // 非ダンス時はリセット(次回開始時に音と同位相から)
-        // 消えるとき: 2枚以上なら1枚ずつ減らす。最後の1枚は手を振ってから(WAVE_DUR後)消す。
+        // 抜去時: 1枚ずつ減らす(出現より少し速く)。最後の1枚は手を振ってから(WAVE_DUR後)消す。
+        orbT=0;          // 非ダンス時はリセット(次回開始時に音と同位相から)
+        fadeKicked=false;
         const sh=Math.floor(revealT/REVEAL_PER);
         if(sh>=2){ revealT-=dt*2; waveT=0; }
         else if(sh===1){ waveT+=dt; if(waveT>WAVE_DUR) revealT-=dt*2; }
@@ -755,14 +770,12 @@ function bbApplyGridShift(){
         revealT=Math.max(0, revealT);
       }
       const shown=Math.floor(revealT/REVEAL_PER);
-      // 拍は音と同じ時計(danceClock)で刻む。音時計が進まない時は orbT(rAF) にフォールバック(動きが止まらないように)。
-      const clk = (dancing && dc!=null && dc>0) ? dc : orbT;
       const bi=Math.floor((clk+LEAD)/beat);        // 現在の拍。LEADぶん先行させてキレを出す
       const adv=Math.floor(bi/2)*ADV_FRAC;         // 前進(x+y=斜め)を偶数拍=キックに合わせる。奇数拍は縦だけ
       const farewell = !dancing && shown===1;      // 最後の1枚(rank0)がバイバイする局面
       for(let i=0;i<dancers.length;i++){
         const d=dancers[i];
-        const vis = ranks[i] < shown;
+        const vis = ranks[i] < shown;              // shown が増減: 出現も4小節後の消失も、ランダム順(ranks)で1枚ずつ
         d.style.opacity = vis ? '1' : '0';
         if(!vis) continue;
         const f=((((i+adv)%n)+n)%n)/n;             // 前進は base(リング位置)で表現=斜めの拍に必ず束ねる

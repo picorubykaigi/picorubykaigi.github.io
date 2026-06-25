@@ -152,6 +152,7 @@
   let danceTimer=null, danceBus=null, danceT0=null;   // danceT0=グルーヴの拍0のAudioContext時刻(動きと共有する)
   let danceBassBus=null, danceBassEQ=null, danceThumpBus=null, dancePartyOn=false; // ベース専用バス(パーティモードで増強)/thumpゲート
   let danceFirstBass=false;          // 再生開始後の最初のベース1音だけ弱める用のワンショット
+  let danceLatched=false;            // 4小節後の自動終了ラッチ。立っている間は danceStart しても再開しない(抜くと解除)
   const dkick=(c,bus,t)=>{ // バスドラ: 低いサインを素早く落とす
     const o=c.createOscillator(), g=c.createGain(); o.type='sine';
     o.frequency.setValueAtTime(150,t); o.frequency.exponentialRampToValueAtTime(48,t+0.11);
@@ -197,7 +198,7 @@
   const BASS_PARTY_EQ=8;            // パーティモード時の低域シェルフブースト(dB / 通常=0)
   const danceStart=bpm=>{
     bpm=bpm||144;
-    if(danceTimer) return;            // 多重起動を防ぐ(socket は毎フレーム apply するため)
+    if(danceTimer||danceLatched) return;  // 多重起動を防ぐ(socket は毎フレーム apply するため)。自動終了後は抜くまで再開しない
     const c=ac(); if(!c) return;      // 操作前は鳴らさない(操作後、frame の再呼び出しで自然に開始する)
     const step=(60/bpm)/2, STEPS=16, loopDur=STEPS*step;
     const bus=c.createGain(); bus.gain.value=0.0001; bus.connect(c.destination);
@@ -257,21 +258,28 @@
     if(danceThumpBus) danceThumpBus.gain.setTargetAtTime(dancePartyOn?1:0, n, 0.02); // ベースの入り/出を即時に
     if(danceBus) danceBus.gain.setTargetAtTime(dancePartyOn?DANCE_MASTER_PARTY:DANCE_MASTER, n, tc); // 総音量をモード間でそろえる(切替の段差を消す)
   };
-  const danceStop=()=>{
-    if(!danceTimer) return; clearTimeout(danceTimer); danceTimer=null; danceT0=null;
-    danceBassBus=null; danceBassEQ=null; danceThumpBus=null;
+  // 鳴っているグルーヴを fadeT 秒でフェードして片付ける(共通処理)。
+  const fadeOut=fadeT=>{
+    if(danceTimer){ clearTimeout(danceTimer); danceTimer=null; }
+    danceT0=null; danceBassBus=null; danceBassEQ=null; danceThumpBus=null;
     const g=danceBus; danceBus=null; if(!g) return;
     try{ const c=ac(), n=c.currentTime;
       g.gain.cancelScheduledValues(n); g.gain.setValueAtTime(Math.max(g.gain.value,0.0001),n);
-      g.gain.exponentialRampToValueAtTime(0.0001,n+0.22);                 // すっと止める
+      g.gain.exponentialRampToValueAtTime(0.0001,n+fadeT);
     }catch(e){}
-    setTimeout(()=>{ try{g.disconnect();}catch(e){} },450);
+    setTimeout(()=>{ try{g.disconnect();}catch(e){} },fadeT*1000+230);
   };
+  // 4小節後の自動終了: ゆっくりフェードし、ラッチを立てて「挿しっぱなしでも再開しない」状態にする。
+  // (スピーカーのソケットは毎フレーム danceStart を呼ぶため、これが無いと即再開してフェードしない)
+  const danceEnd=(fadeT=2.0)=>{ danceLatched=true; fadeOut(fadeT); };
+  // スピーカー抜去: すっと止め、ラッチを解除(次に挿せばまた最初から踊れる)。
+  const danceStop=()=>{ danceLatched=false; fadeOut(0.22); };
 
   global.playPico=playPico;
   global.trainPass=trainPass;   // 電車の通過音(プラレール演出から呼ぶ)
   global.danceStart=danceStart; // ダンスのグルーヴ開始(スピーカー挿入)
   global.danceStop=danceStop;   // ダンスのグルーヴ停止(スピーカー抜去)
+  global.danceEnd=danceEnd;     // 4小節後の自動終了(ゆっくりフェード＋抜くまで再開しない)
   global.danceParty=danceParty; // パーティモード(ダーク＋ダンス)でベース増強
   // グルーヴの拍0からの経過秒(再生中のみ)。動き側がこれを読んで同じ時計で拍を刻む
   global.danceClock=()=> danceT0!=null ? Math.max(0, ac().currentTime - danceT0) : null;
