@@ -342,8 +342,7 @@ body.dark .led-glint.kira {
   paint-order: stroke fill;
 }
 
-/* PicoRuby / Kaigi はそれぞれ改行不可の塊にする。これで折り返しは必ず両者の境界でだけ起き、
-   "PicoRubyKai / gi" のような単語途中での折り返しを防ぐ(モバイルで2行になる時は PicoRuby / Kaigi)。 */
+/* PicoRuby / Kaigi はそれぞれ改行不可の塊にする。折り返し位置は HTML の両者間 <wbr> が唯一の改行機会。 */
 .title .prk .picoruby,
 .title .prk .kaigi {
   white-space: nowrap;
