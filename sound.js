@@ -281,13 +281,27 @@
   global.danceStop=danceStop;   // ダンスのグルーヴ停止(スピーカー抜去)
   global.danceEnd=danceEnd;     // 4小節後の自動終了(ゆっくりフェード＋抜くまで再開しない)
   global.danceParty=danceParty; // パーティモード(ダーク＋ダンス)でベース増強
-  // グルーヴの拍0からの経過秒(再生中のみ)。動き側がこれを読んで同じ時計で拍を刻む
-  global.danceClock=()=> danceT0!=null ? Math.max(0, ac().currentTime - danceT0) : null;
+  // グルーヴの拍0からの経過秒。動き側がこれを読んで同じ時計で拍を刻む。
+  // 音が実際に鳴っている(running)ときだけ返す。suspended(未解錠=ドラッグで挿しただけ等)では
+  // currentTime が止まり 0 を返し続けて L-chika が1文字で固まるため、null を返して
+  // 読み手(L-chika/ダンサー)を rAF フォールバック=テンポ刻みへ逃がす。
+  global.danceClock=()=>{ if(danceT0==null) return null;
+    const c=ac(); if(!c || c.state!=='running') return null;
+    return Math.max(0, c.currentTime - danceT0); };
   global.audioCtx=ac;   // ページ共通の AudioContext を公開(全効果音で共有)
 
   // 初回のユーザー操作で AudioContext を解錠する(autoplay制限で suspended のままを防ぐ)
-  const GEST=['pointerdown','mousedown','touchstart','keydown','click'];
-  const unlock=()=>{ gestured=true; try{ ac(); }catch(e){}   // 操作を記録→生成＋resume(無音バッファは使わない=device error回避)
-    GEST.forEach(t=>global.removeEventListener(t,unlock,true)); };
+  // iOS Safari は touchstart/pointerdown を有効な操作と認めず、touchend/pointerup/click
+  // などの「離散的な操作の完了」でしか resume できない。そのため down 系だけでなく up 系も拾い、
+  // かつ実際に running になるまでリスナを外さない(1回の取りこぼしで解錠不能になるのを防ぐ)。
+  const GEST=['pointerdown','pointerup','mousedown','touchstart','touchend','keydown','click'];
+  const detach=()=> GEST.forEach(t=>global.removeEventListener(t,unlock,true));
+  const unlock=()=>{ gestured=true;   // 操作を記録→生成＋resume(無音バッファは使わない=device error回避)
+    let c=null; try{ c=ac(); }catch(e){}
+    if(!c) return;
+    if(c.state==='running'){ detach(); return; }
+    try{ const p=c.resume(); const done=()=>{ if(c.state==='running') detach(); };   // resume は非同期: running を待ってから外す
+      if(p&&p.then) p.then(done,()=>{}); else done(); }catch(e){}
+  };
   GEST.forEach(t=>global.addEventListener(t,unlock,true));
 })(window);
