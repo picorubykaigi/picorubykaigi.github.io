@@ -242,6 +242,31 @@ function bbApplyGridShift(){
     const lp=c.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=2800; lp.Q.value=1;
     o.connect(g); g.connect(lp); lp.connect(c.destination); o.start(t); o.stop(t+0.54);
   }catch(e){} };
+  // 不正解音: G5→D5 の2音(各わずかに下降)を、ビットクラッシュ(4bit)で8bitらしくざらつかせる。
+  // 荒さは postlp(角取り)と原音ミックス(wet/dry)で抑え、他の効果音と馴染むマイルドな歪みにしてある。
+  const wrongSnd=()=>{ try{ const c=window.audioCtx&&window.audioCtx(); if(!c) return;
+    const t=c.currentTime;
+    // 信号経路: 音 → lp(丸め) → [ws(歪み)→postlp(角取り)→wet] と [dry(原音)] を混ぜて出力
+    const ws=c.createWaveShaper(); ws.oversample='4x';
+    const curve=new Float32Array(1024), L=16; // 4bit=16段でビットクラッシュ
+    for(let i=0;i<1024;i++){ const x=i*2/1024-1; curve[i]=Math.round(x*L)/L; }
+    ws.curve=curve;
+    const postlp=c.createBiquadFilter(); postlp.type='lowpass'; postlp.frequency.value=2400; postlp.Q.value=0.7; // 高域の荒さを角取り
+    const wet=c.createGain(), dry=c.createGain(); wet.gain.value=0.6; dry.gain.value=0.4; // 原音を混ぜて荒さを薄める
+    const lp=c.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=2300; lp.Q.value=1;
+    lp.connect(ws); ws.connect(postlp); postlp.connect(wet); wet.connect(c.destination);
+    lp.connect(dry); dry.connect(c.destination);
+    const blip=(start,freq,dur,peak,end)=>{
+      const o=c.createOscillator(),g=c.createGain(); o.type='triangle';
+      o.frequency.setValueAtTime(freq,start);
+      o.frequency.exponentialRampToValueAtTime(end,start+dur); // freq→endへわずかに下降
+      g.gain.setValueAtTime(0.0001,start); g.gain.exponentialRampToValueAtTime(peak,start+0.006);
+      g.gain.exponentialRampToValueAtTime(0.0001,start+dur);
+      o.connect(g); g.connect(lp); o.start(start); o.stop(start+dur+0.01);
+    };
+    blip(t,784,0.14,0.15,740);        // G5
+    blip(t+0.16,587,0.22,0.15,523);   // D5(ワ〜ン↓)
+  }catch(e){} };
   const body=document.body;
   // 各ソケット: 所定の部品(part)が所定の位置(place)に挿さる演出ON。
   const SOCKETS=[
@@ -258,7 +283,7 @@ function bbApplyGridShift(){
                place:(a,sr)=>({sx:a.right-sr.left-72, sy:a.bottom-sr.top-78}), // ルビーの右下に寄せる
                apply:()=>{} },
   ].filter(Boolean);
-  SOCKETS.forEach(s=>{ s.el=document.createElement('div'); s.el.className='circuit-slot'; stage.appendChild(s.el); s.was=false; s.wasTouch=false; s.apply(false); });
+  SOCKETS.forEach(s=>{ s.el=document.createElement('div'); s.el.className='circuit-slot'; stage.appendChild(s.el); s.was=false; s.wasTouch=false; s.wasWrong=false; s.apply(false); });
   function frame(){
     const sr=stage.getBoundingClientRect();
     SOCKETS.forEach(s=>{
@@ -268,20 +293,27 @@ function bbApplyGridShift(){
       const [sx,sy]=bbSnapPos(s.part, p0.sx, p0.sy, W, H, sr.height);
       s.el.style.left=sx+'px'; s.el.style.top=sy+'px'; s.el.style.width=W+'px'; s.el.style.height=H+'px';
       const ccx=sx+W/2, ccy=sy+H/2; // ソケット中心
-      let inSlot=false, hit=null, touching=false;
-      parts.forEach(p=>{ if(p.dataset.part!==s.part) return;            // そのソケット専用の部品だけ
+      let inSlot=false, hit=null, touching=false, wrong=false;
+      parts.forEach(p=>{
         const r=p.getBoundingClientRect();
         const cx=r.left-sr.left+r.width/2, cy=r.top-sr.top+r.height/2;
         const dx=Math.abs(cx-ccx), dy=Math.abs(cy-ccy);
-        if(p.classList.contains('dragging')){ if(dx<=22 && dy<=22) touching=true; } // ドラッグ中にソケットへ触れた(早め)
-        else if(dx<=8 && dy<=8){ inSlot=true; hit=p; }                              // 離して ぴったり→モード
+        if(p.dataset.part===s.part){                                     // そのソケット専用の部品(=正解)
+          if(p.classList.contains('dragging')){ if(dx<=22 && dy<=22) touching=true; } // ドラッグ中にソケットへ触れた(早め)
+          else if(dx<=8 && dy<=8){ inSlot=true; hit=p; }                              // 離して ぴったり→モード
+        }else{                                                           // 別の部品(=不正解)
+          if(p.classList.contains('dragging')){ if(dx<=22 && dy<=22) wrong=true; }     // 触れた瞬間にも鳴らす(正解と対)
+          else if(dx<=20 && dy<=20){ wrong=true; }                                     // 置いたとき
+        }
       });
       s.apply(inSlot);
       s.el.classList.toggle('filled', inSlot);  // 挿さったら光を消す
       s.el.classList.toggle('hint', !inSlot);
       parts.forEach(p=>{ if(p.dataset.part===s.part) p.classList.toggle('lit-src', inSlot && p===hit); });
       if(touching && !s.wasTouch) connectSnd();          // ソケットに触れた瞬間に通電音
+      if(wrong && !s.wasWrong) wrongSnd();               // 違う部品を置いた瞬間に「ぶぶーっ」
       s.wasTouch=touching;
+      s.wasWrong=wrong;
       s.was=inSlot;
     });
     requestAnimationFrame(frame);
