@@ -156,6 +156,7 @@ function bbApplyGridShift(){
   const scatterPlaced=[];   // 初期スキャッターで確定した各部品の占有矩形(部品どうしの重なりを避ける)
   const setC=(k,v)=>{document.cookie=k+'='+v+';path=/;max-age=31536000';};
   const getC=k=>{const m=document.cookie.match('(?:^|; )'+k+'=([^;]*)');return m?m[1]:null;};
+  const delC=k=>{document.cookie=k+'=;path=/;max-age=0';};
   // ドラッグの効果音(WebAudio)。actxはユーザー操作時に生成
   let actx;
   const ctx=()=>{ if(window.audioCtx) return window.audioCtx();   // ページ共通コンテキストを優先
@@ -258,6 +259,13 @@ function bbApplyGridShift(){
       const sr=stage.getBoundingClientRect(), r=s.getBoundingClientRect();
       const sl=r.left-sr.left, st=r.top-sr.top, sR=r.right-sr.left, sB=r.bottom-sr.top;
       return l<sR && l+el.offsetWidth>sl && t<sB && t+el.offsetHeight>st; };   // 部品が自ソケットに重なる
+    // 自ソケットに「ぴったり挿さっている」か(中心が±8px=通電ループの装着判定と同条件)。
+    // ここで挿さっていない部品は位置を Cookie に記憶しない＝リロードで定位置(スキャッター)へ戻す。
+    const seatedInSocket=(l,t)=>{ const s=document.querySelector('.circuit-slot--'+id); if(!s) return false;
+      const sr=stage.getBoundingClientRect(), r=s.getBoundingClientRect();
+      const scx=r.left-sr.left+r.width/2, scy=r.top-sr.top+r.height/2;
+      const pcx=l+el.offsetWidth/2, pcy=t+el.offsetHeight/2;
+      return Math.abs(pcx-scx)<=8 && Math.abs(pcy-scy)<=8; };
     const avoidProtected=(l,t,allowSocket,strict)=>{
       if(allowSocket && ownSocketHit(l,t)) return [l,t];   // 挿入(ドロップ)時だけソケットを許可。初期配置では Ruby を避ける
       const sr=stage.getBoundingClientRect();
@@ -334,7 +342,8 @@ function bbApplyGridShift(){
           el.style.left=fx+'px'; el.style.top=fy+'px';
           dropPop(); // 穴に「ぱちっ」
         }
-        setC('pos_'+id, ax+','+ay);
+        if(seatedInSocket(ax,ay)) setC('pos_'+id, ax+','+ay);   // 挿さった部品だけ位置を記憶
+        else delC('pos_'+id);                                   // 未装着は記憶しない(リロードで定位置へ)
       }
 
     };
@@ -935,7 +944,7 @@ function bbApplyGridShift(){
           const L=Math.round(it.baseL+it.x), T=Math.round(it.baseT+it.y);
           it.el.style.transform=''; it.el.style.transition=''; it.el.style.zIndex='';
           it.el.style.left=L+'px'; it.el.style.top=T+'px'; it.el.style.right='auto'; it.el.style.bottom='auto';
-          document.cookie='pos_'+it.el.dataset.part+'='+L+','+T+';path=/;max-age=31536000';
+          document.cookie='pos_'+it.el.dataset.part+'=;path=/;max-age=0';   // 床に散った=未装着なので記憶しない
         });
         falling=false;
       }
