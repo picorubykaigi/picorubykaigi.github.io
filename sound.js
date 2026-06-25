@@ -1,5 +1,5 @@
 (function(global){
-  let ctx=null;
+  let ctx=null, gestured=false;   // gestured=ユーザー操作を一度でも受け取ったか
   const make=()=>{
     const c=new (global.AudioContext||global.webkitAudioContext)();
     // デバイス/レンダラのエラー時は破棄 → 次回 ac() で作り直す(オーディオサービス復帰に追従)
@@ -7,6 +7,9 @@
     return c;
   };
   const ac=()=>{ // AudioContext は遅延生成し、壊れていれば作り直し、サスペンドなら再開する
+    // ユーザー操作前は生成も resume もしない。リロードでパーティモードが復元され、
+    // frame ループが毎フレーム danceStart/danceParty を呼んでも autoplay 警告を出さないため。
+    if(!gestured) return null;
     if(!ctx || ctx.state==='closed') ctx=make();
     if(ctx.state==='suspended') ctx.resume();
     return ctx;
@@ -46,7 +49,8 @@
 
   // notes を鳴らす(軽いマスター音量)
   const render=(notes,master=0.2)=>{
-    const c=ac(), t0=c.currentTime+0.04;
+    const c=ac(); if(!c) return;      // 操作前は鳴らさない(autoplay制限)
+    const t0=c.currentTime+0.04;
     const bus=c.createGain(); bus.gain.value=master; bus.connect(c.destination);
     notes.forEach(nt=>{
       if(nt.noise){ sparkle(c,bus,t0+nt.t,nt.dur,nt.vol); return; }
@@ -92,7 +96,8 @@
   const TRAIN_DEFAULT={drive:5.5, lp:4400, honk:4.5, motGain:0.16, motQ:5.5};
   const trainPass=(dur=3.2,master=0.3,peakFrac=0.13,opts)=>{
     const o=Object.assign({},TRAIN_DEFAULT,window.trainTune||{},opts||{});
-    const c=ac(), t0=c.currentTime+0.02, pk=t0+dur*peakFrac, end=t0+dur, hold=pk+(end-pk)*0.28;
+    const c=ac(); if(!c) return;      // 操作前は鳴らさない(autoplay制限)
+    const t0=c.currentTime+0.02, pk=t0+dur*peakFrac, end=t0+dur, hold=pk+(end-pk)*0.28;
     // 音量スウェル: 素早く立ち上げ→通過中は保持→長く減衰(余韻)
     const g=c.createGain();
     g.gain.setValueAtTime(0.0001,t0); g.gain.exponentialRampToValueAtTime(master,pk);
@@ -193,7 +198,7 @@
   const danceStart=bpm=>{
     bpm=bpm||144;
     if(danceTimer) return;            // 多重起動を防ぐ(socket は毎フレーム apply するため)
-    const c=ac();
+    const c=ac(); if(!c) return;      // 操作前は鳴らさない(操作後、frame の再呼び出しで自然に開始する)
     const step=(60/bpm)/2, STEPS=16, loopDur=STEPS*step;
     const bus=c.createGain(); bus.gain.value=0.0001; bus.connect(c.destination);
     bus.gain.exponentialRampToValueAtTime(dancePartyOn?DANCE_MASTER_PARTY:DANCE_MASTER, c.currentTime+0.2);   // そっとフェードイン(開始時のモードに合わせる)
@@ -246,7 +251,7 @@
   const danceParty=on=>{
     dancePartyOn=!!on;
     if(!danceBassBus||!danceBassEQ) return;
-    const c=ac(), n=c.currentTime, tc=0.08;
+    const c=ac(); if(!c) return; const n=c.currentTime, tc=0.08;
     danceBassBus.gain.setTargetAtTime(dancePartyOn?BASS_PARTY_GAIN:1, n, tc);
     danceBassEQ.gain.setTargetAtTime(dancePartyOn?BASS_PARTY_EQ:0, n, tc);
     if(danceThumpBus) danceThumpBus.gain.setTargetAtTime(dancePartyOn?1:0, n, 0.02); // ベースの入り/出を即時に
@@ -274,7 +279,7 @@
 
   // 初回のユーザー操作で AudioContext を解錠する(autoplay制限で suspended のままを防ぐ)
   const GEST=['pointerdown','mousedown','touchstart','keydown','click'];
-  const unlock=()=>{ try{ ac(); }catch(e){}   // 生成＋resume(無音バッファは使わない=device error回避)
+  const unlock=()=>{ gestured=true; try{ ac(); }catch(e){}   // 操作を記録→生成＋resume(無音バッファは使わない=device error回避)
     GEST.forEach(t=>global.removeEventListener(t,unlock,true)); };
   GEST.forEach(t=>global.addEventListener(t,unlock,true));
 })(window);
