@@ -320,7 +320,7 @@ body.dark .led-glint.kira {
   font-size: clamp(44px, min(8.8vw, 12.4vh), 112px);
   line-height: .86;
   color: #fff; /* Kaigi=白(PicoRubyは下で上書き) */
-  letter-spacing: .02em;
+  letter-spacing: .04em;
   font-variation-settings: 'wght' 330, 'ELSH' 50; /* デフォルトのドットを四角(LED風)に・細め */
 }
 
@@ -348,6 +348,21 @@ body.dark .led-glint.kira {
 .title .prk .kaigi {
   white-space: nowrap;
 }
+
+/* PicoRuby の字間微調整。文字は P(1) i(2) c(3) o(4) R(5) u(6) b(7) y(8) の順。 */
+.title .prk .picoruby > .l-chika:nth-child(2) { margin-left: .02em; }  /* 「Pi」 */
+.title .prk .picoruby > .l-chika:nth-child(3) { margin-left: -.03em; } /* 「ic」 */
+.title .prk .picoruby > .l-chika:nth-child(4) { margin-left: .02em; }  /* 「co」 */
+.title .prk .picoruby > .l-chika:nth-child(5) { margin-left: .04em; }  /* 「oR」 */
+.title .prk .picoruby > .l-chika:nth-child(6) { margin-left: .04em; }  /* 「Ru」 */
+.title .prk .picoruby > .l-chika:nth-child(7) { margin-left: .04em; }  /* 「ub」 */
+.title .prk .picoruby > .l-chika:nth-child(8) { margin-left: .02em; }  /* 「by」 */
+
+/* Kaigi の字間微調整。文字は K(1) a(2) i(3) g(4) i(5) の順。 */
+.title .prk .kaigi > .l-chika:nth-child(1) { margin-left: .04em; }  /* 「yK」(PicoRuby と Kaigi の境目) */
+.title .prk .kaigi > .l-chika:nth-child(2) { margin-left: 0; }      /* 「Ka」 */
+.title .prk .kaigi > .l-chika:nth-child(3) { margin-left: .02em; }  /* 「ai」 */
+.title .prk .kaigi > .l-chika:nth-child(4) { margin-left: -.07em; } /* 「ig」 */
 
 .title .prk .l-chika {
   position: relative;
