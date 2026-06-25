@@ -359,13 +359,9 @@ function bbSnapPos(part, left, top, W, H, stageH){
     logo  && { part:'chip',    anchor:logo,  w:56, h:56,
                place:(a,sr)=>({sx:a.right-sr.left+16, sy:a.top-sr.top+(a.height-56)/2}),
                apply:on=>body.classList.toggle('fx-lchika-off', !on) },
-    // バッテリー → 下の電源レール(赤+/青-)をまたぐ → ダークモード(暗闇でボードが光る)
+    // バッテリー → 電源レール(赤+/青-)をまたぐ → ダークモード(暗闇でボードが光る)
     {            part:'battery', anchor:stage, w:27, h:46,
-               place:(a,sr)=>{ // 下レール・参加登録とプロポーザルの間
-                 let cx=a.width-150;
-                 if(ticketBtn&&proposalBtn){ const tk=ticketBtn.getBoundingClientRect(), pr=proposalBtn.getBoundingClientRect();
-                   cx=(tk.right+pr.left)/2-sr.left; }
-                 return {sx:cx-27/2, sy:a.height-69}; },
+               place:(a,sr)=>({ sx:a.width-180, sy:24 }), // レール・右寄り(中心<96でレール中央へスナップ)
                apply:on=>body.classList.toggle('dark', on) },
     // モーター → 内側フィールド → 動力でビルダーが動き出しキューブを組み立て
     scene && { part:'motor',   anchor:scene, w:44, h:57,
@@ -432,4 +428,55 @@ function bbSnapPos(part, left, top, W, H, stageH){
     place();
   }, DELAY);
   window.addEventListener('resize', place);
+})();
+
+// ---- 電光掲示板ティッカー ----
+(function(){
+  const ticker=document.querySelector('.ticker');
+  const track=ticker&&ticker.querySelector('.ticker-track');
+  const tmpl=track&&track.querySelector('.ticker-unit');
+  if(!tmpl) return;
+  const SPEED=31;
+  const build=()=>{
+    [...track.querySelectorAll('.ticker-unit')].slice(1).forEach(n=>n.remove());
+    const unitW=tmpl.getBoundingClientRect().width;
+    const viewW=ticker.getBoundingClientRect().width;
+    if(!unitW || !viewW) return;
+    const perFill=Math.ceil(viewW/unitW)+1; // 1フィル=画面幅を確実に超えるユニット数
+    const frag=document.createDocumentFragment();
+    for(let i=1;i<perFill*2;i++) frag.appendChild(tmpl.cloneNode(true)); // 2フィルぶん
+    track.appendChild(frag);
+    const shift=unitW*perFill;
+    track.style.setProperty('--shift', shift+'px');
+    track.style.setProperty('--dur', (shift/SPEED).toFixed(1)+'s');
+  };
+  build();
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(build); // フォント確定後に再計測
+  let t; window.addEventListener('resize',()=>{ clearTimeout(t); t=setTimeout(build,200); });
+})();
+
+// ---- 電光掲示板の脚(4本): ブレッドボードの穴列にスナップして配置 ----
+// 穴は背景グリッド(24px)で 左から x=12.5 + 24n。.ticker-legs は stage 左0基準なので原点が一致。
+// 左ペア(12%/24%)・右ペア(76%/88%)を目標に、各々を最寄りの穴列へ吸着させる。
+(function(){
+  const stage=document.querySelector('.stage');
+  const legs=document.querySelector('.ticker-legs'); if(!stage||!legs) return;
+  const PINW=6, HOLE0=12.5, PITCH=24;  // 穴は x も y も 12.5 + 24n(背景グリッド)
+  const pins=[];
+  for(let i=0;i<4;i++){ const p=document.createElement('i'); p.className='pin'; legs.appendChild(p); pins.push(p); }
+  const snap=v=>HOLE0 + PITCH*Math.round((v-HOLE0)/PITCH); // 最寄りの穴(中心)へ
+  const layout=()=>{
+    const sr=stage.getBoundingClientRect();
+    const lr=legs.getBoundingClientRect();
+    const w=lr.width; if(!w) return;
+    // X: 目標位置(左ペア/右ペア)を最寄りの穴列へ
+    [0.12, 0.24, 0.76, 0.88].forEach((f,i)=>{ pins[i].style.left=(snap(f*w)-PINW/2)+'px'; });
+    // Y: 下端(=LED上辺)は固定のまま、先端を最寄りの穴の行に合わせて脚の高さを可変に
+    const bottomY=lr.bottom-sr.top;            // 脚の下端の y(LED上辺。CSS bottom 固定で安定)
+    let h=bottomY-snap(bottomY-14);            // 目標長≈14px に近い穴行までの高さ
+    if(h<9) h+=PITCH;                          // 短すぎたら一段上の穴へ
+    legs.style.height=h+'px';
+  };
+  layout();
+  let t; window.addEventListener('resize',()=>{ clearTimeout(t); t=setTimeout(layout,200); });
 })();

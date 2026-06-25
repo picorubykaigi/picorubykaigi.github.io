@@ -48,7 +48,7 @@ body {
   overflow: hidden;
   color: var(--ink);
   background:
-    url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2796%27%3E%3Crect%20x=%270%27%20y=%270%27%20width=%2724%27%20height=%2796%27%20fill=%27%23eceade%27/%3E%3Crect%20x=%270%27%20y=%2712%27%20width=%2724%27%20height=%274%27%20fill=%27%23e8404b%27/%3E%3Crect%20x=%279.5%27%20y=%2731.5%27%20width=%275%27%20height=%275%27%20fill=%27%2339352b%27%20fill-opacity=%27.11%27/%3E%3Crect%20x=%2711%27%20y=%2733%27%20width=%275%27%20height=%275%27%20fill=%27%231c180e%27%20fill-opacity=%27.14%27/%3E%3Crect%20x=%279.5%27%20y=%2755.5%27%20width=%275%27%20height=%275%27%20fill=%27%2339352b%27%20fill-opacity=%27.11%27/%3E%3Crect%20x=%2711%27%20y=%2757%27%20width=%275%27%20height=%275%27%20fill=%27%231c180e%27%20fill-opacity=%27.14%27/%3E%3Crect%20x=%270%27%20y=%2776%27%20width=%2724%27%20height=%274%27%20fill=%27%235f7cb8%27/%3E%3C/svg%3E") left top/24px 96px repeat-x, url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2796%27%3E%3Crect%20x=%270%27%20y=%270%27%20width=%2724%27%20height=%2796%27%20fill=%27%23eceade%27/%3E%3Crect%20x=%270%27%20y=%2716%27%20width=%2724%27%20height=%274%27%20fill=%27%23e8404b%27/%3E%3Crect%20x=%279.5%27%20y=%2735.5%27%20width=%275%27%20height=%275%27%20fill=%27%2339352b%27%20fill-opacity=%27.11%27/%3E%3Crect%20x=%2711%27%20y=%2737%27%20width=%275%27%20height=%275%27%20fill=%27%231c180e%27%20fill-opacity=%27.14%27/%3E%3Crect%20x=%279.5%27%20y=%2759.5%27%20width=%275%27%20height=%275%27%20fill=%27%2339352b%27%20fill-opacity=%27.11%27/%3E%3Crect%20x=%2711%27%20y=%2761%27%20width=%275%27%20height=%275%27%20fill=%27%231c180e%27%20fill-opacity=%27.14%27/%3E%3Crect%20x=%270%27%20y=%2780%27%20width=%2724%27%20height=%274%27%20fill=%27%235f7cb8%27/%3E%3C/svg%3E") left bottom/24px 96px repeat-x, url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2724%27%3E%3Crect%20x=%279.5%27%20y=%279.5%27%20width=%275%27%20height=%275%27%20fill=%27%2339352b%27%20fill-opacity=%27.11%27/%3E%3Crect%20x=%2711%27%20y=%2711%27%20width=%275%27%20height=%275%27%20fill=%27%231c180e%27%20fill-opacity=%27.14%27/%3E%3C/svg%3E") 0 0/24px 24px, var(--bg);
+    url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2796%27%3E%3Crect%20x=%270%27%20y=%270%27%20width=%2724%27%20height=%2796%27%20fill=%27%23eceade%27/%3E%3Crect%20x=%270%27%20y=%2712%27%20width=%2724%27%20height=%274%27%20fill=%27%23e8404b%27/%3E%3Crect%20x=%279.5%27%20y=%2731.5%27%20width=%275%27%20height=%275%27%20fill=%27%2339352b%27%20fill-opacity=%27.11%27/%3E%3Crect%20x=%2711%27%20y=%2733%27%20width=%275%27%20height=%275%27%20fill=%27%231c180e%27%20fill-opacity=%27.14%27/%3E%3Crect%20x=%279.5%27%20y=%2755.5%27%20width=%275%27%20height=%275%27%20fill=%27%2339352b%27%20fill-opacity=%27.11%27/%3E%3Crect%20x=%2711%27%20y=%2757%27%20width=%275%27%20height=%275%27%20fill=%27%231c180e%27%20fill-opacity=%27.14%27/%3E%3Crect%20x=%270%27%20y=%2776%27%20width=%2724%27%20height=%274%27%20fill=%27%235f7cb8%27/%3E%3C/svg%3E") left top/24px 96px repeat-x, url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2724%27%3E%3Crect%20x=%279.5%27%20y=%279.5%27%20width=%275%27%20height=%275%27%20fill=%27%2339352b%27%20fill-opacity=%27.11%27/%3E%3Crect%20x=%2711%27%20y=%2711%27%20width=%275%27%20height=%275%27%20fill=%27%231c180e%27%20fill-opacity=%27.14%27/%3E%3C/svg%3E") 0 0/24px 24px, var(--bg);
 }
 
 .wrap {
@@ -74,44 +74,7 @@ body {
   align-items: center;
   text-align: center;
   gap: clamp(6px, 1.1vh, 13px);
-  margin-top: clamp(4px, 1.2vh, 16px);
-}
-
-.when {
-  font-family: 'Micro 5', sans-serif;
-  font-size: clamp(32px, 5vw, 62px);
-  line-height: .8;
-  color: var(--ink);
-  letter-spacing: .01em;
-  margin-right: -.08em;
-}
-
-.when .dow {
-  font-family: 'Micro 5', sans-serif;
-  font-size: .6em; /* 日付より少し小さく */
-  color: var(--red);
-  letter-spacing: .08em;
-  margin-left: .3em;
-  vertical-align: baseline;
-}
-
-.where {
-  font-family: 'Conti Neue 2P', 'DotGothic16', monospace;
-  font-size: clamp(11px, 1.2vw, 14px);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--ink);
-  white-space: nowrap;
-  margin-top: clamp(-12px, -1.2vh, -6px);
-}
-
-.where .micon {
-  font-family: 'Material Symbols Outlined';
-  font-variation-settings: 'FILL' 1;
-  font-size: 1.5em;
-  line-height: 1;
-  color: var(--ink);
+  margin-top: clamp(42px, 7.8vh, 108px);
 }
 
 .keynotes {
@@ -478,6 +441,167 @@ body {
   transform: translateY(-3px);
 }
 
+/* ===== 電光掲示板ティッカー: 日付+会場が右→左へ流れる ===== */
+.ticker {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: clamp(36px, 5.4vh, 54px);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  background: #16141c;
+  box-shadow: inset 0 2px 7px rgba(0, 0, 0, .55);
+  z-index: 6;
+  --tk-led: 249, 205, 208; /* 電光掲示板のLED色(KEYNOTEの赤 --red #e8404b を白で薄めた同系の淡スカーレット)。塗り/グロー/ドット/ピンが全部これを参照 */
+  /* 点灯ムラ: パネル全体の明るさが小刻みに揺れる(電源の揺らぎ風)。1サイクルに数回チラつかせて分かるように */
+  animation: ticker-flicker 6.5s linear infinite;
+}
+
+/* ドットマトリクス: 消灯したLEDの粒(パネルの地)を描く。
+   フォント自体がドット系で、文字の上に重ねると二重ドットで潰れるため、
+   文字(.ticker-track, z-index:1)の背面(z-index:0)に置いて地のテクスチャにする。 */
+.ticker::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  /* 暗い地に、ほんのり明るい粒。点灯文字はこの上で潰れない */
+  background-image: radial-gradient(circle, rgba(var(--tk-led), .14) 1px, transparent 1.6px);
+  background-size: 5px 5px;
+}
+
+/* 点灯ムラ: ほぼ点灯のまま、1サイクルに2回ほど一瞬だけ沈む/跳ねる(LED看板の揺らぎ) */
+@keyframes ticker-flicker {
+  0%, 22%, 48%, 70%, 100% { filter: brightness(1); }
+  24% { filter: brightness(.78); }
+  26% { filter: brightness(1.08); }
+  28% { filter: brightness(.88); }
+  30% { filter: brightness(1); }
+  72% { filter: brightness(.82); }
+  74% { filter: brightness(1.06); }
+  76% { filter: brightness(.9); }
+  78% { filter: brightness(1); }
+}
+
+.ticker-track {
+  position: relative;
+  z-index: 1; /* ドットマトリクス(.ticker::after, z-index:2)より下に文字を置く */
+  display: flex;
+  flex: none;
+  align-items: center;
+  white-space: nowrap;
+  /* --shift(1フィルの幅px)と所要秒は script.js が実測して設定。JS不在時は静止 */
+  animation: ticker-scroll var(--dur, 60s) linear infinite;
+  will-change: transform;
+}
+
+/* track を「1フィル(=画面幅を超える最小ユニット数)」ぶんだけ流す。
+   2フィル並べてあるので、流し切った瞬間に絵柄が一致して継ぎ目なくループする。 */
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(calc(-1 * var(--shift, 0px))); }
+}
+
+.ticker-unit {
+  display: inline-flex;
+  flex: none;        /* 縮ませない(各ユニットを等幅に保つ) */
+  align-items: center; /* 会場は従来どおりバー中央に置く */
+}
+
+.ticker-item {
+  font-family: 'Micro 5', sans-serif;
+  font-size: clamp(22px, 3.4vw, 38px);
+  line-height: 1;
+  color: rgb(var(--tk-led)); /* LED色は .ticker の --tk-led 1か所で替える */
+  letter-spacing: .06em;
+  padding: 0 .55em;
+  display: inline-flex;
+  align-items: center;
+  gap: .25em;
+  /* グローは塗りと同じ色で強めに滲ませる=色は落ち着いたまま発光感(LED看板) */
+  text-shadow: 0 0 3px rgba(var(--tk-led), .55), 0 0 10px rgba(var(--tk-led), .32);
+}
+
+.ticker-where {
+  font-family: 'Conti Neue 2P', 'DotGothic16', monospace;
+  font-size: clamp(13px, 1.9vw, 22px); /* 会場フォント。Micro5より詰まるので少し小さめに */
+  letter-spacing: .12em;
+  margin: 0 .8em; /* 日付との間隔(左)と次ユニットの日付との間隔(右)を左右対称に */
+}
+
+/* 会場のピンアイコン: 周囲の LED/ドット世界観に合わせ、セル単位で描いたピクセルのアイコン */
+.ticker-pin {
+  height: 1.1em; /* viewBox 6行ぶん。1セルの大きさは従来(1.3em/7行)と同等 */
+  width: auto;
+  flex: none;
+  fill: currentColor; /* 会場文字と同じLED色を継承 */
+  shape-rendering: crispEdges;
+  margin-right: .28em; /* ピンと「浅草橋」の間を少し空ける(gap .25em に追加) */
+  /* SVG には text-shadow が効かないので drop-shadow で文字と同じ発光を付ける */
+  filter: drop-shadow(0 0 2px rgba(var(--tk-led), .55)) drop-shadow(0 0 5px rgba(var(--tk-led), .32));
+}
+
+.ticker-amp {
+  font-size: .8em;          /* ＆ だけ少し小さく */
+  vertical-align: bottom;   /* 小さくした ＆ を下辺に揃える */
+  margin: 0 -.1em;          /* ＆ の左右が広く見えるので少し詰める */
+}
+
+.ticker-kanji { letter-spacing: .17em; } /* 漢字「浅草橋」だけ詰まって見えるので追加で広げる */
+
+.ticker-when {
+  align-items: baseline;          /* 小さくした SAT を日付のベースライン(=下端)に揃える */
+  font-size: 2.5em;               /* Micro5 は字面が小さいので大きめに。会場より少し大きい見た目に */
+  padding-left: 1em;
+  padding-right: .5em;
+  line-height: .58;               /* 字面に対して行ボックスを詰め、バーを高くせず収める */
+  /* Micro5 は字面がem内で上寄りに置かれるため、中央揃えだと日付が上に浮く。
+     下端を会場の下端に合わせるぶんだけ下げる(ローカルMicro5で実測・校正) */
+  transform: translateY(.11em);
+}
+.ticker-dow { font-size: .8em; line-height: 1; }
+
+/* ダークモード: 電光掲示板は緑に光る(暗闇で発光する看板) */
+body.dark .ticker { --tk-led: 92, 191, 100; }
+
+/* 電光掲示板モジュールの脚(ピンヘッダ): ディスプレイ上辺に 4本の金色ピン。
+   stage の左0基準なので背景グリッドと座標原点が一致。各ピンの left は script.js が
+   最寄りの穴列(12.5 + 24n px)へスナップして設定する(左2本・右2本)。 */
+.ticker-legs {
+  position: absolute;
+  left: 0;
+  bottom: clamp(36px, 5.4vh, 54px); /* = .ticker の高さ。ディスプレイ上辺に密着 */
+  width: 100%;
+  height: 13px;
+  z-index: 6;
+  pointer-events: none;
+}
+
+/* ゴールドの脚(chip.png/motor.png の足に寄せたドット絵風)。left は JS が設定。 */
+.ticker-legs .pin {
+  position: absolute;
+  bottom: 0;
+  width: 6px;
+  height: 100%;
+  border-top: 1px solid #454747;
+  clip-path: polygon(
+    1px 0, 5px 0,
+    5px 1px, 6px 1px,
+    6px 100%, 0 100%,
+    0 1px, 1px 1px);
+  background: linear-gradient(90deg,
+    #454747 0 1px,    /* 左フチ */
+    #c79a31 1px 2px,  /* 金 */
+    #e6bd55 2px 4px,  /* ハイライト */
+    #c79a31 4px 5px,  /* 金 */
+    #454747 5px 6px); /* 右フチ */
+  /* LED(下のパネル)がピンの下側に落とす影。ピン内側の下端を暗くする */
+  box-shadow: inset 0 -2px 2px -1px rgba(0, 0, 0, .55);
+}
+
 @media (max-width: 860px) {
   .keynotes .keynote-name {
     white-space: normal;
@@ -503,7 +627,6 @@ body.dark { --bg: #10131c; --ink: #ece9df; }
 body.dark .stage {
   background:
     url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2796%27%3E%3Crect%20x=%270%27%20y=%270%27%20width=%2724%27%20height=%2796%27%20fill=%27%2310131c%27/%3E%3Crect%20x=%270%27%20y=%2712%27%20width=%2724%27%20height=%274%27%20fill=%27%23e8404b%27/%3E%3Crect%20x=%279.5%27%20y=%2731.5%27%20width=%275%27%20height=%275%27%20fill=%27%232e5247%27/%3E%3Crect%20x=%2711%27%20y=%2733%27%20width=%274%27%20height=%274%27%20fill=%27%2316302a%27/%3E%3Crect%20x=%279.5%27%20y=%2755.5%27%20width=%275%27%20height=%275%27%20fill=%27%232e5247%27/%3E%3Crect%20x=%2711%27%20y=%2757%27%20width=%274%27%20height=%274%27%20fill=%27%2316302a%27/%3E%3Crect%20x=%270%27%20y=%2776%27%20width=%2724%27%20height=%274%27%20fill=%27%234a7bd6%27/%3E%3C/svg%3E") left top/24px 96px repeat-x,
-    url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2796%27%3E%3Crect%20x=%270%27%20y=%270%27%20width=%2724%27%20height=%2796%27%20fill=%27%2310131c%27/%3E%3Crect%20x=%270%27%20y=%2716%27%20width=%2724%27%20height=%274%27%20fill=%27%23e8404b%27/%3E%3Crect%20x=%279.5%27%20y=%2735.5%27%20width=%275%27%20height=%275%27%20fill=%27%232e5247%27/%3E%3Crect%20x=%2711%27%20y=%2737%27%20width=%274%27%20height=%274%27%20fill=%27%2316302a%27/%3E%3Crect%20x=%279.5%27%20y=%2759.5%27%20width=%275%27%20height=%275%27%20fill=%27%232e5247%27/%3E%3Crect%20x=%2711%27%20y=%2761%27%20width=%274%27%20height=%274%27%20fill=%27%2316302a%27/%3E%3Crect%20x=%270%27%20y=%2780%27%20width=%2724%27%20height=%274%27%20fill=%27%234a7bd6%27/%3E%3C/svg%3E") left bottom/24px 96px repeat-x,
     url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2724%27%3E%3Crect%20x=%279.5%27%20y=%279.5%27%20width=%275%27%20height=%275%27%20fill=%27%232e5247%27/%3E%3Crect%20x=%2711%27%20y=%2711%27%20width=%274%27%20height=%274%27%20fill=%27%2316302a%27/%3E%3C/svg%3E") 0 0/24px 24px, var(--bg);
 }
 /* ===== ダークモード: ロゴを REPL(ターミナル)風に =====
