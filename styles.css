@@ -133,8 +133,7 @@ body {
 }
 
 .keynotes .keynote-name {
-  font-family: 'Jersey 10', sans-serif;
-  font-size: clamp(20px, 2vw, 33px);
+  font-family: 'Conti Neue 2P', sans-serif;
   color: var(--ink);
   line-height: 1.2;
   white-space: nowrap;
@@ -142,15 +141,22 @@ body {
   align-items: center;
 }
 
+.keynotes .keynote-name.en { font-size: clamp(17px, 1.7vw, 27px); letter-spacing: .06em; }
+.keynotes .keynote-name.ja { font-size: clamp(20px, 2.05vw, 35px); }
+
 .keynotes .keynote-name + .keynote-name {
   margin-top: .38em;
 }
 
 .keynotes .keynote-name::before {
   content: ">";
-  margin-right: .55em;
+  margin-right: 11px;
   color: var(--ink);
-  font-size: .54em;
+  font-family: 'Conti Neue 2P', monospace;
+  font-weight: normal;
+  letter-spacing: normal;
+  font-size: clamp(9px, 0.9vw, 14px);
+  transform: translateY(2px);   /* 視覚的な縦位置を少し下げる */
 }
 
 /* ===== SCENE: ruby + builders + cubes ===== */
