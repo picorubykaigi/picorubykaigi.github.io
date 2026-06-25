@@ -90,11 +90,27 @@ body {
 .keynotes .keynote-label {
   font-family: 'Jersey 10', sans-serif;
   font-size: clamp(14px, 1.25vw, 21px);
-  color: var(--red);
+  color: var(--ink);                 /* 黒(インク色) */
   letter-spacing: .14em;
+  text-indent: .14em;                /* letter-spacing は末尾にも入る→先頭に同量足して左右の偏りを相殺 */
   line-height: 1;
-  text-align: right;
-  margin-top: .35em;
+  align-self: flex-start;            /* 名前ブロックの上端に揃える(上つき) */
+  margin-top: .3em;                  /* 上に寄りすぎるので少し下げて1行目の名前と頭を揃える */
+  /* 文字を枠の中央(縦横とも)に置く。pixelフォントの字面ズレを padding 任せにせず flex で中央寄せ */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: .08em .55em;              /* 枠の内側余白(上下を詰めて縦幅を狭く・左右はそのまま) */
+  /* ドット絵の角丸: 角を2段の階段状に欠いたピクセル枠(上端→段→側端)。1段より円に近い。
+     border-image なので幅が変わっても角は潰れない。16px四方の四隅を6pxスライス →
+     角は2段、辺は2pxの直線が伸びる。crispEdges でカクッと。 */
+  border: 6px solid var(--ink);      /* フォールバック色 & 枠の太さ */
+  border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Cg fill='%2326242f'%3E%3Crect x='4' y='0' width='8' height='2'/%3E%3Crect x='4' y='14' width='8' height='2'/%3E%3Crect x='0' y='4' width='2' height='8'/%3E%3Crect x='14' y='4' width='2' height='8'/%3E%3Crect x='2' y='2' width='2' height='2'/%3E%3Crect x='12' y='2' width='2' height='2'/%3E%3Crect x='2' y='12' width='2' height='2'/%3E%3Crect x='12' y='12' width='2' height='2'/%3E%3C/g%3E%3C/svg%3E") 6 / 6px stretch;
+}
+
+/* ダークモード: KEYNOTEラベルの枠を白に(border-imageのSVG塗りは色をハードコードするため上書きが必要) */
+body.dark .keynotes .keynote-label {
+  border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Cg fill='%23ffffff'%3E%3Crect x='4' y='0' width='8' height='2'/%3E%3Crect x='4' y='14' width='8' height='2'/%3E%3Crect x='0' y='4' width='2' height='8'/%3E%3Crect x='14' y='4' width='2' height='8'/%3E%3Crect x='2' y='2' width='2' height='2'/%3E%3Crect x='12' y='2' width='2' height='2'/%3E%3Crect x='2' y='12' width='2' height='2'/%3E%3Crect x='12' y='12' width='2' height='2'/%3E%3C/g%3E%3C/svg%3E") 6 / 6px stretch;
 }
 
 .keynotes .keynote-names {
@@ -112,8 +128,8 @@ body {
   align-items: center;
 }
 
-.keynotes .keynote-name.en { font-size: clamp(13px, 1.25vw, 19px); letter-spacing: .06em; }
-.keynotes .keynote-name.ja { font-size: clamp(15px, 1.45vw, 25px); }
+.keynotes .keynote-name.en { font-size: clamp(15px, 1.45vw, 22px); letter-spacing: .3em; }
+.keynotes .keynote-name.ja { font-size: clamp(17px, 1.7vw, 29px); letter-spacing: .26em; }
 
 .keynotes .keynote-name + .keynote-name {
   margin-top: .38em;
