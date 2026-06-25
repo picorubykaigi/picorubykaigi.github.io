@@ -1,7 +1,13 @@
 (function(global){
   let ctx=null;
-  const ac=()=>{ // AudioContext は遅延生成し、サスペンドなら再開する
-    if(!ctx) ctx=new (global.AudioContext||global.webkitAudioContext)();
+  const make=()=>{
+    const c=new (global.AudioContext||global.webkitAudioContext)();
+    // デバイス/レンダラのエラー時は破棄 → 次回 ac() で作り直す(オーディオサービス復帰に追従)
+    try{ c.onerror=()=>{ try{c.close();}catch(_){}; if(ctx===c) ctx=null; }; }catch(_){}
+    return c;
+  };
+  const ac=()=>{ // AudioContext は遅延生成し、壊れていれば作り直し、サスペンドなら再開する
+    if(!ctx || ctx.state==='closed') ctx=make();
     if(ctx.state==='suspended') ctx.resume();
     return ctx;
   };
@@ -78,4 +84,11 @@
   };
 
   global.playPico=playPico;
+  global.audioCtx=ac;   // ページ共通の AudioContext を公開(全効果音で共有)
+
+  // 初回のユーザー操作で AudioContext を解錠する(autoplay制限で suspended のままを防ぐ)
+  const GEST=['pointerdown','mousedown','touchstart','keydown','click'];
+  const unlock=()=>{ try{ ac(); }catch(e){}   // 生成＋resume(無音バッファは使わない=device error回避)
+    GEST.forEach(t=>global.removeEventListener(t,unlock,true)); };
+  GEST.forEach(t=>global.addEventListener(t,unlock,true));
 })(window);

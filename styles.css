@@ -493,6 +493,15 @@ body {
   }
 }
 
+/* 機能ON/OFF(配置で通電=回路側が body にクラス付与) */
+/* DECOR = キューブ + ビルダー をまとめて表示/非表示 */
+body.fx-decor-off .cube,
+body.fx-decor-off .logo-cube,
+body.fx-decor-off .builder { display: none !important; }
+body.fx-lchika-off .title .prk .l-chika { animation: none; }
+body.fx-lchika-off .title .prk .l-chika::before,
+body.fx-lchika-off .title .prk .l-chika::after { animation: none; }
+
 /* ダークモード: breadboard_dark.png のカラーリング(配置・デザインは同じ)。
    背景=濃紺、ホール=ティールグリーン、レールは赤/青のまま。文字は明色に反転。 */
 body.dark { --bg: #10131c; --ink: #ece9df; }
@@ -533,4 +542,83 @@ body.dark .title .prk .l-chika::before {
 body.dark .title .prk .l-chika::after {
   color: #fff;
   -webkit-text-stroke: 5px #e8fff2;
+}
+
+/* 回路スロット(部品をソケットに挿すと通電→モード切替) */
+.circuit-slot {
+  position: absolute;
+  z-index: 6;
+  pointer-events: none;
+  border: 2px dashed rgba(255, 193, 46, .6);
+  border-radius: 6px;
+  background: radial-gradient(rgba(255, 193, 46, .14) 1.6px, transparent 1.7px) 0 0 / 12px 12px;
+  transition: opacity .2s ease;
+}
+.circuit-slot.hint {
+  animation: slot-hint 1.4s steps(2) infinite;
+}
+@keyframes slot-hint {
+  0%, 100% { box-shadow: 0 0 3px rgba(255, 193, 46, .3); }
+  50%      { box-shadow: 0 0 9px rgba(255, 193, 46, .62); }
+}
+/* 部品が挿さったら光は消す(スロット非表示) */
+.circuit-slot.filled {
+  opacity: 0;
+}
+/* ダークモード時は主張を弱める(暗闇でボードが生きている状態) */
+body.dark .circuit-slot {
+  border-color: rgba(255, 193, 46, .3);
+  background: radial-gradient(rgba(255, 193, 46, .06) 1.6px, transparent 1.7px) 0 0 / 12px 12px;
+}
+body.dark .circuit-slot.hint {
+  animation: slot-hint-dark 1.5s steps(2) infinite;
+}
+@keyframes slot-hint-dark {
+  0%, 100% { box-shadow: 0 0 2px rgba(255, 193, 46, .18); }
+  50%      { box-shadow: 0 0 6px rgba(255, 193, 46, .4); }
+}
+
+/* 挿す部品(画像)。ドラッグして所定のソケット/レールに挿すと回路が成立 */
+.bb-chip,
+.bb-battery,
+.bb-motor {
+  position: absolute;
+  z-index: 8;
+  cursor: grab;
+  touch-action: none;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  image-rendering: pixelated;
+}
+/* サイズ＝印象バランス。比はそれぞれ元画像を維持 */
+.bb-chip {
+  width: 56px;
+  height: 56px;
+  background-image: url('images/chip.png');     /* IC: 139x139 */
+}
+.bb-battery {
+  width: 26.5px;
+  height: 45.3px;
+  background-image: url('images/battery.png');   /* 乾電池: 110x188 */
+}
+.bb-motor {
+  width: 44px;
+  height: 56.4px;
+  background-image: url('images/motor.png');     /* モーター: 110x141 */
+}
+.bb-chip.dragging,
+.bb-battery.dragging,
+.bb-motor.dragging {
+  cursor: grabbing;
+  z-index: 30;
+}
+/* 動力ON時: モーターが小刻みに振動して「回っている」感じ */
+body:not(.fx-decor-off) .bb-motor.lit-src {
+  animation: motor-buzz .12s steps(2) infinite;
+}
+@keyframes motor-buzz {
+  0%   { transform: translate(0, 0); }
+  50%  { transform: translate(.6px, -.6px); }
+  100% { transform: translate(-.6px, .6px); }
 }

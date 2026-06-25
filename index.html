@@ -56,6 +56,14 @@
       </div>
 
     </div>
+
+    <!-- 部品(ドラッグして所定のソケット/レールに挿すと回路が成立して演出ON) -->
+    <!-- バッテリー → 電源レール(赤青)に挿す → ダークモード(暗闇でボードが光る) -->
+    <div class="bb-battery" data-part="battery" role="button" aria-label="バッテリー(電源)" style="right:244px; bottom:96px;"></div>
+    <!-- チップ → 内側フィールド(ロゴ下)に挿す → PicoRubyKaigi がLチカ -->
+    <div class="bb-chip" data-part="chip" role="button" aria-label="PicoRubyチップ" style="right:166px; bottom:96px;"></div>
+    <!-- モーター → 内側フィールドに挿す → 動力でビルダーが動き出しキューブを組み立てる -->
+    <div class="bb-motor" data-part="motor" role="button" aria-label="モーター(動力)" style="right:100px; bottom:96px;"></div>
   </div>
 
 <script src="sound.js"></script>

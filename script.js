@@ -154,3 +154,170 @@ document.querySelectorAll('.scene').forEach(scene=>{
   }
   requestAnimationFrame(frame);
 })();
+
+// ===== 部品スナップ共有定義(ドラッグ／回路の両方で使用) =====
+const BB_GRID=24;
+const BB_PIN={
+  // chip=上下4ピンのみ穴基準(左右は飾り) / battery=±端子 / motor=2リード
+  chip:[[0.2925,0.003],[0.687,0.003],[0.687,0.979],[0.2925,0.979]],
+  battery:[[0.4805,0.005],[0.4805,0.984]],
+  motor:[[0.206,0.9785],[0.769,0.9785]],
+};
+const BB_SNAPOFF={ chip:[0,12], motor:[0,12] };   // 12=穴上(12+24n) / 0=穴間(24n) / [x,y]=軸別
+const BB_NUDGE={ motor:[1,2] };                    // スナップ後の見た目微調整[x,y]px
+const bbSnapP=(v,part,ax)=>{ const o=BB_SNAPOFF[part]; const off=Array.isArray(o)?o[ax]:(o!=null?o:12);
+  return Math.round((v-off)/BB_GRID)*BB_GRID+off; };
+const bbAnchor=part=>{ const p=BB_PIN[part]; if(!p) return [0.5,0.5];
+  let ax=0,ay=0; p.forEach(q=>{ax+=q[0];ay+=q[1];}); return [ax/p.length, ay/p.length]; };
+// (left,top: ステージ基準px)→ 接点を穴に合わせたスナップ位置[x,y]
+function bbSnapPos(part, left, top, W, H, stageH){
+  const a=bbAnchor(part), px=left+a[0]*W, py=top+a[1]*H;
+  const x=bbSnapP(px,part,0)-a[0]*W;
+  let y;
+  if(part==='battery'){
+    const cyEl=top+H/2, railY=(cyEl<96)?45:(cyEl>stageH-96)?(stageH-46):null; // 上/下レール帯なら中央へ
+    y=(railY!=null)?(railY-H/2):(bbSnapP(py,part,1)-a[1]*H);
+  } else { y=bbSnapP(py,part,1)-a[1]*H; }
+  const nd=BB_NUDGE[part]||[0,0];
+  return [x+nd[0], y+nd[1]];
+}
+
+// ---- 部品をドラッグ→穴にスナップ→配置をCookie保存(手触りの土台) ----
+(function(){
+  const stage=document.querySelector('.stage'); if(!stage) return;
+  const setC=(k,v)=>{document.cookie=k+'='+v+';path=/;max-age=31536000';};
+  const getC=k=>{const m=document.cookie.match('(?:^|; )'+k+'=([^;]*)');return m?m[1]:null;};
+  // ドラッグの効果音(WebAudio)。actxはユーザー操作時に生成
+  let actx;
+  const ctx=()=>{ if(window.audioCtx) return window.audioCtx();   // ページ共通コンテキストを優先
+    const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return null;
+    actx=actx||new AC(); if(actx.state==='suspended') actx.resume(); return actx; };
+  // 持ち上げ「ひゅい」: ピッチが上がるスウィープ
+  const pickUp=()=>{ try{ const c=ctx(); if(!c) return; const t=c.currentTime;
+    const o=c.createOscillator(), g=c.createGain(); o.type='triangle';
+    o.frequency.setValueAtTime(600,t); o.frequency.exponentialRampToValueAtTime(1750,t+0.12);
+    g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.24,t+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+0.16);
+    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.18);
+  }catch(e){} };
+  // 設置「ぱちっ」: ノイズの立ち上がり＋下降サインのポップ
+  const dropPop=()=>{ try{ const c=ctx(); if(!c) return; const t=c.currentTime;
+    const o=c.createOscillator(), g=c.createGain(); o.type='sine';
+    o.frequency.setValueAtTime(960,t); o.frequency.exponentialRampToValueAtTime(300,t+0.07);
+    g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.26,t+0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+0.12);
+    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.13);
+    const n=Math.floor(c.sampleRate*0.012), buf=c.createBuffer(1,n,c.sampleRate), d=buf.getChannelData(0);
+    for(let i=0;i<n;i++){ const e=1-i/n; d[i]=(Math.random()*2-1)*e*e; }
+    const s=c.createBufferSource(); s.buffer=buf; const ng=c.createGain(); ng.gain.value=0.14;
+    s.connect(ng); ng.connect(c.destination); s.start(t);
+  }catch(e){} };
+  // 現在位置(left,top)から接点を穴に合わせたスナップ位置[x,y](共有の bbSnapPos を使用)
+  const computeSnap=(el,left,top)=>bbSnapPos(el.dataset.part, left, top, el.offsetWidth, el.offsetHeight, stage.getBoundingClientRect().height);
+  document.querySelectorAll('[data-part]').forEach(el=>{
+    const id=el.dataset.part; if(!id) return;
+    // 保存位置を復元(あれば inline の初期位置を上書き)。無ければ初期位置を穴にスナップ
+    const saved=getC('pos_'+id);
+    if(saved){ const p=saved.split(',').map(Number);
+      el.style.left=p[0]+'px'; el.style.top=p[1]+'px'; el.style.right='auto'; el.style.bottom='auto'; }
+    else if(el.dataset.part){
+      const r=el.getBoundingClientRect(), sr=stage.getBoundingClientRect();
+      const [fx,fy]=computeSnap(el, r.left-sr.left, r.top-sr.top);
+      el.style.left=fx+'px'; el.style.top=fy+'px'; el.style.right='auto'; el.style.bottom='auto';
+    }
+    let sx,sy,ox,oy,moved=false,dragging=false;
+    el.addEventListener('pointerdown',e=>{
+      if(e.button!==undefined && e.button!==0) return;
+      const r=el.getBoundingClientRect(), sr=stage.getBoundingClientRect();
+      ox=r.left-sr.left; oy=r.top-sr.top; sx=e.clientX; sy=e.clientY;
+      dragging=true; moved=false;
+      try{el.setPointerCapture(e.pointerId);}catch(_){}
+    });
+    el.addEventListener('pointermove',e=>{
+      if(!dragging) return;
+      const dx=e.clientX-sx, dy=e.clientY-sy;
+      if(!moved && Math.hypot(dx,dy)<4) return;   // 4px未満はクリック扱い
+      if(!moved) pickUp();                          // 持ち上げた瞬間「ひゅい」
+      moved=true; el.classList.add('dragging');
+      el.style.left=(ox+dx)+'px'; el.style.top=(oy+dy)+'px';
+      el.style.right='auto'; el.style.bottom='auto';
+    });
+    const end=()=>{
+      if(!dragging) return; dragging=false; el.classList.remove('dragging');
+      if(moved){
+        const [fx,fy]=computeSnap(el, parseFloat(el.style.left), parseFloat(el.style.top));
+        el.style.left=fx+'px'; el.style.top=fy+'px';
+        setC('pos_'+id, fx+','+fy);
+        dropPop(); // 穴に「ぱちっ」
+      }
+
+    };
+    el.addEventListener('pointerup',end);
+    el.addEventListener('pointercancel',end);
+    // ドラッグ直後のクリック(トグル/アクション発火)を抑制
+    el.addEventListener('click',e=>{ if(moved){ e.preventDefault(); e.stopPropagation(); moved=false; } },true);
+  });
+})();
+
+// ---- 配置で通電: 部品をソケットに挿す → その回路の演出がON(抜くとOFF) ----
+(function(){
+  const stage=document.querySelector('.stage'); if(!stage) return;
+  const parts=document.querySelectorAll('[data-part]'); // 挿す部品(バッテリー/チップ)
+  const logo=document.querySelector('.title .prk');
+  const scene=document.querySelector('.scene');
+  if(!parts.length) return;
+  const SW=54, SH=54;
+  const connectSnd=()=>{ try{ const c=window.audioCtx&&window.audioCtx(); if(!c) return;
+    const t=c.currentTime;
+    const o=c.createOscillator(),g=c.createGain(); o.type='triangle';
+    o.frequency.setValueAtTime(660,t); o.frequency.exponentialRampToValueAtTime(1320,t+0.12);
+    g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.2,t+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+0.2);
+    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.22);
+  }catch(e){} };
+  const body=document.body;
+  // 各ソケット: 所定の部品(part)が所定の位置(place)に挿さる演出ON。
+  const SOCKETS=[
+    // チップ → 内側フィールド(ロゴ下) → PicoRubyKaigi がLチカ。スロットは部品サイズに合わせる
+    logo  && { part:'chip',    anchor:logo,  w:56, h:56,
+               place:(a,sr)=>({sx:a.left-sr.left+24, sy:a.bottom-sr.top+8}),
+               apply:on=>body.classList.toggle('fx-lchika-off', !on) },
+    // バッテリー → 下の電源レール(赤+/青-)をまたぐ → ダークモード(暗闇でボードが光る)
+    {            part:'battery', anchor:stage, w:27, h:46,
+               place:(a,sr)=>({sx:a.width-271, sy:a.height-69}), // 下レール・バッテリー部品の真下(イントロ動線)
+               apply:on=>body.classList.toggle('dark', on) },
+    // モーター → 内側フィールド → 動力でビルダーが動き出しキューブを組み立て
+    scene && { part:'motor',   anchor:scene, w:44, h:57,
+               place:(a,sr)=>({sx:a.right-sr.left-72, sy:a.bottom-sr.top-78}), // ルビーの右下に寄せる
+               apply:on=>body.classList.toggle('fx-decor-off', !on) },
+  ].filter(Boolean);
+  SOCKETS.forEach(s=>{ s.el=document.createElement('div'); s.el.className='circuit-slot'; stage.appendChild(s.el); s.was=false; s.wasTouch=false; s.apply(false); });
+  function frame(){
+    const sr=stage.getBoundingClientRect();
+    SOCKETS.forEach(s=>{
+      const a=s.anchor.getBoundingClientRect();
+      const p0=s.place(a,sr); const W=s.w, H=s.h;
+      // ソケット枠を「部品が実際に収まる格子位置」に合わせる
+      const [sx,sy]=bbSnapPos(s.part, p0.sx, p0.sy, W, H, sr.height);
+      s.el.style.left=sx+'px'; s.el.style.top=sy+'px'; s.el.style.width=W+'px'; s.el.style.height=H+'px';
+      const ccx=sx+W/2, ccy=sy+H/2; // ソケット中心
+      let inSlot=false, hit=null, touching=false;
+      parts.forEach(p=>{ if(p.dataset.part!==s.part) return;            // そのソケット専用の部品だけ
+        const r=p.getBoundingClientRect();
+        const cx=r.left-sr.left+r.width/2, cy=r.top-sr.top+r.height/2;
+        const dx=Math.abs(cx-ccx), dy=Math.abs(cy-ccy);
+        if(p.classList.contains('dragging')){ if(dx<=22 && dy<=22) touching=true; } // ドラッグ中にソケットへ触れた(早め)
+        else if(dx<=8 && dy<=8){ inSlot=true; hit=p; }                              // 離して ぴったり→モード
+      });
+      s.apply(inSlot);
+      s.el.classList.toggle('filled', inSlot);  // 挿さったら光を消す
+      s.el.classList.toggle('hint', !inSlot);
+      parts.forEach(p=>{ if(p.dataset.part===s.part) p.classList.toggle('lit-src', inSlot && p===hit); });
+      if(touching && !s.wasTouch) connectSnd();          // ソケットに触れた瞬間に通電音
+      s.wasTouch=touching;
+      s.was=inSlot;
+    });
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
