@@ -299,12 +299,12 @@ body.dark .led-glint.kira {
 }
 
 .title .prk .picoruby {
-  color: var(--pink); /* PicoRuby=ピンク */
+  color: #f64b5b; /* PicoRuby=少し明るいピンク */
 }
 
 /* PicoRubyは赤茶色の枠(消灯時)。点灯時は frame-lit で太めの薄ピンク=外枠になる */
 .title .prk .picoruby > .l-chika {
-  --frame: #7c3a2a;
+  --frame: #da1d3c;
   -webkit-text-stroke: 6px var(--frame);
   paint-order: stroke fill;
 }
@@ -658,13 +658,13 @@ body.dark .title .prk {
   text-shadow: 0 0 6px rgba(110,240,160,.40), 0 0 16px rgba(110,240,160,.22);
 }
 body.dark .title .prk .picoruby {
-  color: #ff5b54;                                  /* PicoRuby = Ruby のリン光レッド */
-  text-shadow: 0 0 6px rgba(255,91,84,.45), 0 0 16px rgba(255,91,84,.25);
+  color: #f64b5b;                                  /* PicoRuby = ライトと同じピンク(リン光発光で光らせる) */
+  text-shadow: 0 0 6px rgba(246,75,91,.45), 0 0 16px rgba(246,75,91,.25);
 }
 
 /* 消灯時フレーム: それぞれの色のくすんだリン光に(濃紺でも沈まない) */
 body.dark .title .prk > .l-chika { --frame: #2c6b4a; }            /* Kaigi: 暗い緑 */
-body.dark .title .prk .picoruby > .l-chika { --frame: #8a352f; } /* PicoRuby: 暗い赤 */
+body.dark .title .prk .picoruby > .l-chika { --frame: #97233a; } /* PicoRuby: ピンクを暗くしたリン光オフ色(ライト#da1d3cと同系) */
 
 /* L-chika 点灯: ダークは点灯色だけ緑のリン光に差し替え(キーフレームは共通の frame-lit)。
    アニメ名を変えないので、モード切替で再スタートせず二重に光らない。 */
