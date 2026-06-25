@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>sound picker — PicoRubyKaigi</title>
+<style>
+  :root{color-scheme:dark}
+  body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0c1020;color:#e7ecff;
+       font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+  .panel{width:min(92vw,420px);padding:28px 26px 32px;border-radius:18px;
+         background:linear-gradient(180deg,#141a33,#0e1226);border:1px solid #243056;
+         box-shadow:0 18px 50px rgba(0,0,0,.5)}
+  h1{font-size:16px;letter-spacing:.04em;margin:0 0 4px}
+  p.note{margin:0 0 20px;font-size:12px;color:#8ea0d6;line-height:1.6}
+  .row{display:flex;gap:12px;align-items:center;margin:10px 0}
+  button.play{flex:1;display:flex;flex-direction:column;gap:2px;align-items:flex-start;
+        font:inherit;cursor:pointer;padding:14px 16px;border-radius:12px;
+        background:#1b234a;border:1px solid #2c3a66;color:#e7ecff;
+        transition:transform .06s,background .15s,border-color .15s}
+  button.play:hover{background:#222d5e;border-color:#3f57a8}
+  button.play:active{transform:translateY(1px)}
+  button.play b{font-size:15px}
+  button.play small{font-size:11px;color:#9fb0e6}
+  .foot{margin-top:22px;font-size:11px;color:#6f80b8;line-height:1.7}
+</style>
+</head>
+<body>
+  <div class="panel">
+    <h1>🔊 ぴこぴこ — 試聴</h1>
+    <p class="note">スイッチを押すと鳴る短いチップチューン。<b>可愛い系</b>を中心に聴き比べてください。<br>すべて Web Audio で合成（音声ファイル不要）。</p>
+
+    <h2 style="font-size:12px;color:#9fb0e6;margin:18px 0 6px;letter-spacing:.05em">▼ 80の最後を伸ばす（本命）</h2>
+    <div class="row">
+      <button class="play" data-fanfare="82"><b>82 — 80＋最後やや伸ばし</b><small>末尾を0.40に。スタッカートのまま着地に余韻</small></button>
+    </div>
+    <div class="row">
+      <button class="play" data-fanfare="83"><b>83 — 80＋最後しっかり伸ばし</b><small>末尾を0.62に。たっぷり伸ばして締める</small></button>
+    </div>
+    <div class="row">
+      <button class="play" data-fanfare="80"><b>80 — 元版（短い締め）</b><small>末尾0.22。比較用</small></button>
+    </div>
+
+    <h2 style="font-size:12px;color:#6f80b8;margin:20px 0 6px;letter-spacing:.05em">▼ その他の基準</h2>
+    <div class="row"><button class="play" data-fanfare="81"><b>81 — ノコギリ＋きらきら</b><small>レガート華やか</small></button></div>
+    <div class="row"><button class="play" data-fanfare="77"><b>77 — きらきら跳ねる</b><small>スタッカート・キュート</small></button></div>
+    <div class="row"><button class="play" data-fanfare="74"><b>74 — レトロ/ジー</b><small>ノコギリ・レトロ</small></button></div>
+
+    <h2 style="font-size:12px;color:#6f80b8;margin:20px 0 6px;letter-spacing:.05em">▼ その他</h2>
+    <div class="row"><button class="play" data-fanfare="76"><b>76 — ぽよぽよ</b><small>三角スタッカート</small></button></div>
+    <div class="row"><button class="play" data-fanfare="78"><b>78 — チップ可愛い</b><small>矩形スタッカート</small></button></div>
+    <div class="row"><button class="play" data-fanfare="79"><b>79 — こまかく弾む</b><small>さらに短く</small></button></div>
+    <div class="row"><button class="play" data-fanfare="71"><b>71 — やわらか</b><small>三角レガート</small></button></div>
+    <div class="row"><button class="play" data-fanfare="72"><b>72 — ファミコン強</b><small>ビブラート＋ノイズ</small></button></div>
+    <div class="row"><button class="play" data-fanfare="73"><b>73 — 太い</b><small>デチューン</small></button></div>
+    <div class="row"><button class="play" data-fanfare="75"><b>75 — きらきらベル</b><small>三角＋ベル</small></button></div>
+    <div class="row"><button class="play" data-fanfare="62"><b>62 — オリジナル</b><small>矩形2声＋三角ベース</small></button></div>
+
+    <div class="foot">
+      62の音符・和声は固定。74と77を掛け合わせた80/81が本命候補です。
+    </div>
+  </div>
+
+<script src="sound_lab.js"></script>
+<script>
+  document.querySelectorAll('button.play').forEach(b=>{
+    b.addEventListener('click',()=>playFanfare(+b.dataset.fanfare));
+  });
+</script>
+</body>
+</html>
