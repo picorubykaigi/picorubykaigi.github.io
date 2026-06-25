@@ -580,6 +580,19 @@ body.dark .led-glint.kira {
   margin: 0 .8em; /* 日付との間隔(左)と次ユニットの日付との間隔(右)を左右対称に */
 }
 
+/* 会場名は公式サイトへのリンク。ホバーで破線下線を出す。 */
+a.ticker-where { cursor: pointer; }
+.ticker-where-label {
+  padding-bottom: .40em;
+  margin-bottom: -.40em;   /* padding ぶんの箱の高さ増を相殺し、日付との下端揃えを保つ(線だけ下げる) */
+  background-repeat: repeat-x;
+  background-position: left bottom;
+  background-size: 8px 2px;   /* ダッシュ周期 8px / 線の高さ 2px(ここで高さを抑える) */
+}
+a.ticker-where:hover .ticker-where-label {
+  background-image: repeating-linear-gradient(to right, currentColor 0 4px, transparent 4px 8px);
+}
+
 /* 会場のピンアイコン: 周囲の LED/ドット世界観に合わせ、セル単位で描いたピクセルのアイコン */
 .ticker-pin {
   height: 1.1em; /* viewBox 6行ぶん。1セルの大きさは従来(1.3em/7行)と同等 */
