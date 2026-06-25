@@ -12,6 +12,27 @@ document.querySelectorAll('.title').forEach(title=>{
   });
 });
 
+// split the logo into per-character LEDs (keeps color boundaries like .picoruby)
+document.querySelectorAll('.title .prk').forEach(prk=>{
+  let i=0;
+  const chikaify=node=>{
+    [...node.childNodes].forEach(child=>{
+      if(child.nodeType===Node.TEXT_NODE){
+        const frag=document.createDocumentFragment();
+        [...child.textContent].forEach(ch=>{
+          const s=document.createElement('span');
+          s.className='l-chika'; s.textContent=ch; s.dataset.ch=ch; s.style.setProperty('--i',i++);
+          frag.appendChild(s);
+        });
+        child.replaceWith(frag);
+      }else if(child.nodeType===Node.ELEMENT_NODE){
+        chikaify(child);
+      }
+    });
+  };
+  chikaify(prk);
+});
+
 // assembling cubes + sparkles around the ruby
 document.querySelectorAll('.scene').forEach(scene=>{
   for(let i=0;i<12;i++){

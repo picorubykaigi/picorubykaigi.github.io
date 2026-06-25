@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Jersey+10&family=Micro+5&family=DotGothic16&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single&family=Jersey+10&family=Micro+5&family=DotGothic16&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0');
 
 @font-face {
@@ -231,8 +231,8 @@ body {
 }
 
 .title .prk {
-  font-family: 'Jersey 10', sans-serif;
-  font-size: clamp(54px, 11vw, 140px);
+  font-family: 'Bitcount Grid Single', 'Jersey 10', sans-serif;
+  font-size: clamp(48px, 9.8vw, 124px);
   line-height: .86;
   color: var(--ink);
   letter-spacing: .015em;
@@ -240,6 +240,48 @@ body {
 
 .title .prk .picoruby {
   color: var(--red);
+}
+
+.title .prk .l-chika {
+  position: relative;
+  display: inline-block;
+  --glow: var(--yellow);   /* にじみ＝光の色（既定=黒い「Kaigi」用。黒だと影に見えるので暖色に） */
+}
+
+.title .prk .picoruby .led {
+  --glow: var(--red);   /* 赤い「PicoRuby」のにじみ */
+}
+
+/* 同じ文字型を重ね、点灯時に白熱（芯=白＋自色のにじみ）で発光させる */
+.title .prk .l-chika::before {
+  content: attr(data-ch);
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: #fff6cf;
+  text-shadow:
+    0 0 .02em #fff6cf,
+    0 0 .1em var(--glow),
+    0 0 .26em var(--glow),
+    0 0 .5em var(--glow);
+  opacity: 0;
+  animation: l-chika 11.5s linear infinite;
+  animation-delay: calc(var(--i) * .82s);
+}
+
+@keyframes l-chika {
+  0%, 100% {
+    opacity: 0;
+  }
+  0.2% {     /* ほぼ瞬時に点灯 */
+    opacity: 1;
+  }
+  2.5% {     /* 点灯を保持（約0.27s） */
+    opacity: 1;
+  }
+  2.55% {    /* 「ぶちっ」と瞬間消灯→元の色へ。次の文字は+7.1%で点灯=約0.53sの間 */
+    opacity: 0;
+  }
 }
 
 .title .year {
