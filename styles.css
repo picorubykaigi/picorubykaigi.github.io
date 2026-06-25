@@ -377,10 +377,11 @@ body.dark .led-glint.kira {
    ライト/ダーク共通の唯一のキーフレーム。色は変数(--lit-*)で差し替えるのでアニメ名は不変
    =モード切替で再スタートせず、::before/::after とズレない(=二重に光らない)。 */
 @keyframes frame-lit {
-  0%, 0.19% { -webkit-text-stroke: 6px var(--frame); filter: none; }
+  0%, 0.19% { -webkit-text-stroke: 6px var(--frame); filter: none; text-shadow: var(--rest-bleed, none); }
   0.2%, 2.5% { -webkit-text-stroke: 6px var(--lit-stroke);
-               filter: drop-shadow(0 0 5px var(--lit-glow-a)) drop-shadow(0 0 13px var(--lit-glow-b)); }
-  2.55%, 100% { -webkit-text-stroke: 6px var(--frame); filter: none; }
+               filter: drop-shadow(0 0 5px var(--lit-glow-a)) drop-shadow(0 0 13px var(--lit-glow-b));
+               text-shadow: var(--lit-bleed, var(--rest-bleed, none)); }  /* 点灯中は地のにじみを点灯色に差し替える(ピンクの上に緑が乗らない) */
+  2.55%, 100% { -webkit-text-stroke: 6px var(--frame); filter: none; text-shadow: var(--rest-bleed, none); }
 }
 
 /* 点灯時の見た目: ピンク枠 → 白い面 → ピンク芯
@@ -860,6 +861,14 @@ body.dark .title .prk .picoruby {
   color: #fb5479;                                  /* PicoRuby = 原色とキャンディピンクの中間(ダークだけパーティ感) */
   text-shadow: 0 0 7px rgba(251,84,121,.55), 0 0 20px rgba(251,84,121,.35);
 }
+/* にじみ(text-shadow)を消灯/点灯で持ち替える。--rest-bleed=消灯時(地の色), --lit-bleed=点灯時(点灯色)。
+   点灯中はピンク(地)を消して点灯色のにじみに差し替える=にじみ自体は残し色だけ揃える。
+   --rest-bleed の値は上の .prk/.picoruby の text-shadow と同じ。--lit-bleed はにじみ方(半径/濃さ)をピンクと揃え色だけ緑に。 */
+body.dark .title .prk .l-chika {
+  --rest-bleed: 0 0 6px rgba(110,240,160,.40), 0 0 16px rgba(110,240,160,.22);
+  --lit-bleed: 0 0 7px rgba(94,232,154,.55), 0 0 20px rgba(94,232,154,.35);  /* 点灯色(緑)のにじみ */
+}
+body.dark .title .prk .picoruby > .l-chika { --rest-bleed: 0 0 7px rgba(251,84,121,.55), 0 0 20px rgba(251,84,121,.35); }
 
 /* 消灯時フレーム: それぞれの色のくすんだリン光に(濃紺でも沈まない) */
 body.dark .title .prk .kaigi > .l-chika { --frame: #2c6b4a; }     /* Kaigi: 暗い緑 */
@@ -897,6 +906,7 @@ body.dark .title .prk .l-chika::after {
 .title .prk .l-chika.beat-lit {
   -webkit-text-stroke: 6px var(--lit-stroke);
   filter: drop-shadow(0 0 5px var(--lit-glow-a)) drop-shadow(0 0 13px var(--lit-glow-b));
+  text-shadow: var(--lit-bleed, var(--rest-bleed, none));  /* 点灯中は地のにじみを点灯色に差し替える(frame-lit と揃える) */
 }
 /* 白い面オーバーレイを同時に出す(ベース枠と一致) */
 .title .prk .l-chika.beat-lit::before,
