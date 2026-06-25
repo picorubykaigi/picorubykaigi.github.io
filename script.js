@@ -643,3 +643,113 @@ function bbApplyGridShift(){
   if(document.fonts&&document.fonts.ready) document.fonts.ready.then(layout);
   let t; window.addEventListener('resize',()=>{ clearTimeout(t); t=setTimeout(layout,200); });
 })();
+
+// ---- [未配線] 落下リセット: 挿さっている部品が重力でバラバラ落ちてボード底に積もる(=全ギミック解除)。
+//      落ちる向きはPCの場合真下、モバイルの場合デバイスの傾き(nx)。
+(function(){
+  const stage=document.querySelector('.stage'); if(!stage) return;
+  // 重力の左右の傾き(-1..1)。PCは常に真下(0)に落とす。モバイルだけ端末の傾きで横へ倒す。
+  let nx=0;
+  const clamp=v=>v<-1?-1:v>1?1:v;
+  const onOrient=e=>{ if(e.gamma!=null) nx=clamp(e.gamma/30); };
+  // 端末の傾きを購読(許可不要な環境のみ)。iOS13+ は要 requestPermission だが、まだトリガ未実装で
+  // 機能が眠っているため、不用意な許可ダイアログは出さない。スイッチを付けるとき一緒に繋ぐ。
+  const D=window.DeviceOrientationEvent;
+  if(D && typeof D.requestPermission!=='function') window.addEventListener('deviceorientation', onOrient);
+
+  // 落下: 挿さっている部品それぞれに初速(軽い跳ね＋ばらけ＋回転)を与え、重力で落とす。
+  // 重力ベクトルは傾き nx ぶん横へ倒れる(端末を傾けた方へ転がり落ちる)。
+  // 画面外には出さない: ボード底(電光掲示板の上)=床、左右=壁で跳ね返し、底に積もって止まる。
+  let falling=false;
+  window.boardReset=function(){
+    if(falling) return;
+    // バッテリーはダークモード時(電源レールに挿さって点灯中)だけ据え置き。それ以外は他と同様に落とす。
+    const dark=document.body.classList.contains('dark');
+    const parts=[...document.querySelectorAll('[data-part]')]
+      .filter(el=>!(el.dataset.part==='battery' && dark));
+    if(!parts.length) return;
+    falling=true;
+    const sw=stage.clientWidth, sh=stage.clientHeight;
+    const ticker=document.querySelector('.ticker');
+    const floorY=sh-((ticker&&ticker.offsetHeight)||54)-2;     // 床の高さ(電光掲示板の上端)
+    const M=6;                                                 // 壁の内側マージン
+    // base=現在位置(offsetは transform の影響を受けない) / x,y,a=そこからの変位
+    const items=parts.map(el=>({ el,
+      baseL:el.offsetLeft, baseT:el.offsetTop, w:el.offsetWidth, h:el.offsetHeight,
+      x:0, y:0, a:0,
+      vx:(Math.random()*2-1)*2.4,            // 横のばらけ
+      vy:-(2+Math.random()*4),               // いったん上に跳ねてから落ちる(弾かれた感)
+      va:(Math.random()*2-1)*9,              // 回転(タンブル)
+      bounced:false, rest:false }));
+    items.forEach(it=>{ it.el.style.transition='none'; it.el.style.zIndex=40; });
+    const G=0.9, MAXFALL=1.0;                // 重力の強さ / 横倒しの最大(rad≈57°)
+    let fr=0;
+    (function fall(){
+      const rad=nx*MAXFALL, gx=Math.sin(rad)*G, gy=Math.cos(rad)*G;
+      // 1) 動きを積分 + 壁/床(1バウンド→整定)
+      items.forEach(it=>{
+        if(it.rest) return;
+        it.vx+=gx; it.vy+=gy; it.x+=it.vx; it.y+=it.vy; it.a+=it.va;
+        const xMin=-it.baseL+M, xMax=sw-it.w-it.baseL-M;       // 左右の壁で跳ね返す
+        if(it.x<xMin){ it.x=xMin; it.vx=-it.vx*0.5; }
+        if(it.x>xMax){ it.x=xMax; it.vx=-it.vx*0.5; }
+        const yFloor=floorY-it.baseT-it.h;                     // 床に接する y
+        if(it.y>=yFloor){
+          it.y=yFloor;
+          if(!it.bounced && it.vy>2){                          // 最初の接地だけ1回バウンド
+            it.vy=-it.vy*0.42; it.vx*=0.7; it.va*=0.5; it.bounced=true;
+          }else{                                               // 着地後の整定(スナップさせず数フレームで落ち着かせる)
+            it.vy=0;                                           // 縦は床で止める
+            it.vx*=0.55; it.va*=0.5;                           // 横と回転は強めの摩擦でキレよく減衰
+            it.a+=(0-it.a)*0.35;                               // 角度は水平へイージング
+            if(Math.abs(it.vx)<0.25 && Math.abs(it.a)<1.2){    // 充分遅くなったら静止
+              it.rest=true; it.vx=it.va=0; it.a=0;
+            }
+          }
+        }
+      });
+      // 2) 部品どうしの衝突(AABB): 重なりを押し離し、当たった向きへ少しバウンド。重ならないようにする。
+      for(let i=0;i<items.length;i++) for(let j=i+1;j<items.length;j++){
+        const A=items[i], B=items[j];
+        const aL=A.baseL+A.x, aT=A.baseT+A.y, bL=B.baseL+B.x, bT=B.baseT+B.y;
+        const ox=Math.min(aL+A.w,bL+B.w)-Math.max(aL,bL);     // 重なり幅
+        const oy=Math.min(aT+A.h,bT+B.h)-Math.max(aT,bT);     // 重なり高
+        if(ox>0.5 && oy>0.5){
+          if(ox<oy){                                          // 横の重なりが浅い → 左右に押し離す
+            const dir=(aL+A.w/2)<=(bL+B.w/2)?1:-1, s=ox/2;
+            A.x-=s*dir; B.x+=s*dir;
+            const imp=Math.min(2.2, s*0.3+0.4);               // 少しバウンド
+            A.vx-=imp*dir; B.vx+=imp*dir;
+          }else{                                              // 縦の重なりが浅い → 上下に押し離す(上に乗る)
+            const dir=(aT+A.h/2)<=(bT+B.h/2)?1:-1, s=oy/2;
+            A.y-=s*dir; B.y+=s*dir; A.vy*=0.3; B.vy*=0.3;
+          }
+          A.rest=B.rest=false;                                // ぶつかったら起こして再整定
+        }
+      }
+      // 3) 壁/床へ再クランプ + 反映 + 残り判定
+      let moving=0;
+      items.forEach(it=>{
+        const xMin=-it.baseL+M, xMax=sw-it.w-it.baseL-M;
+        if(it.x<xMin) it.x=xMin; else if(it.x>xMax) it.x=xMax;
+        const yFloor=floorY-it.baseT-it.h;
+        if(it.y>yFloor) it.y=yFloor;
+        if(!it.rest) moving++;
+        it.el.style.transform='translate('+it.x.toFixed(1)+'px,'+it.y.toFixed(1)+'px) rotate('+it.a.toFixed(1)+'deg)';
+      });
+      if(moving && ++fr<600) requestAnimationFrame(fall);      // 600フレームで打ち切り(安全弁)
+      else {
+        // 着地位置を left/top に焼き込んで確定(画面内に残す・ドラッグも続行可)。保存もする。
+        items.forEach(it=>{
+          const L=Math.round(it.baseL+it.x), T=Math.round(it.baseT+it.y);
+          it.el.style.transform=''; it.el.style.transition=''; it.el.style.zIndex='';
+          it.el.style.left=L+'px'; it.el.style.top=T+'px'; it.el.style.right='auto'; it.el.style.bottom='auto';
+          document.cookie='pos_'+it.el.dataset.part+'='+L+','+T+';path=/;max-age=31536000';
+        });
+        falling=false;
+      }
+    })();
+  };
+  // トリガ(スイッチ/傾きセンサー部品)は未実装。付ける時は window.boardReset() を呼ぶ。
+  // 動作確認したいときは DevTools コンソールで boardReset() を実行する。
+})();
