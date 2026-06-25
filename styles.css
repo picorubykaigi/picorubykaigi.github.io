@@ -476,7 +476,8 @@ body.dark .led-glint.kira {
   background-position: center;
   background-size: contain;
   cursor: pointer;
-  transition: transform .08s steps(2);
+  /* オーバーシュート付き(制御点 y>1)で、hover時に少し行き過ぎてから戻る。steps の段階移動はやめる */
+  transition: transform .16s cubic-bezier(.2, 1.8, .4, 1);
 }
 
 .button-icon.ticket {
@@ -522,7 +523,7 @@ body.dark .led-glint.kira {
 }
 
 .button-icon:hover {
-  transform: translateY(-3px);
+  transform: translateY(-4px);
 }
 
 /* モバイル専用の日付+会場(静的・複数行)。デフォルト(=デスクトップ)は非表示。モバイルで表示に切替。 */

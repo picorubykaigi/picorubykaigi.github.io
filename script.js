@@ -1128,3 +1128,21 @@ function bbApplyGridShift(){
   }
   render(); setInterval(render, 60000);
 })();
+
+// ボタンの hover 効果音: E6→C7 へ上昇する短い跳ね。triangle をローパス3000で丸める家系の音色。
+// hover は連発し高音で耳に通りやすいので、低い音量(0.085)で控えめに鳴らす。
+(function(){
+  const pico=()=>{ try{ const c=window.audioCtx&&window.audioCtx(); if(!c) return;
+    const t=c.currentTime;
+    const o=c.createOscillator(), g=c.createGain(); o.type='triangle';
+    o.frequency.setValueAtTime(1319,t);                       // E6
+    o.frequency.exponentialRampToValueAtTime(2093,t+0.05);    // C7 へ上昇
+    g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.085,t+0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+0.10);       // 余韻を残さず短く切る
+    const lp=c.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=3000; lp.Q.value=1;
+    o.connect(g); g.connect(lp); lp.connect(c.destination); o.start(t); o.stop(t+0.11);
+  }catch(e){} };
+  document.querySelectorAll('.button-icon').forEach(btn=>{
+    btn.addEventListener('pointerenter', e=>{ if(e.pointerType==='touch') return; pico(); }); // タップでは鳴らさない
+  });
+})();
