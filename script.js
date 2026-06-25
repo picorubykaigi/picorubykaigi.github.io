@@ -1,5 +1,8 @@
 const rnd=(a,b)=>a+Math.random()*(b-a);
 
+// スピーカー演出のテンポ(BPM)。sound.js のグルーヴと縁ボードのバウンス/ウェーブ周期を揃える単一ソース。
+const DANCE_BPM=144;
+
 // split the logo into per-character LEDs (keeps color boundaries like .picoruby)
 document.querySelectorAll('.title .prk').forEach(prk=>{
   let i=0;
@@ -76,12 +79,13 @@ const BB_GRID=24;
 // ここに一元化し、部品/ソケット/電光掲示板の脚など全スナップの x がこれに追従する。
 let BB_BGX=0;
 const BB_PIN={
-  // chip=上下4ピンのみ穴基準(左右は飾り) / battery=±端子 / motor=2リード
+  // chip=上下4ピンのみ穴基準(左右は飾り) / battery=±端子 / motor=2リード / speaker=四隅ネジ穴(正方形)
   chip:[[0.2925,0.003],[0.687,0.003],[0.687,0.979],[0.2925,0.979]],
   battery:[[0.4805,0.005],[0.4805,0.984]],
   motor:[[0.206,0.9785],[0.769,0.9785]],
+  speaker:[[0.17,0.17],[0.83,0.17],[0.83,0.83],[0.17,0.83]],
 };
-const BB_SNAPOFF={ chip:[0,12], motor:[0,12] };   // 12=穴上(12+24n) / 0=穴間(24n) / [x,y]=軸別
+const BB_SNAPOFF={ chip:[0,12], motor:[0,12], speaker:[0,12] };   // 12=穴上(12+24n) / 0=穴間(24n) / [x,y]=軸別
 const BB_NUDGE={ motor:[1,2] };                    // スナップ後の見た目微調整[x,y]px
 const bbSnapP=(v,part,ax)=>{ const o=BB_SNAPOFF[part];
   // x軸(ax=0)は背景シフト量 BB_BGX ぶん原点をずらして、見た目の穴列に合わせる
@@ -165,7 +169,7 @@ function bbApplyGridShift(){
     else if(el.dataset.part){
       const r=el.getBoundingClientRect(), sr=stage.getBoundingClientRect();
       // 3部品は chip(=L-chika ソケットの列)を起点に、左→右へ chip,motor,battery と並べる
-      const TRAY_DX={chip:0, motor:72, battery:132};
+      const TRAY_DX={chip:0, motor:72, battery:132, speaker:192};
       const colX=()=>{ const lg=document.querySelector('.title .prk'); if(!lg) return r.left-sr.left;
         return lg.getBoundingClientRect().right-stage.getBoundingClientRect().left+16+(TRAY_DX[id]||0); };
       const [fx,fy]=computeSnap(el, colX(), r.top-sr.top);
@@ -276,6 +280,13 @@ function bbApplyGridShift(){
   const rubyCY=(a,sr)=>{ if(rubyLed){ const r=rubyLed.getBoundingClientRect(); return r.top-sr.top+r.height/2; } return a.top-sr.top+a.height/2; };
   const rowTop=(a,sr,h)=>rubyCY(a,sr)-h/2;         // 高さhの部品をRuby縦中心に合わせた上端Y
   const SOCKETS=[
+    // スピーカー → Ruby の左 → 縁のマイコンボードが一斉に踊る(グルーヴ再生)。抜くと停止。
+    scene && { part:'speaker', anchor:scene, w:44, h:44,
+               place:(a,sr)=>({ sx:cx(a,sr)-164, sy:rowTop(a,sr,44) }),
+               apply:on=>{ body.classList.toggle('dance-on', on);
+                 if(window.prarailDancing) window.prarailDancing(on);   // 踊り中はプラレールのチラ見せを止める
+                 if(on){ if(window.danceStart) window.danceStart(DANCE_BPM); }
+                 else  { if(window.danceStop)  window.danceStop(); } } },
     // モーター → Ruby の右 → 挿した瞬間にプラレールが右→左へ一度走り抜ける(通過音つき)。
     // 挿入前の待機/チラ見せ・発進・帰還はプラレールコントローラ(window.prarailMotor)が担う。
     scene && { part:'motor',   anchor:scene, w:44, h:57,
@@ -441,10 +452,11 @@ function bbApplyGridShift(){
 
   let token=0;        // 進行中シーケンスの世代(状態が変わると無効化して打ち切る)
   let inserted=false; // motor が挿さっているか
+  let dancing=false;  // スピーカー演出(ダンス)中はチラ見せを止める
 
-  // チラ見せ: motor が挿さるまで、不定間隔でヘッドを出し入れ
+  // チラ見せ: motor が挿さるまで、不定間隔でヘッドを出し入れ(ダンス中は止める)
   async function idleLoop(my){
-    while(my===token && !inserted){
+    while(my===token && !inserted && !dancing){
       await wait(2600+Math.random()*3200);          // 次の顔出しまで(2.6〜5.8s)
       if(my!==token || inserted) break;
       setX(peekX(), 520, 'ease-out'); await wait(560);  // ニュッ
@@ -482,8 +494,152 @@ function bbApplyGridShift(){
     else  { setX(offRight(), 320, 'ease-in'); idleLoop(token); } // 抜いたら チラ見せへ戻す
   };
 
+  // スピーカー演出のON/OFF。踊っているあいだはチラ見せを止め、終わったら(motor未挿入なら)再開。
+  // motor 挿入中(走行制御中)は触らない＝走行を中断しない。
+  window.prarailDancing=function(on){
+    on=!!on; if(on===dancing) return; dancing=on;
+    if(inserted) return;                                     // 走行制御中は介入しない(終了後にmotor側が再開)
+    token++;                                                 // 進行中のチラ見せを無効化
+    if(on) setX(offRight(), 320, 'ease-in');                 // 踊り中は引っ込めてチラ見せ停止
+    else   idleLoop(token);                                  // 解除後はチラ見せ再開
+  };
+
   idleLoop(token);                                           // 起動時(motor未挿入)はチラ見せから
   let rt; window.addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(()=>{
     if(!inserted) setX(offRight(), 0);                       // 待機中はリサイズで右外位置を補正
   }, 200); });
+})();
+
+// ---- 縁のマイコンボード群: ステージの縁をぐるりと囲む。デフォルト非表示。
+//      スピーカーを挿すと1枚ずつ増えて出現し、音に合わせて各辺の進行方向へ時計回りに歩く。
+//      抜くと1枚ずつ消え、最後の1枚はXに振ってからダンス姿に戻って消える。 ----
+(function(){
+  const stage=document.querySelector('.stage'); if(!stage) return;
+  const host=document.querySelector('.dancers'); if(!host) return;
+  const VARIANTS=4;
+  const beat=60/DANCE_BPM;                 // 1拍の秒数(LED点滅・周回テンポの同期に使用)
+  host.style.setProperty('--beat', beat.toFixed(3)+'s');
+
+  let dancers=[], ranks=[], count=0;
+  const build=n=>{
+    host.innerHTML=''; dancers=[];
+    for(let i=0;i<n;i++){
+      const d=document.createElement('div'); d.className='dancer';
+      d.style.backgroundImage='url(images/dancer'+((i%VARIANTS)+1)+'.png)';
+      d.innerHTML='<span class="d-led"></span>';
+      host.appendChild(d); dancers.push(d);
+    }
+    // 出現順をシャッフル(ランダムに散らして1枚ずつ増えていく)
+    ranks=[...Array(n).keys()];
+    for(let i=n-1;i>0;i--){ const j=(Math.random()*(i+1))|0; const t=ranks[i]; ranks[i]=ranks[j]; ranks[j]=t; }
+    count=n;
+  };
+
+  // 矩形リング(x0,y0)-(x1,y1)の周長 f(0..1) の点。左上から時計回り(上→右→下→左)。
+  const ptAt=(f,x0,y0,x1,y1)=>{
+    const w=x1-x0, h=y1-y0, per=2*(w+h); let d=f*per;
+    if(d<w) return [x0+d, y0]; d-=w;
+    if(d<h) return [x1, y0+d]; d-=h;
+    if(d<w) return [x1-d, y1]; d-=w;
+    return [x0, y1-d];
+  };
+  // 周長 f での「進行方向(時計回りの接線)F」と「径方向(内向き)P」の単位ベクトル。
+  // 各辺で前進/縦揺れの向きを回すために使う(上辺では F=右, P=下 で画面x/yと一致)。
+  const dirAt=(f,x0,y0,x1,y1)=>{
+    const w=x1-x0, h=y1-y0, per=2*(w+h); let d=f*per;
+    if(d<w) return {fx:1,fy:0,px:0,py:1};    // 上辺: 前進=右 / 径=下
+    d-=w;
+    if(d<h) return {fx:0,fy:1,px:-1,py:0};   // 右辺: 前進=下 / 径=左
+    d-=h;
+    if(d<w) return {fx:-1,fy:0,px:0,py:-1};  // 下辺: 前進=左 / 径=上
+    return {fx:0,fy:-1,px:1,py:0};           // 左辺: 前進=上 / 径=右
+  };
+
+  const tickerEl=document.querySelector('.ticker');
+  let geom=null;
+  const layout=()=>{
+    const sr=stage.getBoundingClientRect();
+    const W=sr.width, H=sr.height; if(!W||!H) return;
+    const tickH=tickerEl?tickerEl.getBoundingClientRect().height:48;
+    // 傾き(対角≈17px)＋縦揺れ(±BOB)のはみ出しぶんのマージン。これ未満だと見切れる。
+    const M=30;
+    // 上辺=電源レール(赤≈y14/青≈y78)の帯の中央(≈46)に収める。下辺=電光掲示板の上。左右=見切れ防止。
+    const x0=M, y0=46, x1=W-M, y1=H-(tickH+M);
+    if(x1<=x0||y1<=y0) return;
+    const per=2*((x1-x0)+(y1-y0));
+    const n=Math.max(12, Math.min(40, Math.round(per/76)));   // 周長に応じて枚数(≈76px間隔)
+    if(n!==count) build(n);
+    geom={x0,y0,x1,y1,n};
+    // LED点滅の位相を位置でずらす(リングをきらめきが渡る)
+    dancers.forEach((d,i)=>d.style.setProperty('--d', (-((i/n)*beat*6)).toFixed(3)+'s'));
+  };
+
+  // 輪として全体が回転: 全ボードの周回位置 f を時間で進める(リングに沿って循環)。
+  // さらに各ボードを斜め(↗↙)方向に小さく揺らして「斜めに移動しながら」を添える。
+  // 進行はスピーカー装着中(body.dance-on)だけ。位置は transform で更新(リフロー回避)。
+  let orbT=0, last=0, revealT=0, waveT=0;
+  const TILT=-45;                    // dancer の傾き(度): 左下→右上(↗)を向く
+  const BOB=10;                      // 径方向(縦)の揺れ幅(px)。毎拍 ±BOB で反転
+  const REVEAL_PER=0.07;             // 基盤が1枚増える間隔(秒)。全部出るまで ≒ n*0.07 秒
+  const ADV_FRAC=0.2;                // 前進量(スロット比)。前進は必ず「斜め(x+y)の拍」に束ねる
+  const LEAD=0.06;                   // 視覚スナップを音より少し先行させる秒数
+  const WAVE_DUR=0.5;                // 最後の1枚が「ぱらぱらっ」と振れて消えるまでの秒数(少し短め)
+  const FLAP=0.085;                  // 1フラップの秒数(短い=キレよく速い)。/ ↔ \ をスナップ往復
+  const FLAP_ANG=52;                 // 振れ角(度)。± で / と \ になりXを描く
+  // 2拍くりかえし: ①斜め移動(前進=接線方向 + 縦揺れ反転) → ②縦だけ(径方向の反転のみ)。
+  // = x単独(横移動だけ)のフレームを作らない。各辺で接線/径方向に回すので全周で時計回り。
+  const animate=ts=>{
+    if(!last) last=ts;
+    const dt=Math.min(0.05,(ts-last)/1000); last=ts;
+    const dancing=document.body.classList.contains('dance-on');
+    if(geom){
+      const {x0,y0,x1,y1,n}=geom;
+      // 出現は枚数を徐々に増やす(ふわっとフェードでなく1枚ずつ)。抜いたら少し速く減らす。
+      // 拍は音と同じ AudioContext 時計(danceClock)で刻む。無ければ orbT(rAF累積)にフォールバック。
+      const dc = window.danceClock ? window.danceClock() : null;
+      if(dancing){ orbT+=dt; revealT=Math.min(n*REVEAL_PER, revealT+dt); waveT=0; }
+      else {
+        orbT=0;   // 非ダンス時はリセット(次回開始時に音と同位相から)
+        // 消えるとき: 2枚以上なら1枚ずつ減らす。最後の1枚は手を振ってから(WAVE_DUR後)消す。
+        const sh=Math.floor(revealT/REVEAL_PER);
+        if(sh>=2){ revealT-=dt*2; waveT=0; }
+        else if(sh===1){ waveT+=dt; if(waveT>WAVE_DUR) revealT-=dt*2; }
+        else waveT=0;
+        revealT=Math.max(0, revealT);
+      }
+      const shown=Math.floor(revealT/REVEAL_PER);
+      // 拍は音と同じ時計(danceClock)で刻む。音時計が進まない時は orbT(rAF) にフォールバック(動きが止まらないように)。
+      const clk = (dancing && dc!=null && dc>0) ? dc : orbT;
+      const bi=Math.floor((clk+LEAD)/beat);        // 現在の拍。LEADぶん先行させてキレを出す
+      const adv=Math.floor(bi/2)*ADV_FRAC;         // 前進(x+y=斜め)を偶数拍=キックに合わせる。奇数拍は縦だけ
+      const farewell = !dancing && shown===1;      // 最後の1枚(rank0)がバイバイする局面
+      for(let i=0;i<dancers.length;i++){
+        const d=dancers[i];
+        const vis = ranks[i] < shown;
+        d.style.opacity = vis ? '1' : '0';
+        if(!vis) continue;
+        const f=((((i+adv)%n)+n)%n)/n;             // 前進は base(リング位置)で表現=斜めの拍に必ず束ねる
+        const p=ptAt(f,x0,y0,x1,y1);
+        if(farewell && ranks[i]===0){
+          // ぱらぱらっ: 下3分目あたりを軸に / ↔ \ を素早くスナップ往復=Xを描いてキレよく消える
+          // ぱらぱらっと振り、最後はダンス時の傾き(↗=TILT)に戻して終える(0°=水平=横倒しを避ける)
+          const ang=(waveT < WAVE_DUR-FLAP) ? (Math.floor(waveT/FLAP)%2 ? FLAP_ANG : -FLAP_ANG) : TILT;
+          d.style.transformOrigin='50% -35%';         // 支点をバーより上に
+          d.style.transform='translate('+p[0].toFixed(1)+'px,'+p[1].toFixed(1)+'px) rotate('+ang+'deg)';
+          continue;
+        }
+        d.style.transformOrigin='50% 50%';           // 通常は中心軸(離脱演出から復帰)
+        const dir=dirAt(f,x0,y0,x1,y1);
+        // 縦揺れ(径方向)を毎拍反転＋隣どうしでも反転(片方が上なら隣は下=違い違い)
+        const perp=dancing ? (((bi+i)%2)?-1:1)*BOB : 0;
+        const sx=perp*dir.px, sy=perp*dir.py;
+        d.style.transform='translate('+(p[0]+sx).toFixed(1)+'px,'+(p[1]+sy).toFixed(1)+'px) rotate('+TILT+'deg)';
+      }
+    }
+    requestAnimationFrame(animate);
+  };
+  layout();
+  requestAnimationFrame(animate);
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(layout);
+  let t; window.addEventListener('resize',()=>{ clearTimeout(t); t=setTimeout(layout,200); });
 })();

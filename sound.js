@@ -141,8 +141,61 @@
     for(let cyc=t0; cyc<end-0.05; cyc+=0.34){ clack(cyc); clack(cyc+0.09); } // ガタン・ゴトン の繰り返し
   };
 
+  // ===== ダンス・グルーヴ(スピーカーを挿すと再生・抜くと停止) =====
+  // 縁のマイコンボードが踊るあいだ流す、ループするチップチューン。
+  // ベース(三角)＋リード(矩形アルペジオ)＋キック＋ハットを、先読みスケジューラで途切れず回す。
+  let danceTimer=null, danceBus=null, danceT0=null;   // danceT0=グルーヴの拍0のAudioContext時刻(動きと共有する)
+  const dkick=(c,bus,t)=>{ // バスドラ: 低いサインを素早く落とす
+    const o=c.createOscillator(), g=c.createGain(); o.type='sine';
+    o.frequency.setValueAtTime(150,t); o.frequency.exponentialRampToValueAtTime(48,t+0.11);
+    g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.9,t+0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+0.15);
+    o.connect(g).connect(bus); o.start(t); o.stop(t+0.17);
+  };
+  // 16ステップ(8分音符)1ループ。0=休符。ベース(三角)＋リード(矩形＋軽いビブラート)。
+  const D_BASS=['C2',0,'C3',0,'G1',0,'G2',0,'A1',0,'A2',0,'F1',0,'G1',0];
+  const D_LEAD=['E5','G5','C6','G5','E5','G5','D6','B5','C6','E6','C6','A5','F5','A5','G5','B5'];
+  const DANCE_MASTER=0.02;          // マスター音量
+  const danceStart=bpm=>{
+    bpm=bpm||144;
+    if(danceTimer) return;            // 多重起動を防ぐ(socket は毎フレーム apply するため)
+    const c=ac();
+    const step=(60/bpm)/2, STEPS=16, loopDur=STEPS*step;
+    const bus=c.createGain(); bus.gain.value=0.0001; bus.connect(c.destination);
+    bus.gain.exponentialRampToValueAtTime(DANCE_MASTER, c.currentTime+0.2);   // そっとフェードイン
+    danceBus=bus;
+    danceT0=c.currentTime+0.1;        // 拍0の時刻(動き側 danceClock と共有)
+    let nextT=danceT0;
+    const tick=()=>{
+      const t0=nextT;
+      for(let i=0;i<STEPS;i++){ const t=t0+i*step;
+        const b=D_BASS[i]; if(b) blip(c,bus,fM(midiOf(b)),t,step*1.6,0.5,'triangle');         // ベース(三角)
+        const l=D_LEAD[i]; if(l) blip(c,bus,fM(midiOf(l)),t,step*0.92,0.34,'square',0.008);   // リード(矩形＋軽いビブラート)
+        if(i%4===0) dkick(c,bus,t);                                                          // 4つ打ちキック
+        if(i%2===1) sparkle(c,bus,t,0.022,0.10);                                             // ハット(裏)
+        if(i===4||i===12) sparkle(c,bus,t,0.055,0.18);                                       // スネア風
+      }
+      nextT+=loopDur;
+      danceTimer=setTimeout(tick, loopDur*1000-55);   // 1ループぶん先読みして繋ぐ
+    };
+    danceTimer=setTimeout(tick,0);   // ガード成立用に timer をセット → tick が自分で次を予約
+  };
+  const danceStop=()=>{
+    if(!danceTimer) return; clearTimeout(danceTimer); danceTimer=null; danceT0=null;
+    const g=danceBus; danceBus=null; if(!g) return;
+    try{ const c=ac(), n=c.currentTime;
+      g.gain.cancelScheduledValues(n); g.gain.setValueAtTime(Math.max(g.gain.value,0.0001),n);
+      g.gain.exponentialRampToValueAtTime(0.0001,n+0.22);                 // すっと止める
+    }catch(e){}
+    setTimeout(()=>{ try{g.disconnect();}catch(e){} },450);
+  };
+
   global.playPico=playPico;
   global.trainPass=trainPass;   // 電車の通過音(プラレール演出から呼ぶ)
+  global.danceStart=danceStart; // ダンスのグルーヴ開始(スピーカー挿入)
+  global.danceStop=danceStop;   // ダンスのグルーヴ停止(スピーカー抜去)
+  // グルーヴの拍0からの経過秒(再生中のみ)。動き側がこれを読んで同じ時計で拍を刻む
+  global.danceClock=()=> danceT0!=null ? Math.max(0, ac().currentTime - danceT0) : null;
   global.audioCtx=ac;   // ページ共通の AudioContext を公開(全効果音で共有)
 
   // 初回のユーザー操作で AudioContext を解錠する(autoplay制限で suspended のままを防ぐ)

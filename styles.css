@@ -698,6 +698,7 @@ body.dark .title .prk .l-chika::after {
 .circuit-slot--chip    { --slot-img: url('images/chip-slot.svg'); }
 .circuit-slot--battery { --slot-img: url('images/battery-slot.svg'); }
 .circuit-slot--motor   { --slot-img: url('images/motor-slot.svg'); }
+.circuit-slot--speaker { --slot-img: url('images/speaker-slot.svg'); }
 
 /* hint: 輪郭に沿って明滅(drop-shadow は破線の形に追従) */
 .circuit-slot.hint {
@@ -737,7 +738,8 @@ body.dark .circuit-slot.hint {
 /* 挿す部品(画像)。ドラッグして所定のソケット/レールに挿すと回路が成立 */
 .bb-chip,
 .bb-battery,
-.bb-motor {
+.bb-motor,
+.bb-speaker {
   position: absolute;
   z-index: 8;
   cursor: grab;
@@ -763,9 +765,15 @@ body.dark .circuit-slot.hint {
   height: 56.4px;
   background-image: url('images/motor.png');     /* モーター: 110x141 */
 }
+.bb-speaker {
+  width: 44px;
+  height: 44px;                                  /* スピーカー: 137x138 */
+  background-image: url('images/spaeker.png');
+}
 .bb-chip.dragging,
 .bb-battery.dragging,
-.bb-motor.dragging {
+.bb-motor.dragging,
+.bb-speaker.dragging {
   cursor: grabbing;
   z-index: 30;
 }
@@ -832,4 +840,57 @@ body.dark .prarail::after {
 @keyframes intro-blink {
   0%, 100% { opacity: .1; }
   50%      { opacity: .5; }
+}
+
+/* ===== マイコンボード群: ステージをぐるりと囲む。位置は JS が算出。スピーカーを挿すとビートに乗って踊る。 ===== */
+.dancers {
+  position: absolute;
+  inset: 0;
+  z-index: 3;            /* 盤面の上・本文(wrap=4)より下=文字を隠さない */
+  pointer-events: none;
+  --beat: .45s;         /* JS が DANCE_BPM から実値を設定 */
+}
+.dancer {
+  position: absolute;
+  left: 0;
+  top: 0;               /* 基点(0,0)。JS が transform: translate でリング上の点へ運ぶ */
+  width: 30px;
+  height: 14px;
+  margin-left: -15px;   /* 中心を基点に合わせる(translate先=ボード中心) */
+  margin-top: -7px;
+  opacity: 0;                  /* デフォルトは非表示。出現は JS が枚数を1枚ずつ増やして制御(フェードしない) */
+  will-change: transform;
+  /* ドット絵PNG(色違いは JS が背景画像で割り当て)。ピクセルをくっきり拡大。 */
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  image-rendering: pixelated;
+}
+/* オンボードLED: 基板右側の赤パッド上に重なる粒。踊ると拍で点滅。
+   PNG の LED パッド(x23-24,y4-5)にぴったり乗せる。 */
+.dancer .d-led {
+  position: absolute;
+  right: 5px;
+  top: 4px;
+  width: 2px;
+  height: 2px;
+  background: #ffe7a0;
+  opacity: .2;
+  --led-glow: 0 0 4px #ffd47a;   /* 点灯時の発光(ライト=控えめ) */
+}
+
+/* 位置(リング上の定位置＋拍ごとの4隅スナップ)も表示/非表示(出現枚数)も JS が制御する。
+   CSS animation は inline transform を上書きするので、ここでは持たせない。 */
+body.dance-on .dancer .d-led {
+  animation: d-blink var(--beat) linear infinite;
+  animation-delay: var(--d, 0s);
+}
+@keyframes d-blink {
+  0%, 49%   { opacity: 1;  box-shadow: var(--led-glow); }
+  50%, 100% { opacity: .2; box-shadow: none; }
+}
+/* ダークモード: 暗闇で派手に発光。芯を白く、金のブルームを大きく多層に。 */
+body.dark.dance-on .dancer .d-led {
+  background: #fff7d6;
+  --led-glow: 0 0 3px #fff, 0 0 9px #ffd152, 0 0 18px #ffb52e;
 }
