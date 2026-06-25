@@ -321,3 +321,34 @@ function bbSnapPos(part, left, top, W, H, stageH){
   }
   requestAnimationFrame(frame);
 })();
+
+// ---- イントロ誘導: 一定時間どの部品も操作されなければ、バッテリーの真上に矢印をうっすら点滅 ----
+(function(){
+  const stage=document.querySelector('.stage'); if(!stage) return;
+  const bat=document.querySelector('.bb-battery'); if(!bat) return;
+  const DELAY=4000;   // 4秒どの部品も操作されなければ矢印を出す
+  let interacted=false, arrow=null;
+  const hide=()=>{ if(arrow){ arrow.remove(); arrow=null; } document.body.classList.remove('intro-hint'); };
+  const place=()=>{ if(!arrow) return;
+    const r=bat.getBoundingClientRect(), sr=stage.getBoundingClientRect();
+    arrow.style.left=(r.left-sr.left+r.width/2)+'px';
+    arrow.style.top=(r.top-sr.top-40)+'px';
+  };
+  document.querySelectorAll('[data-part]').forEach(el=>
+    el.addEventListener('pointerdown',()=>{ interacted=true; hide(); }));
+  setTimeout(()=>{
+    if(interacted) return;
+    document.body.classList.add('intro-hint');   // スロットの主張を上げる
+    arrow=document.createElement('div');
+    arrow.className='intro-arrow';
+    // x,yとも半ドット解像度(2=1ドット)。幅: 段1=7 / 段2=5 / 段3=3 / 先端=2 ドット。高さ: 1.5 / 1.5 / 1 / 1 ドット
+    arrow.innerHTML='<svg width="28" height="20" viewBox="0 0 14 10" preserveAspectRatio="none" shape-rendering="crispEdges">'
+      +'<rect x="0" y="0" width="14" height="3"/>'
+      +'<rect x="2" y="3" width="10" height="3"/>'
+      +'<rect x="4" y="6" width="6" height="2"/>'
+      +'<rect x="5" y="8" width="4" height="2"/></svg>';
+    stage.appendChild(arrow);
+    place();
+  }, DELAY);
+  window.addEventListener('resize', place);
+})();

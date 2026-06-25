@@ -549,17 +549,29 @@ body.dark .title .prk .l-chika::after {
   position: absolute;
   z-index: 6;
   pointer-events: none;
-  border: 2px dashed rgba(255, 193, 46, .6);
+  border: 2px dashed rgba(255, 193, 46, .56);   /* 初期は控えめ */
   border-radius: 6px;
-  background: radial-gradient(rgba(255, 193, 46, .14) 1.6px, transparent 1.7px) 0 0 / 12px 12px;
-  transition: opacity .2s ease;
+  background: radial-gradient(rgba(255, 193, 46, .13) 1.6px, transparent 1.7px) 0 0 / 12px 12px;
+  transition: opacity .2s ease, border-color .4s ease, background .4s ease;
 }
 .circuit-slot.hint {
+  animation: slot-hint-soft 1.4s steps(2) infinite;
+}
+@keyframes slot-hint-soft {
+  0%, 100% { box-shadow: 0 0 3px rgba(255, 193, 46, .28); }
+  50%      { box-shadow: 0 0 7px rgba(255, 193, 46, .55); }
+}
+/* 一定時間(4秒)操作なしで誘導モード(body.intro-hint)に入ると、スロットの主張を上げる */
+body.intro-hint .circuit-slot {
+  border-color: rgba(255, 193, 46, .72);
+  background: radial-gradient(rgba(255, 193, 46, .18) 1.6px, transparent 1.7px) 0 0 / 12px 12px;
+}
+body.intro-hint .circuit-slot.hint {
   animation: slot-hint 1.4s steps(2) infinite;
 }
 @keyframes slot-hint {
-  0%, 100% { box-shadow: 0 0 3px rgba(255, 193, 46, .3); }
-  50%      { box-shadow: 0 0 9px rgba(255, 193, 46, .62); }
+  0%, 100% { box-shadow: 0 0 4px rgba(255, 193, 46, .42); }
+  50%      { box-shadow: 0 0 10px rgba(255, 193, 46, .82); }
 }
 /* 部品が挿さったら光は消す(スロット非表示) */
 .circuit-slot.filled {
@@ -621,4 +633,23 @@ body:not(.fx-decor-off) .bb-motor.lit-src {
   0%   { transform: translate(0, 0); }
   50%  { transform: translate(.6px, -.6px); }
   100% { transform: translate(-.6px, .6px); }
+}
+
+/* イントロ誘導: 一定時間どの部品も操作されなければ、バッテリーの真上に矢印をうっすら点滅 */
+.intro-arrow {
+  position: absolute;
+  z-index: 9;
+  transform: translateX(-50%);
+  pointer-events: none;
+  filter: drop-shadow(0 0 5px rgba(255, 193, 46, .45));
+  animation: intro-blink 1.2s ease-in-out infinite;
+}
+.intro-arrow svg {
+  display: block;
+  fill: var(--yellow);
+  image-rendering: pixelated;
+}
+@keyframes intro-blink {
+  0%, 100% { opacity: .1; }
+  50%      { opacity: .5; }
 }
