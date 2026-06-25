@@ -274,12 +274,16 @@
   const danceEnd=(fadeT=2.0)=>{ danceLatched=true; fadeOut(fadeT); };
   // スピーカー抜去: すっと止め、ラッチを解除(次に挿せばまた最初から踊れる)。
   const danceStop=()=>{ danceLatched=false; fadeOut(0.22); };
+  // 完成(4部品装着)中は自動終了させない: 自動終了ラッチだけ解除する。
+  // 毎フレームの danceStart 再呼び出しでグルーヴが鳴り続ける(デモがフェード済みでも完成した瞬間に再開)。
+  const danceEndless=()=>{ danceLatched=false; };
 
   global.playPico=playPico;
   global.trainPass=trainPass;   // 電車の通過音(プラレール演出から呼ぶ)
   global.danceStart=danceStart; // ダンスのグルーヴ開始(スピーカー挿入)
   global.danceStop=danceStop;   // ダンスのグルーヴ停止(スピーカー抜去)
   global.danceEnd=danceEnd;     // 4小節後の自動終了(ゆっくりフェード＋抜くまで再開しない)
+  global.danceEndless=danceEndless; // 完成(4部品)中は自動終了させない(ラッチ解除)
   global.danceParty=danceParty; // パーティモード(ダーク＋ダンス)でベース増強
   // グルーヴの拍0からの経過秒。動き側がこれを読んで同じ時計で拍を刻む。
   // 音が実際に鳴っている(running)ときだけ返す。suspended(未解錠=ドラッグで挿しただけ等)では

@@ -564,6 +564,7 @@ function bbApplyGridShift(){
                  if(window.danceParty) window.danceParty(on && body.classList.contains('dance-on')); } },
   ].filter(Boolean);
   SOCKETS.forEach(s=>{ s.el=document.createElement('div'); s.el.className='circuit-slot circuit-slot--'+s.part; stage.appendChild(s.el); s.was=false; s.wasTouch=false; s.wasWrong=false; s.apply(false); });
+  let endlessDance=false, speakerWasIn=false, speakerEverDragged=false;   // スピーカーを「最後の1個」としてはめて完成させたか
   function frame(){
     const sr=stage.getBoundingClientRect();
     SOCKETS.forEach(s=>{
@@ -596,6 +597,21 @@ function bbApplyGridShift(){
       s.wasWrong=wrong;
       s.was=inSlot;
     });
+    // Ruby周りの4部品(seg7/speaker/motor/chip)が全部そろうと、Rubyが強く輝く。バッテリーは別格(電源レール)なので除外。
+    const RUBY_PARTS=['seg7','speaker','motor','chip'];
+    const full=SOCKETS.filter(s=>RUBY_PARTS.includes(s.part)).every(s=>s.was);
+    body.classList.toggle('ruby-full', full);
+    // スピーカーを「最後の1個」として手で挿して完成させたときだけ無限ダンス(フェードしない)。
+    // 他部品で完成させた場合や、リロードで最初から揃っている復元状態は対象外(通常どおりフェード)。
+    const spk=[...parts].find(p=>p.dataset.part==='speaker');
+    if(spk && spk.classList.contains('dragging')) speakerEverDragged=true;   // リロード復元では dragging が付かない
+    const spkIn=SOCKETS.some(s=>s.part==='speaker'&&s.was);
+    const othersIn=SOCKETS.filter(s=>RUBY_PARTS.includes(s.part)&&s.part!=='speaker').every(s=>s.was);
+    if(speakerEverDragged && spkIn && !speakerWasIn) endlessDance=othersIn;   // 挿入の瞬間(out→in)に残り3部品がそろっていれば
+    if(!spkIn || !full) endlessDance=false;             // スピーカーを抜く/どれか抜けて崩れたら解除
+    speakerWasIn=spkIn;
+    body.classList.toggle('dance-endless', endlessDance);
+    if(endlessDance && window.danceEndless) window.danceEndless();   // 無限中は自動終了ラッチを解除し続ける
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
@@ -842,7 +858,7 @@ function bbApplyGridShift(){
   // 輪として全体が回転: 全ボードの周回位置 f を時間で進める(リングに沿って循環)。
   // さらに各ボードを斜め(↗↙)方向に小さく揺らして「斜めに移動しながら」を添える。
   // 進行はスピーカー装着中(body.dance-on)だけ。位置は transform で更新(リフロー回避)。
-  let orbT=0, last=0, revealT=0, waveT=0, fadeKicked=false;
+  let orbT=0, last=0, revealT=0, waveT=0, fadeKicked=false, wasEndless=false;
   const TILT=-45;                    // dancer の傾き(度): 左下→右上(↗)を向く
   const BOB=10;                      // 径方向(縦)の揺れ幅(px)。毎拍 ±BOB で反転
   const REVEAL_PER=0.07;             // 基盤が1枚増える間隔(秒)。全部出るまで ≒ n*0.07 秒
@@ -861,6 +877,7 @@ function bbApplyGridShift(){
     if(!last) last=ts;
     const dt=Math.min(0.05,(ts-last)/1000); last=ts;
     const dancing=document.body.classList.contains('dance-on');
+    const endless=document.body.classList.contains('dance-endless');   // スピーカーを最後にはめて完成=無限ループ
     if(geom){
       const {x0,y0,x1,y1,n}=geom;
       // 拍時計: 音(danceClock)優先、無ければ orbT(rAF累積)にフォールバック。音を止めた後も orbT で進み続ける。
@@ -868,12 +885,17 @@ function bbApplyGridShift(){
       const clk = (dancing && dc!=null && dc>0) ? dc : orbT;
       if(dancing){
         orbT+=dt;
-        if(clk>=FADE_START){
-          // 4小節経過: 音楽をフェードアウト(一度だけ)。基盤は revealT を戻してゆっくり1枚ずつランダムに消す。
-          if(!fadeKicked){ fadeKicked=true; if(window.danceEnd) window.danceEnd(MUSIC_FADE); }
-          revealT=Math.max(0, revealT - dt*(n*REVEAL_PER)/OUT_DUR);   // OUT_DUR 秒で消えきる一定ペース(枚数によらず徐々に)
+        if(endless){
+          fadeKicked=false;                              // 無限中は自動終了させない
+          revealT=Math.min(n*REVEAL_PER, revealT+dt);    // 全基盤を満タンで維持して踊り続ける
         } else {
-          revealT=Math.min(n*REVEAL_PER, revealT+dt);   // 4小節までは1枚ずつ出現
+          // 無限を抜けた直後(=完成が崩れた wasEndless)は即フェード。通常デモは4小節経過でフェード。
+          if(!fadeKicked && (wasEndless || clk>=FADE_START)){
+            fadeKicked=true; if(window.danceEnd) window.danceEnd(MUSIC_FADE);   // 音楽フェードアウト(一度だけ)
+          }
+          revealT = fadeKicked
+            ? Math.max(0, revealT - dt*(n*REVEAL_PER)/OUT_DUR)   // OUT_DUR 秒で1枚ずつ消えきる
+            : Math.min(n*REVEAL_PER, revealT+dt);                // フェード前は4小節まで1枚ずつ出現
         }
         waveT=0;
       }
@@ -887,6 +909,7 @@ function bbApplyGridShift(){
         else waveT=0;
         revealT=Math.max(0, revealT);
       }
+      wasEndless=endless;   // 次フレームで「無限を抜けた瞬間」を捉えるため
       const shown=Math.floor(revealT/REVEAL_PER);
       const bi=Math.floor((clk+LEAD)/beat);        // 現在の拍。LEADぶん先行させてキレを出す
       const adv=Math.floor(bi/2)*ADV_FRAC;         // 前進(x+y=斜め)を偶数拍=キックに合わせる。奇数拍は縦だけ
