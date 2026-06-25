@@ -368,8 +368,10 @@ body.dark .led-glint.kira {
   position: relative;
   display: inline-block;
   /* 点灯時はベース枠を太め薄ピンクにして、::before のピンク内枠の外にはみ出させる(=二重枠) */
+  /* --chase0: チェイスの先頭文字オフセット(既定0)。ダンス(JS駆動)終了時に「次の文字」を入れて
+     CSS チェイスを頭(文字0)からでなく続きから再開させる。非ダンス時は 0=従来どおり。 */
   animation: frame-lit 11.5s linear infinite;
-  animation-delay: calc(var(--i) * .82s);
+  animation-delay: calc((var(--i) - var(--chase0, 0)) * .82s);
 }
 
 /* 消灯時は --frame(茶/グレー)。点灯の瞬間だけ枠を点灯色にして、にじみ(発光)で光らせる。
@@ -395,7 +397,7 @@ body.dark .led-glint.kira {
   text-shadow: none;
   opacity: 0;
   animation: l-chika 11.5s linear infinite;
-  animation-delay: calc(var(--i) * .82s);
+  animation-delay: calc((var(--i) - var(--chase0, 0)) * .82s);   /* --chase0=チェイス先頭オフセット(ベースと一致させる) */
 }
 .title .prk .l-chika::before {
   font-variation-settings: 'wght' 330, 'ELSH' 50; /* デフォルトと同じ四角 */
@@ -417,10 +419,11 @@ body.dark .led-glint.kira {
   0.2% {     /* ほぼ瞬時に点灯 */
     opacity: 1;
   }
-  2.5% {     /* 点灯を保持（約0.27s） */
+  2.6% {     /* 点灯を保持。frame-lit が枠を暗色へ戻す(2.55%)を“越えて”面を残し、
+                戻る一瞬に地の文字色(PicoRubyのピンク)が覗くのを白い面で隠す */
     opacity: 1;
   }
-  2.55% {    /* 「ぶちっ」と瞬間消灯→元の色へ。次の文字は+7.1%で点灯=約0.53sの間 */
+  2.65% {    /* 枠が暗色に戻りきってから面を落とす=瞬間的に消灯(地色の覗きなし) */
     opacity: 0;
   }
 }
@@ -878,6 +881,27 @@ body.dark .title .prk .l-chika::after {
   color: #fff;
   -webkit-text-stroke: 5px #e8fff2;
 }
+
+/* ダンス中の L-chika は JS(script.js)が音の拍(danceClock)に合わせて点灯する。
+   ダンス中は CSS の自走チェイスを止め(.beat-driven)、JS が「今光ってる文字の次から」2拍ごとに
+   .beat-lit を1文字ずつ付け替える。点灯はクラス1つでベース枠と白い面を同時に切替=2つのCSSアニメの
+   再開ズレ(光とピンクのズレ)が起きない。色は --frame/--lit-* がモードごとに解決されるので非スコープ。 */
+.title .prk .l-chika.beat-driven,
+.title .prk .l-chika.beat-driven::before,
+.title .prk .l-chika.beat-driven::after { animation: none; }
+/* 消灯(地)状態: frame-lit の 0% と同じ=モードごとの暗枠(--frame) */
+.title .prk .l-chika.beat-driven {
+  -webkit-text-stroke: 6px var(--frame);
+  filter: none;
+}
+/* 点灯: frame-lit の点灯フレームと同じ見た目を即時に(枠＝点灯色＋発光) */
+.title .prk .l-chika.beat-lit {
+  -webkit-text-stroke: 6px var(--lit-stroke);
+  filter: drop-shadow(0 0 5px var(--lit-glow-a)) drop-shadow(0 0 13px var(--lit-glow-b));
+}
+/* 白い面オーバーレイを同時に出す(ベース枠と一致) */
+.title .prk .l-chika.beat-lit::before,
+.title .prk .l-chika.beat-lit::after { opacity: 1; }
 
 /* 回路スロット(部品をソケットに挿すと通電→モード切替) */
 /* ソケット = 「破線の枠 + ドット地」。枠の形は各パーツのシルエットを輪郭追跡し、

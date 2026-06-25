@@ -24,6 +24,84 @@ document.querySelectorAll('.title .prk').forEach(prk=>{
   chikaify(prk);
 });
 
+// ---- ダンス中の L-chika: 音の拍に合わせて1文字ずつ点灯 ----
+//   通常の CSS チェイス(frame-lit/l-chika)は読み込み時から自走し、音の拍とは位相が合わない
+//   (CSS は音のクロックを読めない)。ダンス中だけ JS が danceClock(音と同期した経過秒・拍0起点)で
+//   「2拍ごとに次の文字」を .beat-lit で点灯=拍に正確に合わせる。
+(function(){
+  const spans=[...document.querySelectorAll('.title .prk .l-chika')];
+  if(!spans.length) return;
+  const N=spans.length;
+  const beat=60/DANCE_BPM;
+  const STEP=beat*2;             // 2拍ごとに次の文字(従来の ~0.82s/文字を踏襲)
+  const LIT=0.29;                // 点灯保持(秒)。従来のフラッシュ幅に合わせる
+  const LEAD=0.06;               // 視覚スナップを音より少し先行(ダンサーの LEAD と揃える)
+  // ダンス中(スピーカー挿入=dance-on)なら同期。チップ未挿入(fx-lchika-off)時は L-chika 自体が消灯。
+  const isSync=()=>{ const b=document.body.classList;
+    return b.contains('dance-on') && !b.contains('fx-lchika-off'); };
+  // CSS チェイスの現在位置(最後に光った文字)を WAAPI の currentTime から推定。
+  // 全文字は同じ開始時刻で回るので先頭の経過時間(ms)から: 11.5s 周期内の位相 / 0.82s。
+  const cssLetter=()=>{
+    try{ const a=spans[0].getAnimations(); if(!a.length||a[0].currentTime==null) return 0;
+      const p=((a[0].currentTime%11500)+11500)%11500;
+      const c=parseFloat(spans[0].style.getPropertyValue('--chase0'))||0;   // 前回の続き再開ぶんを足し戻す
+      return ((Math.min(N-1, Math.floor(p/820))+c)%N+N)%N;
+    }catch(e){ return 0; }
+  };
+  let active=false, pending=false, base=0, litIdx=-1, cur=0, myT=0, lastTs=0;
+  const clearLit=()=>{ if(litIdx>=0){ spans[litIdx].classList.remove('beat-lit'); litIdx=-1; } };
+  // CSS チェイスが今「消灯の合間(直前の文字が光り終え、次がまだ)」かどうか。点灯途中に乗っ取ると
+  // その文字のフラッシュを切って飛んで見えるので、合間になるまで待ってから引き継ぐ。
+  const cssInGap=()=>{
+    try{ const a=spans[0].getAnimations(); if(!a.length||a[0].currentTime==null) return true;
+      const p=((a[0].currentTime%11500)+11500)%11500;
+      if(Math.floor(p/820)>=N) return true;              // 全文字を流し終えた後の余白
+      return (p%820)>320;                                // スロット内 点灯は ~20–305ms。それ以降=合間
+    }catch(e){ return true; }
+  };
+  const doActivate=()=>{
+    const dc=window.danceClock?window.danceClock():null;
+    myT=(dc!=null)?dc:0; lastTs=0;                        // フォールバック時計の起点を音時計に合わせる
+    const clk=myT+LEAD, step0=Math.floor(clk/STEP), within0=clk-step0*STEP;
+    const firstLitStep=(within0<LIT)?step0:step0+1;      // 次に点灯するステップ(今が消灯位相なら次の拍)
+    base=(cssLetter()+1)-firstLitStep;                   // その点灯が「直前に光った文字の次」になるよう逆算=飛ばさない
+    spans.forEach(s=>s.classList.add('beat-driven'));    // CSS チェイスを止め JS に明け渡す
+  };
+  const onDeactivate=()=>{
+    clearLit();
+    // CSS チェイスを頭からでなく「最後の文字の次」から再開させる。--chase0 を入れてから animation を戻す。
+    const next=(((cur+1)%N)+N)%N;
+    spans.forEach(s=>s.style.setProperty('--chase0', String(next)));
+    spans.forEach(s=>s.classList.remove('beat-driven')); // CSS チェイス再開(続きから)
+  };
+  const tick=ts=>{
+    const on=isSync();
+    if(on){
+      if(!active && !pending) pending=true;              // 入場: まず CSS の合間を待つ(点灯中の文字を切らない)
+      if(pending && cssInGap()){ pending=false; active=true; doActivate(); }
+    } else {
+      if(active) onDeactivate();
+      active=false; pending=false;
+    }
+    if(active){
+      // 拍時計: 音(danceClock)優先。4小節後の自動終了で音時計が null になっても(dance-on は残る)、
+      // ダンサー同様 rAF 累積(myT)へフォールバックして拍テンポで動き続ける=固まらない。
+      const dt=lastTs?Math.min(0.05,(ts-lastTs)/1000):0; lastTs=ts;
+      const dc=window.danceClock?window.danceClock():null;
+      if(dc!=null) myT=dc; else myT+=dt;
+      const clk=myT+LEAD;
+      const step=Math.floor(clk/STEP);
+      const within=clk-step*STEP;
+      const idx=(((base+step)%N)+N)%N;
+      cur=idx;                                            // 終了時にこの「次」から CSS チェイスを継ぐ
+      if(within<LIT){ if(idx!==litIdx){ clearLit(); spans[idx].classList.add('beat-lit'); litIdx=idx; } }
+      else clearLit();
+    }
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+})();
+
 // sparkles around the ruby
 document.querySelectorAll('.scene').forEach(scene=>{
   for(let i=0;i<4;i++){
