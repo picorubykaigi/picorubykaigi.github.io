@@ -220,6 +220,7 @@ function bbApplyGridShift(){
   const parts=document.querySelectorAll('[data-part]'); // 挿す部品(バッテリー/チップ)
   const logo=document.querySelector('.title .prk');
   const scene=document.querySelector('.scene');
+  const rubyLed=document.querySelector('.ruby-led');
   const ticketBtn=document.querySelector('.button-icon.ticket');
   const proposalBtn=document.querySelector('.button-icon.proposal');
   if(!parts.length) return;
@@ -269,22 +270,27 @@ function bbApplyGridShift(){
   }catch(e){} };
   const body=document.body;
   // 各ソケット: 所定の部品(part)が所定の位置(place)に挿さる演出ON。
+  // ソケットは Ruby を中心に1列に並べる。左から: speaker → (Ruby) → motor → chip。
+  // いずれも scene を基準に置き、Ruby の縦中心(rubyCY)に各部品の中心を合わせる。
+  const cx  =(a,sr)=>a.left-sr.left+a.width/2;     // Ruby の水平中心(scene中心)
+  const rubyCY=(a,sr)=>{ if(rubyLed){ const r=rubyLed.getBoundingClientRect(); return r.top-sr.top+r.height/2; } return a.top-sr.top+a.height/2; };
+  const rowTop=(a,sr,h)=>rubyCY(a,sr)-h/2;         // 高さhの部品をRuby縦中心に合わせた上端Y
   const SOCKETS=[
-    // チップ → ロゴ右(Kaigi の右隣・縦中央) → PicoRubyKaigi がLチカ。スロットは部品サイズに合わせる
-    logo  && { part:'chip',    anchor:logo,  w:56, h:56,
-               place:(a,sr)=>({sx:a.right-sr.left+16, sy:a.top-sr.top+(a.height-56)/2}),
+    // モーター → Ruby の右 → 挿した瞬間にプラレールが右→左へ一度走り抜ける(通過音つき)。
+    // 挿入前の待機/チラ見せ・発進・帰還はプラレールコントローラ(window.prarailMotor)が担う。
+    scene && { part:'motor',   anchor:scene, w:44, h:57,
+               place:(a,sr)=>({ sx:cx(a,sr)+104, sy:rowTop(a,sr,57) }),
+               apply:on=>{ if(window.prarailMotor) window.prarailMotor(on); } },
+    // チップ → モーターの右(行の右端) → PicoRubyKaigi がLチカ。
+    scene && { part:'chip',    anchor:scene, w:56, h:56,
+               place:(a,sr)=>({ sx:cx(a,sr)+204, sy:rowTop(a,sr,56) }),
                apply:on=>body.classList.toggle('fx-lchika-off', !on) },
-    // バッテリー → 電源レール(赤+/青-)をまたぐ → ダークモード(暗闇でボードが光る)
+    // バッテリー → 電源レール(赤+/青-)をまたぐ → ダークモード(暗闇でボードが光る)。位置は据え置き。
     {            part:'battery', anchor:stage, w:27, h:46,
                place:(a,sr)=>({ sx:a.width-180, sy:24 }), // レール・右寄り(中心<96でレール中央へスナップ)
                apply:on=>body.classList.toggle('dark', on) },
-    // モーター → 内側フィールド(動力)。挿した瞬間にプラレールが右→左へ一度走り抜ける(通過音つき)。
-    // 挿入前の待機/チラ見せ・発進・帰還はプラレールコントローラ(window.prarailMotor)が担う。
-    scene && { part:'motor',   anchor:scene, w:44, h:57,
-               place:(a,sr)=>({sx:a.right-sr.left-72, sy:a.bottom-sr.top-78}), // ルビーの右下に寄せる
-               apply:on=>{ if(window.prarailMotor) window.prarailMotor(on); } },
   ].filter(Boolean);
-  SOCKETS.forEach(s=>{ s.el=document.createElement('div'); s.el.className='circuit-slot'; stage.appendChild(s.el); s.was=false; s.wasTouch=false; s.wasWrong=false; s.apply(false); });
+  SOCKETS.forEach(s=>{ s.el=document.createElement('div'); s.el.className='circuit-slot circuit-slot--'+s.part; stage.appendChild(s.el); s.was=false; s.wasTouch=false; s.wasWrong=false; s.apply(false); });
   function frame(){
     const sr=stage.getBoundingClientRect();
     SOCKETS.forEach(s=>{
