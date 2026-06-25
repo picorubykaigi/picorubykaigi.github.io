@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single&family=Jersey+10&family=Micro+5&family=DotGothic16&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single&family=Bitcount+Grid+Double&family=Bitcount+Single:ELSH,wght@0..100,100..900&family=Sixtyfour&family=Workbench&family=Mozilla+Headline:wght@200..700&family=Doto:wght@100..900&family=Jacquarda+Bastarda+9&family=Jersey+10&family=Jersey+25&family=Micro+5&family=Tiny5&family=DotGothic16&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0');
 
 @font-face {
@@ -30,6 +30,7 @@ img {
   --red: #e8404b;
   --redd: #c0223a;
   --yellow: #ffc12e;
+  --pink: #ff4a2e; /* Ruby に寄せた光のにじみ色（オレンジ寄りの暖かい赤＝スカーレット。L-chika と共通） */
 }
 
 body {
@@ -161,9 +162,55 @@ body {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 100%;
+  width: 86%; /* ルビーを少し小さく */
   z-index: 5;
 }
+
+/* ルビーに重ねたファセット: スパークルが線を走り、終点で面がきらり */
+.ruby-facets {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 86%; /* .ruby と同じ縮小率で重ねる */
+  height: auto;
+  z-index: 6;
+  pointer-events: none;
+  mix-blend-mode: screen; /* 光が下のルビーを明るく照らすように合成 */
+  overflow: visible;
+}
+
+/* スパークルが走ることで軌跡が見える */
+.facet {
+  fill: #fff3ee; /* 芯=ごく薄いピンク(L-chika と同じ) */
+  fill-opacity: 0; /* きらり用。普段は透明 */
+  stroke: none;
+}
+
+/* きらきらが走り終えた後、右上の面が一瞬きらり(芯=白 + Ruby に寄せたピンクのにじみ) */
+.facet.kira {
+  animation: facet-kira 0.7s ease-out;
+  filter: drop-shadow(0 0 14px var(--pink)) drop-shadow(0 0 34px var(--pink));
+}
+@keyframes facet-kira {
+  0%   { fill-opacity: 0; }
+  18%  { fill-opacity: 0.5; } /* 鋭く立ち上がり(控えめ) */
+  100% { fill-opacity: 0; }    /* すっと消える */
+}
+
+/* 線の上を走る「ドット絵アスタリスク」のきらきら(位置はJSで制御、形はJSで生成) */
+.spark {
+  opacity: 0; /* JSでサイクル中だけ表示 */
+}
+.spark rect {
+  fill: #fff;
+  shape-rendering: crispEdges;
+}
+/* 2フレームを steps で切り替えてスプライト風にまたたく */
+.spark-fa { animation: spark-tw-a 0.4s steps(1) infinite; }
+.spark-fb { animation: spark-tw-b 0.4s steps(1) infinite; }
+@keyframes spark-tw-a { 0%, 49.9% { opacity: 1; } 50%, 100% { opacity: 0; } }
+@keyframes spark-tw-b { 0%, 49.9% { opacity: 0; } 50%, 100% { opacity: 1; } }
 
 .cube {
   position: absolute;
@@ -231,42 +278,73 @@ body {
 }
 
 .title .prk {
-  font-family: 'Bitcount Grid Single', 'Jersey 10', sans-serif;
+  font-family: 'Bitcount Single', 'Jersey 10', sans-serif;
   font-size: clamp(48px, 9.8vw, 124px);
   line-height: .86;
-  color: var(--ink);
-  letter-spacing: .015em;
+  color: #fff; /* Kaigi=白(PicoRubyは下で上書き) */
+  letter-spacing: .02em;
+  font-variation-settings: 'wght' 330, 'ELSH' 50; /* デフォルトのドットを四角(LED風)に・細め */
 }
 
 .title .prk .picoruby {
-  color: var(--red);
+  color: var(--pink); /* PicoRuby=ピンク */
+}
+
+/* PicoRubyは赤茶色の枠(消灯時)。点灯時は frame-lit で太めの薄ピンク=外枠になる */
+.title .prk .picoruby > .l-chika {
+  --frame: #7c3a2a;
+  -webkit-text-stroke: 6px var(--frame);
+  paint-order: stroke fill;
+}
+
+/* Kaigi(=.prk直下の文字)はグレーの枠(消灯時)。PicoRubyは.picoruby内なので対象外 */
+.title .prk > .l-chika {
+  --frame: #454747;
+  -webkit-text-stroke: 6px var(--frame);
+  paint-order: stroke fill;
 }
 
 .title .prk .l-chika {
   position: relative;
   display: inline-block;
-  --glow: var(--yellow);   /* にじみ＝光の色（既定=黒い「Kaigi」用。黒だと影に見えるので暖色に） */
+  /* 点灯時はベース枠を太め薄ピンクにして、::before のピンク内枠の外にはみ出させる(=二重枠) */
+  animation: frame-lit 11.5s linear infinite;
+  animation-delay: calc(var(--i) * .82s);
 }
 
-.title .prk .picoruby .led {
-  --glow: var(--red);   /* 赤い「PicoRuby」のにじみ */
+/* 消灯時は --frame(茶/グレー)。点灯の瞬間だけ太め薄コーラル(#ffe7d8)の外枠に */
+@keyframes frame-lit {
+  0%, 0.19% { -webkit-text-stroke: 6px var(--frame); }
+  0.2%, 2.5% { -webkit-text-stroke: 15px #ffe7d8; }
+  2.55%, 100% { -webkit-text-stroke: 6px var(--frame); }
 }
 
-/* 同じ文字型を重ね、点灯時に白熱（芯=白＋自色のにじみ）で発光させる */
-.title .prk .l-chika::before {
+/* 点灯時の見た目: ピンク枠 → 白い面 → ピンク芯
+   ::before=白い四角+ピンクの枠(ELSH50) / ::after=中心の小さいピンクの円(ELSH0)
+   色は周囲の暖色(朱赤 #ff4a2e)に馴染む暖かいコーラル(#ff9e73)
+   (フル版 Bitcount の Square+Circle レイヤー重ねを、無料の wght/ELSH 軸で近似) */
+.title .prk .l-chika::before,
+.title .prk .l-chika::after {
   content: attr(data-ch);
   position: absolute;
   left: 0;
   top: 0;
-  color: #fff6cf;
-  text-shadow:
-    0 0 .02em #fff6cf,
-    0 0 .1em var(--glow),
-    0 0 .26em var(--glow),
-    0 0 .5em var(--glow);
+  text-shadow: none;
   opacity: 0;
   animation: l-chika 11.5s linear infinite;
   animation-delay: calc(var(--i) * .82s);
+}
+.title .prk .l-chika::before {
+  font-variation-settings: 'wght' 330, 'ELSH' 50; /* デフォルトと同じ四角 */
+  color: #ffe7d8;                       /* 中の面＝薄いコーラル(クリーム寄り)の塗りつぶし */
+  -webkit-text-stroke: 6px #ff9e73;     /* 内枠＝コーラル(朱赤を明るくしたティント) */
+  paint-order: stroke fill;
+}
+.title .prk .l-chika::after {
+  font-variation-settings: 'wght' 200, 'ELSH' 0; /* 中心の円(少し大きめ・四角の内側に収まる) */
+  color: #fff;                          /* 芯＝白(輪なしで塗りに直接乗せる) */
+  -webkit-text-stroke: 5px #ffe7d8;     /* 芯のまわり＝塗りと同じ薄いコーラル(一体化) */
+  paint-order: stroke fill;             /* 白い芯を上に、薄コーラル円は外側に */
 }
 
 @keyframes l-chika {
