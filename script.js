@@ -136,7 +136,7 @@ function bbApplyGridShift(){
   const portraitTablet = window.matchMedia('(min-width: 768px) and (orientation: portrait)').matches;
   const ROFF = portraitTablet ? 'clamp(16px, 3svh, 36px)'      // 縦持ちタブレット: Ruby上を少し広く(下=Ruby↔KEYNOTEは詰まる)
              : BB_MOBILE()    ? 'clamp(5px, 1.2svh, 16px)'
-             :                  'clamp(26px, 5vh, 52px)';
+             :                  'clamp(13px, 2.5vh, 28px)';
   const BASE='translate(-50%, calc(-50% + '+ROFF+'))'; // CSS と同じ中央配置
   ruby.style.transform=BASE;                          // まず素の中央配置に戻して測る
   const sr=stage.getBoundingClientRect();

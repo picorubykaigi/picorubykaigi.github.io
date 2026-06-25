@@ -138,6 +138,29 @@ body.dark .keynotes .keynote-label {
   margin-top: .38em;
 }
 
+/* 電光掲示板が出るレイアウト(≥768px)では KEYNOTE 縦積み・センター揃え。 */
+@media (min-width: 768px) {
+  .keynotes {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: clamp(6px, 1.2vh, 14px);
+  }
+  .keynotes .keynote-names {
+    align-items: center;
+  }
+  .keynotes .keynote-label {
+    border: 0;          /* ドット絵の枠を外す(border-image も解除) */
+    padding: 0;
+    align-self: center;
+    margin-top: 0;
+  }
+  /* ダークモードの枠上書き(border-image)はこのレイアウトより詳細度が高く残るため、明示的に解除する */
+  body.dark .keynotes .keynote-label {
+    border-image: none;
+  }
+}
+
 /* ===== SCENE: ruby ===== */
 .scene {
   position: relative;
@@ -163,7 +186,7 @@ body.dark .keynotes .keynote-label {
   position: absolute;
   left: 50%;
   top: 50%;
-  transform: translate(-50%, calc(-50% + clamp(26px, 5vh, 52px)));
+  transform: translate(-50%, calc(-50% + clamp(13px, 2.5vh, 28px)));
   z-index: 5;
   height: 102px;            /* レール4行(96px)からひとまわり大きく */
   aspect-ratio: 1072 / 873; /* 高さから幅を決める(ruby-1.png の比率) */
@@ -1319,10 +1342,10 @@ body.dark.dance-on .pf-hue {
   .title .assemble { margin-top: 0; }
   /* Ruby を上下とも広く均等に隔離(=主役)。KEYNOTE〜CTA塊・タイトル塊は詰まっているので Ruby が際立つ。 */
   .scene {
-    margin-top: clamp(20px, 5.5vh, 78px);    /* PicoRuby〜Assemble ↔ Ruby */
+    margin-top: clamp(16px, 4vh, 56px);      /* PicoRuby〜Assemble ↔ Ruby */
   }
   .info {
-    margin-top: clamp(60px, 12vh, 140px);    /* Ruby ↔ KEYNOTE〜CTA */
+    margin-top: clamp(44px, 8.5vh, 100px);   /* Ruby ↔ KEYNOTE〜CTA */
   }
 
   /* Ruby(宝石)以外=タイトルと KEYNOTE を少し小さくして、Ruby を相対的に主役にする(CTAボタンは据え置き)。 */
