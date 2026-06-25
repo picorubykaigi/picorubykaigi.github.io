@@ -846,7 +846,7 @@ body.dark .prarail::after {
 .dancers {
   position: absolute;
   inset: 0;
-  z-index: 3;            /* 盤面の上・本文(wrap=4)より下=文字を隠さない */
+  z-index: 7;            /* 電光掲示板の脚(ピン z6)より前。部品(z8)・矢印(z9)より後ろ */
   pointer-events: none;
   --beat: .45s;         /* JS が DANCE_BPM から実値を設定 */
 }
@@ -889,8 +889,118 @@ body.dance-on .dancer .d-led {
   0%, 49%   { opacity: 1;  box-shadow: var(--led-glow); }
   50%, 100% { opacity: .2; box-shadow: none; }
 }
-/* ダークモード: 暗闇で派手に発光。芯を白く、金のブルームを大きく多層に。 */
+/* パーティモード(=ダーク+ダンス): ボード全体が自分の色でネオン発光し、拍に合わせて脈打つ。 */
+body.dark.dance-on .dancer {
+  animation: d-glow var(--beat) linear infinite;
+  animation-delay: var(--d, 0s);
+}
+/* パーティモードでは、最後のお手ふりの子も光ったまま振る。 */
+body.dark .dancer.bye {
+  animation: d-glow var(--beat) linear infinite;
+}
+@keyframes d-glow {
+  /* オン: ボード自体をパッと点灯(brightness/saturate)＋白い芯＋色ブルーム=フラッシュ(コントラストは少し控えめ) */
+  0%, 42%   { filter: brightness(1.5) saturate(1.35)
+                      drop-shadow(0 0 2px #fff) drop-shadow(0 0 7px var(--glow)) drop-shadow(0 0 15px var(--glow)); }
+  /* オフ: 落とすが暗くしすぎない */
+  50%, 100% { filter: brightness(.82) drop-shadow(0 0 2px var(--glow)); }
+}
+/* LED粒も同じ色で(芯は白く):  */
 body.dark.dance-on .dancer .d-led {
-  background: #fff7d6;
-  --led-glow: 0 0 3px #fff, 0 0 9px #ffd152, 0 0 18px #ffb52e;
+  background: #fff;
+  --led-glow: 0 0 3px #fff, 0 0 8px var(--glow, #ffd152);
+}
+
+/* パーティモードの画面全体ディスコ照明: 四隅の扇形光は形・明るさを一定に保ち、色相だけを
+   1/4周ずつ位相ずらしで巡らせる→色の変化が中心を移動していくように見える。screenで足し、最大でも薄め。 */
+.party-fx {
+  position: absolute;
+  inset: 0;
+  z-index: 6;              /* 本文(z4)の上・ダンサー(z7)/部品(z8)の下 */
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.8s ease-in-out;   /* 入った瞬間に光がパッと噴き出さず、じわっと点いてくるよう立ち上がりをゆっくり */
+  --pT: 22s;               /* パーティ演出の周期(明暗の巡り・色中心の移動・色相)。ここ1か所で速度調整 */
+}
+/* 各角は別レイヤー。扇形(中央へ膨らむ)で形は固定。色相サイクルを delay でずらす(明るさは動かさない)。
+   最大でも薄い色(不透明度低め)。 */
+.party-fx .pf {
+  position: absolute;
+  inset: -16vmin;           /* 旋回(±13vmin)で端に素の暗い帯が出ないよう画面より大きく取る。中心は角(=16vmin)に置く */
+  mix-blend-mode: screen;
+}
+.party-fx .c1 { background: radial-gradient(64vw 64vh at 16vmin 16vmin,                   rgba(255,145,160,.5) 0%, rgba(255,145,160,.5) 12%, transparent 100%); }
+.party-fx .c2 { background: radial-gradient(64vw 64vh at calc(100% - 16vmin) 16vmin,        rgba(255,145,160,.5) 0%, rgba(255,145,160,.5) 12%, transparent 100%); }
+.party-fx .c3 { background: radial-gradient(64vw 64vh at calc(100% - 16vmin) calc(100% - 16vmin), rgba(255,145,160,.5) 0%, rgba(255,145,160,.5) 12%, transparent 100%); }
+.party-fx .c4 { background: radial-gradient(64vw 64vh at 16vmin calc(100% - 16vmin),        rgba(255,145,160,.5) 0%, rgba(255,145,160,.5) 12%, transparent 100%); }
+
+/* 蝋燭の炎が風に揺れるような有機的なゆらめき: 乱流ノイズで光全体を歪ませる(SVGフィルタはindex.html) */
+body.dark.dance-on .party-fx { opacity: 1; filter: url(#party-flicker); }
+/* 一度に概ね1隅だけ点灯(party-spot)→隣へクロスフェードで受け渡し＝扇形のまま光の中心(点く隅)がめぐる。
+   色相(party-hue)も同じ位相で巡る。delay 0/-6/-4/-2s = 1/4周ずつ → c1→c2→c3→c4 時計回り(8s周回)。 */
+body.dark.dance-on .pf {
+  /* party-color=色相をゆっくり巡らせる(=色が移動) / party-spot=明るさの山が時計回りに巡る(1隅明/対角2番/隣暗) */
+  animation: party-color var(--pT) linear infinite, party-spot var(--pT) ease-in-out infinite;
+}
+/* delayは [color, spot]。どちらも隅ごとに1/4周ずらして時計回り(c1→c2→c3→c4)。--pT基準で自動スケール。 */
+body.dark.dance-on .c1 { animation-delay: 0s, 0s; }
+body.dark.dance-on .c2 { animation-delay: calc(var(--pT) * -0.75), calc(var(--pT) * -0.75); }
+body.dark.dance-on .c3 { animation-delay: calc(var(--pT) * -0.5),  calc(var(--pT) * -0.5); }
+body.dark.dance-on .c4 { animation-delay: calc(var(--pT) * -0.25), calc(var(--pT) * -0.25); }
+
+@keyframes party-color {     /* 淡い(白っぽい)色のまま色相だけをゆっくり巡らせる。白へ振る別フェーズは持たない */
+  from { filter: hue-rotate(0deg); }
+  to   { filter: hue-rotate(360deg); }
+}
+@keyframes party-swirl {     /* 各隅の光の中心を時計回りに小さく旋回(上→右→下→左) */
+  0%, 100% { transform: translate(0,      -13vmin); }
+  25%      { transform: translate(13vmin,   0); }
+  50%      { transform: translate(0,       13vmin); }
+  75%      { transform: translate(-13vmin,  0); }
+}
+@keyframes party-spot {      /* 主が最も明るく/時計回りで次の角が2番目/残り2つ(直前の隣・対角)は暗め。位相ずれで時計回りに巡る */
+  0%, 100% { opacity: .82; } /* 主＝最も明るい(コントラスト強化) */
+  25%      { opacity: .05; } /* 直前にピークだった隣＝最も暗い */
+  50%      { opacity: .12; } /* 対角＝暗 */
+  75%      { opacity: .5; }  /* 時計回りで次の角(次にピーク)＝2番目に明るい */
+}
+
+/* 「色がちょっと違う中心」: 扇形の形でマスクしたラッパーの中で色ブロブを動かす→扇形の中にだけ色差が現れ、
+   別個の光として浮かない。マスクは扇形(=四隅の扇形と同じ形・固定)。中の色ブロブが外周を時計回りに移動する。 */
+.party-fx .pf-hueclip {
+  position: absolute;
+  inset: -16vmin;          /* 四隅の扇形と同じボックス(座標を合わせる) */
+  -webkit-mask:
+    radial-gradient(64vw 64vh at 16vmin 16vmin,                   #000 42%, transparent 100%),
+    radial-gradient(64vw 64vh at calc(100% - 16vmin) 16vmin,        #000 42%, transparent 100%),
+    radial-gradient(64vw 64vh at calc(100% - 16vmin) calc(100% - 16vmin), #000 42%, transparent 100%),
+    radial-gradient(64vw 64vh at 16vmin calc(100% - 16vmin),        #000 42%, transparent 100%);
+          mask:
+    radial-gradient(64vw 64vh at 16vmin 16vmin,                   #000 42%, transparent 100%),
+    radial-gradient(64vw 64vh at calc(100% - 16vmin) 16vmin,        #000 42%, transparent 100%),
+    radial-gradient(64vw 64vh at calc(100% - 16vmin) calc(100% - 16vmin), #000 42%, transparent 100%),
+    radial-gradient(64vw 64vh at 16vmin calc(100% - 16vmin),        #000 42%, transparent 100%);
+}
+.party-fx .pf-hue {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 220vmin; height: 220vmin; margin: -110vmin;   /* 画面中心基準。大きめの円(マスクで扇形内にクリップ) */
+  /* 保持なしで中心からゆるやかに減衰=輪郭をぼかす */
+  background: radial-gradient(closest-side circle,
+    rgba(120,200,255,.6) 0%, transparent 82%);
+}
+body.dark.dance-on .pf-hue {
+  /* color=ベースと別の色相を巡らせる(常に色差) / move=外周を時計回りに一周(--pT=明暗のparty-spotと同期) */
+  animation: party-color var(--pT) linear infinite, party-move var(--pT) linear infinite;
+  animation-delay: calc(var(--pT) * -0.5), 0s;
+}
+@keyframes party-move {       /* 楕円軌道で時計回り(角は折れずに内側を回り込む/辺の中央は壁=半円)。角をなぞる感を消す */
+  0%, 100% { transform: translate(-35vw, -35vh); }  /* 左上寄り(内側) */
+  12.5%    { transform: translate(0,     -50vh); }  /* 上辺中央(壁) */
+  25%      { transform: translate(35vw,  -35vh); }  /* 右上寄り */
+  37.5%    { transform: translate(50vw,   0); }     /* 右辺中央(壁) */
+  50%      { transform: translate(35vw,   35vh); }  /* 右下寄り */
+  62.5%    { transform: translate(0,      50vh); }  /* 下辺中央(壁) */
+  75%      { transform: translate(-35vw,  35vh); }  /* 左下寄り */
+  87.5%    { transform: translate(-50vw,  0); }     /* 左辺中央(壁) */
 }

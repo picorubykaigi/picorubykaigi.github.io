@@ -53,6 +53,28 @@
     <div class="bb-battery" data-part="battery" role="button" aria-label="バッテリー" style="right:100px; bottom:120px;"></div>
     <!-- スピーカー → 下中央のソケットに挿す → 縁のマイコンボードが一斉に踊り出す(抜くと止まる) -->
     <div class="bb-speaker" data-part="speaker" role="button" aria-label="スピーカー" style="right:40px; bottom:120px;"></div>
+    <!-- パーティモード(ダーク+ダンス)の画面全体ディスコ照明。扇形の四隅光は形・明るさ一定のまま、
+         色相だけを 1/4 ずつ位相ずらしで巡らせる→色の変化が中心を移動していくように見える。最大でも薄め。
+         c1=左上→c2=右上→c3=右下→c4=左下 の時計回り順。 -->
+    <!-- ゆらめき用の乱流変位フィルタ(蝋燭の炎が風に揺れる質感)。baseFrequencyをアニメして有機的に揺らす -->
+    <svg width="0" height="0" aria-hidden="true" style="position:absolute">
+      <filter id="party-flicker" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.008 0.013" numOctaves="2" seed="7" result="n">
+          <animate attributeName="baseFrequency" dur="16s" repeatCount="indefinite"
+                   values="0.008 0.013; 0.012 0.018; 0.007 0.011; 0.010 0.015; 0.008 0.013"/>
+        </feTurbulence>
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="64" xChannelSelector="R" yChannelSelector="G">
+          <!-- 変位量を脈動させ、ノイズの位相によらず常にゆらぎが出るように(序盤も穏やかになりすぎない) -->
+          <animate attributeName="scale" dur="6.5s" repeatCount="indefinite" values="54;80;58;76;54"/>
+        </feDisplacementMap>
+      </filter>
+    </svg>
+    <div class="party-fx" aria-hidden="true">
+      <span class="pf c1"></span><span class="pf c2"></span><span class="pf c3"></span><span class="pf c4"></span>
+      <!-- 「色がちょっと違う中心」: 扇形の形でマスク→扇形の中にだけ色差が現れ、それが外周を時計回りに移動 -->
+      <span class="pf-hueclip"><span class="pf-hue"></span></span>
+    </div>
+
     <!-- 縁をぐるりと囲むマイコンボード。スピーカーを挿すとビートに乗って踊る -->
     <div class="dancers" aria-hidden="true"></div>
 

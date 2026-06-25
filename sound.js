@@ -145,6 +145,8 @@
   // 縁のマイコンボードが踊るあいだ流す、ループするチップチューン。
   // ベース(三角)＋リード(矩形アルペジオ)＋キック＋ハットを、先読みスケジューラで途切れず回す。
   let danceTimer=null, danceBus=null, danceT0=null;   // danceT0=グルーヴの拍0のAudioContext時刻(動きと共有する)
+  let danceBassBus=null, danceBassEQ=null, danceThumpBus=null, dancePartyOn=false; // ベース専用バス(パーティモードで増強)/thumpゲート
+  let danceFirstBass=false;          // 再生開始後の最初のベース1音だけ弱める用のワンショット
   const dkick=(c,bus,t)=>{ // バスドラ: 低いサインを素早く落とす
     const o=c.createOscillator(), g=c.createGain(); o.type='sine';
     o.frequency.setValueAtTime(150,t); o.frequency.exponentialRampToValueAtTime(48,t+0.11);
@@ -152,36 +154,107 @@
     g.gain.exponentialRampToValueAtTime(0.0001,t+0.15);
     o.connect(g).connect(bus); o.start(t); o.stop(t+0.17);
   };
+  // パーティ用クラップ「パンッ」: 短いノイズを数回ずらして重ねる=手拍子のばらけた厚み
+  const dclap=(c,bus,t)=>{
+    [0,0.011,0.022].forEach((d,k)=>{
+      const n=Math.floor(c.sampleRate*0.05), b=c.createBuffer(1,n,c.sampleRate), dd=b.getChannelData(0);
+      for(let i=0;i<n;i++) dd[i]=(Math.random()*2-1)*Math.pow(1-i/n,3);   // 速い減衰
+      const s=c.createBufferSource(); s.buffer=b;
+      const bp=c.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=1600; bp.Q.value=1.2; // 手拍子の帯域
+      const g=c.createGain(); g.gain.value=(k===2)?0.5:0.3;              // 本体を少し強く
+      s.connect(bp).connect(g).connect(bus); s.start(t+d);
+    });
+  };
+  // パーティ用の太いサブベース: サインの基音に tanh 歪みで芯(倍音)を足して
+  //   小型スピーカーでも“太く”聞こえるようにする。ピッチは動かさない。
+  const WS_CURVE=(()=>{ const cv=new Float32Array(1024); for(let i=0;i<1024;i++){ const x=i*2/1024-1; cv[i]=Math.tanh(2.4*x); } return cv; })();
+  const dthump=(c,bus,f,t,dur,vol)=>{
+    const v=vol||1;                                                                    // 音量倍率(後拍の強調などに使う)
+    const o=c.createOscillator(); o.type='sine'; o.frequency.setValueAtTime(f,t);     // ピッチ固定=芯のある低音
+    const drive=c.createWaveShaper(); drive.curve=WS_CURVE; drive.oversample='2x';     // 倍音=太さ/芯
+    const g=c.createGain();
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(v,t+0.006);                                    // ドンッ(より速い立ち上げ)
+    g.gain.setValueAtTime(v,t+dur*0.5);                                                // ずん…(保持で重み)
+    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);                                 // スッと抜ける
+    o.connect(drive).connect(g).connect(bus); o.start(t); o.stop(t+dur+0.02);
+    // アタックのクリック(芯/パンチ): ごく短い高めのトランジェントで「どんっ」の打感を立てる
+    const ck=c.createOscillator(); ck.type='triangle'; ck.frequency.setValueAtTime(f*4,t);
+    const cg=c.createGain(); cg.gain.setValueAtTime(0.5*v,t); cg.gain.exponentialRampToValueAtTime(0.0001,t+0.035);
+    ck.connect(cg).connect(bus); ck.start(t); ck.stop(t+0.05);
+  };
   // 16ステップ(8分音符)1ループ。0=休符。ベース(三角)＋リード(矩形＋軽いビブラート)。
   const D_BASS=['C2',0,'C3',0,'G1',0,'G2',0,'A1',0,'A2',0,'F1',0,'G1',0];
   const D_LEAD=['E5','G5','C6','G5','E5','G5','D6','B5','C6','E6','C6','A5','F5','A5','G5','B5'];
-  const DANCE_MASTER=0.02;          // マスター音量
+  const DANCE_MASTER=0.02;          // マスター音量(ライト)
+  const DANCE_MASTER_PARTY=0.016;   // パーティモード時は要素が増え密度が上がるぶん、総音量をライトモードに合わせて少し下げる
+  const BASS_PARTY_GAIN=2.2;        // パーティモード時のベース音量倍率(通常=1)
+  const BASS_PARTY_EQ=8;            // パーティモード時の低域シェルフブースト(dB / 通常=0)
   const danceStart=bpm=>{
     bpm=bpm||144;
     if(danceTimer) return;            // 多重起動を防ぐ(socket は毎フレーム apply するため)
     const c=ac();
     const step=(60/bpm)/2, STEPS=16, loopDur=STEPS*step;
     const bus=c.createGain(); bus.gain.value=0.0001; bus.connect(c.destination);
-    bus.gain.exponentialRampToValueAtTime(DANCE_MASTER, c.currentTime+0.2);   // そっとフェードイン
+    bus.gain.exponentialRampToValueAtTime(dancePartyOn?DANCE_MASTER_PARTY:DANCE_MASTER, c.currentTime+0.2);   // そっとフェードイン(開始時のモードに合わせる)
     danceBus=bus;
+    // ベースだけ別バスに通す: パーティモードで gain と低域シェルフを持ち上げてベースを強くする
+    const bassEQ=c.createBiquadFilter(); bassEQ.type='lowshelf'; bassEQ.frequency.value=160;
+    const bassBus=c.createGain();
+    bassEQ.connect(bassBus); bassBus.connect(bus);
+    danceBassEQ=bassEQ; danceBassBus=bassBus;
+    bassEQ.gain.value=dancePartyOn?BASS_PARTY_EQ:0;       // 再生開始時点のパーティ状態を反映
+    bassBus.gain.value=dancePartyOn?BASS_PARTY_GAIN:1;
+    // thumpは毎ループ仕込み、鳴る/鳴らないはこのゲートで即時開閉(=モード切替にすぐ追従)
+    const thumpBus=c.createGain(); thumpBus.gain.value=dancePartyOn?1:0; thumpBus.connect(bassBus);
+    danceThumpBus=thumpBus;
+    danceFirstBass=true;             // 頭のベース制御用(パーティ=最初の拍頭を出さず後拍から / ライト=最初の1音を弱める)
     danceT0=c.currentTime+0.1;        // 拍0の時刻(動き側 danceClock と共有)
     let nextT=danceT0;
     const tick=()=>{
       const t0=nextT;
-      for(let i=0;i<STEPS;i++){ const t=t0+i*step;
-        const b=D_BASS[i]; if(b) blip(c,bus,fM(midiOf(b)),t,step*1.6,0.5,'triangle');         // ベース(三角)
-        const l=D_LEAD[i]; if(l) blip(c,bus,fM(midiOf(l)),t,step*0.92,0.34,'square',0.008);   // リード(矩形＋軽いビブラート)
-        if(i%4===0) dkick(c,bus,t);                                                          // 4つ打ちキック
-        if(i%2===1) sparkle(c,bus,t,0.022,0.10);                                             // ハット(裏)
-        if(i===4||i===12) sparkle(c,bus,t,0.055,0.18);                                       // スネア風
+      // パーティは後ノリ: キックは拍頭のまま、ベースとバックビート系をわずかに後ろへ溜める
+      const laid=dancePartyOn?step*0.09:0;
+      for(let i=0;i<STEPS;i++){ const t=t0+i*step, tL=t+laid;
+        const b=D_BASS[i]; if(b){ const bf=fM(midiOf(b));
+          const first=danceFirstBass; danceFirstBass=false;                                  // 再生開始後の最初のベース1音か
+          const skip=first && dancePartyOn;                                                  // パーティは最初の拍頭ベースを出さず、後拍から始める(頭の違和感を防ぐ)
+          const intro=(first && !dancePartyOn)?0.45:1;                                        // ライトは最初の1音だけ弱める
+          if(!skip){
+            const back=dancePartyOn && (i%4===2);                                            // 後拍=キックの裏に来るベース(2/6/10/14)
+            blip(c,bassBus,bf,tL,step*1.6,(back?0.66:0.5)*intro,'triangle');                  // ベース(三角・専用バス経由/後ノリ/後拍を強調)
+            dthump(c,danceThumpBus,bf,tL,step*1.7,(back?1.3:1)*intro);                        // 「ずん/どん」の太いサブベース(後拍を強調)
+          }
+        }
+        // リード(矩形＋軽いビブラート)。ライト=メロディ主役で前へ / パーティ=ベースに譲って控えめ
+        const l=D_LEAD[i]; if(l) blip(c,bus,fM(midiOf(l)),t,step*0.92,dancePartyOn?0.26:0.40,'square',0.008);
+        if(i%4===0) dkick(c,bus,t);                                                          // 4つ打ちキック(拍頭=アンカー)
+        if(i%2===1) sparkle(c,bus,tL,0.022,0.10);                                            // ハット(裏/後ノリ)
+        if(i===4||i===12) sparkle(c,bus,tL,0.055,0.18);                                      // スネア風(後ノリ)
+        if(dancePartyOn){                                                                    // パーティ: ビートを効かせる
+          if(i%4===0) dkick(c,bus,t);                                                        //   キックを重ねて四つ打ちを太く(拍頭)
+          if(i%4===2) sparkle(c,bus,tL,0.11,0.22);                                           //   オフビートのオープンハット(ツー/後ノリ)
+          if(i===4||i===12) dclap(c,bus,tL);                                                 //   バックビートのクラップ(パンッ/後ノリ)
+        }
       }
       nextT+=loopDur;
       danceTimer=setTimeout(tick, loopDur*1000-55);   // 1ループぶん先読みして繋ぐ
     };
     danceTimer=setTimeout(tick,0);   // ガード成立用に timer をセット → tick が自分で次を予約
   };
+  // パーティモードのON/OFF: ベース専用バスを滑らかに増強/通常へ戻す(再生中のみ効く)
+  const danceParty=on=>{
+    dancePartyOn=!!on;
+    if(!danceBassBus||!danceBassEQ) return;
+    const c=ac(), n=c.currentTime, tc=0.08;
+    danceBassBus.gain.setTargetAtTime(dancePartyOn?BASS_PARTY_GAIN:1, n, tc);
+    danceBassEQ.gain.setTargetAtTime(dancePartyOn?BASS_PARTY_EQ:0, n, tc);
+    if(danceThumpBus) danceThumpBus.gain.setTargetAtTime(dancePartyOn?1:0, n, 0.02); // ベースの入り/出を即時に
+    if(danceBus) danceBus.gain.setTargetAtTime(dancePartyOn?DANCE_MASTER_PARTY:DANCE_MASTER, n, tc); // 総音量をモード間でそろえる(切替の段差を消す)
+  };
   const danceStop=()=>{
     if(!danceTimer) return; clearTimeout(danceTimer); danceTimer=null; danceT0=null;
+    danceBassBus=null; danceBassEQ=null; danceThumpBus=null;
     const g=danceBus; danceBus=null; if(!g) return;
     try{ const c=ac(), n=c.currentTime;
       g.gain.cancelScheduledValues(n); g.gain.setValueAtTime(Math.max(g.gain.value,0.0001),n);
@@ -194,6 +267,7 @@
   global.trainPass=trainPass;   // 電車の通過音(プラレール演出から呼ぶ)
   global.danceStart=danceStart; // ダンスのグルーヴ開始(スピーカー挿入)
   global.danceStop=danceStop;   // ダンスのグルーヴ停止(スピーカー抜去)
+  global.danceParty=danceParty; // パーティモード(ダーク＋ダンス)でベース増強
   // グルーヴの拍0からの経過秒(再生中のみ)。動き側がこれを読んで同じ時計で拍を刻む
   global.danceClock=()=> danceT0!=null ? Math.max(0, ac().currentTime - danceT0) : null;
   global.audioCtx=ac;   // ページ共通の AudioContext を公開(全効果音で共有)

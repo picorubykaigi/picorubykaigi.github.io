@@ -285,6 +285,9 @@ function bbApplyGridShift(){
                place:(a,sr)=>({ sx:cx(a,sr)-164, sy:rowTop(a,sr,44) }),
                apply:on=>{ body.classList.toggle('dance-on', on);
                  if(window.prarailDancing) window.prarailDancing(on);   // 踊り中はプラレールのチラ見せを止める
+                 // パーティモード=ダーク(バッテリー)＋ダンス(スピーカー)。先に状態を確定してから開始すると、
+                 // パーティ状態でいきなり始めても danceStart が最初から正しいモードでフェードインでき、入りのノイズが出ない
+                 if(window.danceParty) window.danceParty(on && body.classList.contains('dark'));
                  if(on){ if(window.danceStart) window.danceStart(DANCE_BPM); }
                  else  { if(window.danceStop)  window.danceStop(); } } },
     // モーター → Ruby の右 → 挿した瞬間にプラレールが右→左へ一度走り抜ける(通過音つき)。
@@ -299,7 +302,9 @@ function bbApplyGridShift(){
     // バッテリー → 電源レール(赤+/青-)をまたぐ → ダークモード(暗闇でボードが光る)。位置は据え置き。
     {            part:'battery', anchor:stage, w:27, h:46,
                place:(a,sr)=>({ sx:a.width-180, sy:24 }), // レール・右寄り(中心<96でレール中央へスナップ)
-               apply:on=>body.classList.toggle('dark', on) },
+               apply:on=>{ body.classList.toggle('dark', on);
+                 // ダンス中にダーク切替されたらパーティモードのベース増強も追従
+                 if(window.danceParty) window.danceParty(on && body.classList.contains('dance-on')); } },
   ].filter(Boolean);
   SOCKETS.forEach(s=>{ s.el=document.createElement('div'); s.el.className='circuit-slot circuit-slot--'+s.part; stage.appendChild(s.el); s.was=false; s.wasTouch=false; s.wasWrong=false; s.apply(false); });
   function frame(){
@@ -519,13 +524,17 @@ function bbApplyGridShift(){
   const VARIANTS=4;
   const beat=60/DANCE_BPM;                 // 1拍の秒数(LED点滅・周回テンポの同期に使用)
   host.style.setProperty('--beat', beat.toFixed(3)+'s');
+  document.body.style.setProperty('--beat', beat.toFixed(3)+'s');   // 画面全体の演出(party-fx)も同じ拍で脈打つ
 
+  // 各ボード色のネオン発光色(ダークモードで全体が光る)。dancer1..4(赤/緑/黄/青)に対応。
+  const GLOWS=['#ff5566','#44e58a','#ffb733','#55d6f2'];
   let dancers=[], ranks=[], count=0;
   const build=n=>{
     host.innerHTML=''; dancers=[];
     for(let i=0;i<n;i++){
       const d=document.createElement('div'); d.className='dancer';
       d.style.backgroundImage='url(images/dancer'+((i%VARIANTS)+1)+'.png)';
+      d.style.setProperty('--glow', GLOWS[i%VARIANTS]);   // ダークモードの発光色(LED/ボードグローが参照)
       d.innerHTML='<span class="d-led"></span>';
       host.appendChild(d); dancers.push(d);
     }
@@ -620,7 +629,9 @@ function bbApplyGridShift(){
         if(!vis) continue;
         const f=((((i+adv)%n)+n)%n)/n;             // 前進は base(リング位置)で表現=斜めの拍に必ず束ねる
         const p=ptAt(f,x0,y0,x1,y1);
-        if(farewell && ranks[i]===0){
+        const isBye = farewell && ranks[i]===0;
+        d.classList.toggle('bye', isBye);            // パーティモード(ダーク)で光ったままお手ふりさせるための印
+        if(isBye){
           // ぱらぱらっ: 下3分目あたりを軸に / ↔ \ を素早くスナップ往復=Xを描いてキレよく消える
           // ぱらぱらっと振り、最後はダンス時の傾き(↗=TILT)に戻して終える(0°=水平=横倒しを避ける)
           const ang=(waveT < WAVE_DUR-FLAP) ? (Math.floor(waveT/FLAP)%2 ? FLAP_ANG : -FLAP_ANG) : TILT;
