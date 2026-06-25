@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Ruby facet picker</title>
+<style>
+  body{font-family:system-ui,sans-serif;margin:0;background:#1a0a10;color:#eee;display:flex;gap:16px;padding:16px}
+  .stage{position:relative;flex:0 0 auto}
+  .stage img{display:block;width:640px;image-rendering:pixelated;background:#2a0a12}
+  svg{position:absolute;left:0;top:0;width:640px;height:auto}
+  polygon{fill:rgba(80,200,255,.35);stroke:#39f;stroke-width:3}
+  circle{fill:#fff;stroke:#0a0;stroke-width:2;cursor:grab}
+  circle.drag{cursor:grabbing;fill:#ff0}
+  .panel{font-size:14px;line-height:1.7}
+  textarea{width:340px;height:90px;font-family:monospace;font-size:13px}
+  button{font-size:13px;padding:4px 10px;margin:2px 0;cursor:pointer}
+  code{background:#000;padding:1px 5px;border-radius:3px}
+  #pos{font-family:monospace;color:#9f9}
+</style>
+</head>
+<body>
+  <div class="stage">
+    <img src="images/ruby.png" alt="">
+    <svg id="ov" viewBox="0 0 1078 955"></svg>
+  </div>
+  <div class="panel">
+    <b>使い方</b>
+    <ol style="padding-left:18px;margin:6px 0">
+      <li>白い丸を<b>ドラッグ</b>して頂点を面に合わせる</li>
+      <li>画像の<b>空き部分をクリック</b>で頂点を追加</li>
+      <li>丸を<b>右クリック</b>で頂点を削除</li>
+      <li>下の文字列を <code>index.html</code> の <code>points="…"</code> に貼る</li>
+    </ol>
+    カーソル位置: <span id="pos">-</span><br><br>
+    <b>points=</b><br>
+    <textarea id="out" readonly></textarea><br>
+    <button onclick="copyOut()">コピー</button>
+    <button onclick="reset()">初期値に戻す</button>
+    <button onclick="clr()">全消去</button>
+    <p style="color:#aaa;font-size:12px">調整が終わったらこのファイル(_facet_picker.html)は削除してOKです。</p>
+  </div>
+<script>
+const VW=1078, VH=955;
+// 初期値 = いまの rC
+const INIT=[[806,163],[965,292],[762,478],[696,284]];
+let pts=INIT.map(p=>p.slice());
+const ov=document.getElementById('ov'), out=document.getElementById('out'), pos=document.getElementById('pos');
+const SVGNS='http://www.w3.org/2000/svg';
+let dragging=-1;
+
+function toV(e){ // client -> viewBox coords
+  const r=ov.getBoundingClientRect();
+  return [Math.round((e.clientX-r.left)/r.width*VW), Math.round((e.clientY-r.top)/r.height*VH)];
+}
+function render(){
+  ov.innerHTML='';
+  const poly=document.createElementNS(SVGNS,'polygon');
+  poly.setAttribute('points',pts.map(p=>p.join(',')).join(' '));
+  ov.appendChild(poly);
+  pts.forEach((p,i)=>{
+    const c=document.createElementNS(SVGNS,'circle');
+    c.setAttribute('cx',p[0]); c.setAttribute('cy',p[1]); c.setAttribute('r',9);
+    c.dataset.i=i;
+    c.addEventListener('mousedown',e=>{dragging=i;c.classList.add('drag');e.stopPropagation();e.preventDefault();});
+    c.addEventListener('contextmenu',e=>{e.preventDefault();if(pts.length>3){pts.splice(i,1);render();}});
+    ov.appendChild(c);
+  });
+  out.value=pts.map(p=>p.join(',')).join(' ');
+}
+ov.addEventListener('mousemove',e=>{
+  const v=toV(e); pos.textContent=v[0]+','+v[1];
+  if(dragging>=0){ pts[dragging]=v; render(); pos.textContent=v[0]+','+v[1]; }
+});
+window.addEventListener('mouseup',()=>{dragging=-1;});
+ov.addEventListener('click',e=>{ if(dragging>=0)return; pts.push(toV(e)); render(); });
+function copyOut(){ out.select(); navigator.clipboard.writeText(out.value); }
+function reset(){ pts=INIT.map(p=>p.slice()); render(); }
+function clr(){ pts=[]; render(); }
+render();
+</script>
+</body>
+</html>

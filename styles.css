@@ -1,0 +1,1444 @@
+@import url('https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single&family=Bitcount+Grid+Double&family=Bitcount+Single:ELSH,wght@0..100,100..900&family=Sixtyfour&family=Workbench&family=Mozilla+Headline:wght@200..700&family=Doto:wght@100..900&family=Jacquarda+Bastarda+9&family=Jersey+10&family=Jersey+25&family=Micro+5&family=Tiny5&family=DotGothic16&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0');
+
+@font-face {
+  font-family: 'Conti Neue 2P';
+  src: url('fonts/ContiNeue2P-1.0.1.woff2') format('woff2');
+  font-display: swap;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  image-rendering: pixelated;
+}
+
+:root {
+  --bg: #eceade;
+  --ink: #26242f;
+  --red: #e8404b;
+  --redd: #c0223a;
+  --yellow: #ffc12e;
+  --pink: #ff4a2e; /* Ruby に寄せた光のにじみ色（オレンジ寄りの暖かい赤＝スカーレット。L-chika と共通） */
+  /* L-chika 点灯色(モードで色だけ差し替え。アニメ名は変えない=切替で再スタートしない) */
+  --lit-stroke: #ffe7d8;                 /* 点灯時の枠色 */
+  --lit-glow-a: #ffd9c2;                  /* にじみ(内) */
+  --lit-glow-b: rgba(255,158,115,.7);     /* にじみ(外) */
+}
+
+body {
+  background: var(--bg);
+  font-family: 'DotGothic16', monospace;
+}
+
+.stage {
+  position: relative;
+  min-height: 100svh;   /* 実際の1stビュー(タブレット等のバー表示時の小さい視高)基準。PCでは svh==vh で不変 */
+  overflow: hidden;
+  color: var(--ink);
+  background:
+    url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2796%27%3E%3Crect%20x=%270%27%20y=%270%27%20width=%2724%27%20height=%2796%27%20fill=%27%23eceade%27/%3E%3Crect%20x=%270%27%20y=%2712%27%20width=%2724%27%20height=%274%27%20fill=%27%23e8404b%27/%3E%3Crect%20x=%279.5%27%20y=%2731.5%27%20width=%275%27%20height=%275%27%20fill=%27%2339352b%27%20fill-opacity=%27.11%27/%3E%3Crect%20x=%2711%27%20y=%2733%27%20width=%275%27%20height=%275%27%20fill=%27%231c180e%27%20fill-opacity=%27.14%27/%3E%3Crect%20x=%279.5%27%20y=%2755.5%27%20width=%275%27%20height=%275%27%20fill=%27%2339352b%27%20fill-opacity=%27.11%27/%3E%3Crect%20x=%2711%27%20y=%2757%27%20width=%275%27%20height=%275%27%20fill=%27%231c180e%27%20fill-opacity=%27.14%27/%3E%3Crect%20x=%270%27%20y=%2776%27%20width=%2724%27%20height=%274%27%20fill=%27%235f7cb8%27/%3E%3C/svg%3E") left top/24px 96px repeat-x, url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2724%27%3E%3Crect%20x=%279.5%27%20y=%279.5%27%20width=%275%27%20height=%275%27%20fill=%27%2339352b%27%20fill-opacity=%27.11%27/%3E%3Crect%20x=%2711%27%20y=%2711%27%20width=%275%27%20height=%275%27%20fill=%27%231c180e%27%20fill-opacity=%27.14%27/%3E%3C/svg%3E") 0 0/24px 24px, var(--bg);
+}
+
+.wrap {
+  position: relative;
+  z-index: 4;
+  max-width: 1320px;
+  margin: 0 auto;
+  min-height: 100svh;   /* 1stビュー=実視高(svh)基準。PCでは svh==vh で不変、タブレットのバー表示に追従 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(4px, 1.2svh, 14px);
+  /* 上: ロゴが上部レール帯(赤y12-16 / 青y76-80)に被らないよう、青レール下端から明確に離す
+     (下限96px=帯の高さ。これより上げない)。下: 電光掲示板(高さ≈54px)ぶんを確保。 */
+  padding: clamp(96px, 10svh, 116px) 3vw clamp(64px, 8svh, 96px);
+}
+
+/* ===== INFO: date / venue / keynotes (centered, below logo) ===== */
+.info {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: clamp(6px, 1.1vh, 13px);
+  /* svh 連動 + 下限を下げて、背の低いタブレット(601〜)でも電光掲示板まで収める。
+     背の高い画面では上限まで広がりデスクトップの余白感を保つ。 */
+  margin-top: clamp(20px, 6svh, 108px);
+}
+
+.keynotes {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+  gap: clamp(14px, 2vw, 32px);
+  text-align: left;
+  margin-top: clamp(8px, 1.8vh, 26px);
+}
+
+.keynotes .keynote-label {
+  font-family: 'Jersey 10', sans-serif;
+  font-size: clamp(14px, 2.4vw, 21px);  /* vw係数大=中間幅(タブレット)で大きく。狭幅は下限14/デスクトップは上限21で据置 */
+  color: var(--ink);                 /* 黒(インク色) */
+  letter-spacing: .14em;
+  text-indent: .14em;                /* letter-spacing は末尾にも入る→先頭に同量足して左右の偏りを相殺 */
+  line-height: 1;
+  align-self: flex-start;            /* 名前ブロックの上端に揃える(上つき) */
+  margin-top: .3em;                  /* 上に寄りすぎるので少し下げて1行目の名前と頭を揃える */
+  /* 文字を枠の中央(縦横とも)に置く。pixelフォントの字面ズレを padding 任せにせず flex で中央寄せ */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: .08em .55em;              /* 枠の内側余白(上下を詰めて縦幅を狭く・左右はそのまま) */
+  /* ドット絵の角丸: 角を2段の階段状に欠いたピクセル枠(上端→段→側端)。1段より円に近い。
+     border-image なので幅が変わっても角は潰れない。16px四方の四隅を6pxスライス →
+     角は2段、辺は2pxの直線が伸びる。crispEdges でカクッと。 */
+  border: 6px solid var(--ink);      /* フォールバック色 & 枠の太さ */
+  border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Cg fill='%2326242f'%3E%3Crect x='4' y='0' width='8' height='2'/%3E%3Crect x='4' y='14' width='8' height='2'/%3E%3Crect x='0' y='4' width='2' height='8'/%3E%3Crect x='14' y='4' width='2' height='8'/%3E%3Crect x='2' y='2' width='2' height='2'/%3E%3Crect x='12' y='2' width='2' height='2'/%3E%3Crect x='2' y='12' width='2' height='2'/%3E%3Crect x='12' y='12' width='2' height='2'/%3E%3C/g%3E%3C/svg%3E") 6 / 6px stretch;
+}
+
+/* ダークモード: KEYNOTEラベルの枠を白に(border-imageのSVG塗りは色をハードコードするため上書きが必要) */
+body.dark .keynotes .keynote-label {
+  border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Cg fill='%23ffffff'%3E%3Crect x='4' y='0' width='8' height='2'/%3E%3Crect x='4' y='14' width='8' height='2'/%3E%3Crect x='0' y='4' width='2' height='8'/%3E%3Crect x='14' y='4' width='2' height='8'/%3E%3Crect x='2' y='2' width='2' height='2'/%3E%3Crect x='12' y='2' width='2' height='2'/%3E%3Crect x='2' y='12' width='2' height='2'/%3E%3Crect x='12' y='12' width='2' height='2'/%3E%3C/g%3E%3C/svg%3E") 6 / 6px stretch;
+}
+
+.keynotes .keynote-names {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.keynotes .keynote-name {
+  font-family: 'Conti Neue 2P', sans-serif;
+  color: var(--ink);
+  line-height: 1.2;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+}
+
+.keynotes .keynote-name.en { font-size: clamp(15px, 2.9vw, 22px); letter-spacing: .3em; }   /* 中間幅で上限近くまで(狭幅15/上限22据置) */
+.keynotes .keynote-name.ja { font-size: clamp(17px, 3.8vw, 29px); letter-spacing: .26em; }  /* 同上(狭幅17/上限29据置) */
+
+.keynotes .keynote-name + .keynote-name {
+  margin-top: .38em;
+}
+
+/* 電光掲示板が出るレイアウト(≥768px)では KEYNOTE 縦積み・センター揃え。 */
+@media (min-width: 768px) {
+  .keynotes {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: clamp(6px, 1.2vh, 14px);
+  }
+  .keynotes .keynote-names {
+    align-items: center;
+  }
+  .keynotes .keynote-label {
+    border: 0;          /* ドット絵の枠を外す(border-image も解除) */
+    padding: 0;
+    align-self: center;
+    margin-top: 0;
+  }
+  /* ダークモードの枠上書き(border-image)はこのレイアウトより詳細度が高く残るため、明示的に解除する */
+  body.dark .keynotes .keynote-label {
+    border-image: none;
+  }
+}
+
+/* ===== SCENE: ruby ===== */
+.scene {
+  position: relative;
+  flex: 0 0 auto;
+  width: clamp(230px, min(28vw, 45vh), 408px);
+  height: clamp(44px, min(5.5vw, 9vh), 78px);
+}
+
+.ruby {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 86%; /* Rubyを少し小さく */
+  z-index: 5;
+}
+
+/* ===== LEDマトリクスの Ruby(画像) =====
+   原画(くっきり)を上に、同じ画像をぼかしたコピーを下に敷いて、
+   フチからじんわり柔らかくにじませる。 */
+.ruby-led {
+  --ruby-img: url('images/ruby-1.png');
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, calc(-50% + clamp(13px, 2.5vh, 28px)));
+  z-index: 5;
+  height: 102px;            /* レール4行(96px)からひとまわり大きく */
+  aspect-ratio: 1072 / 873; /* 高さから幅を決める(ruby-1.png の比率) */
+}
+
+/* 2枚を同じ位置に重ねる(::before=下のぼかし / ::after=上のくっきり) */
+.ruby-led::before,
+.ruby-led::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--ruby-img) center / contain no-repeat;
+  image-rendering: auto;
+}
+
+/* 下に敷いたコピーだけをじんわりぼかす(上の原画はくっきりのまま) */
+.ruby-led::before {
+  filter: blur(.6px);
+  animation: ruby-soften 3.4s ease-in-out infinite;
+}
+
+@keyframes ruby-soften {
+  0%, 100% { filter: blur(.2px); }
+  50%      { filter: blur(.6px); }
+}
+
+/* ダークモード */
+body.dark .ruby-led {
+  --ruby-img: url('images/ruby-2.png');
+  aspect-ratio: 984 / 802;
+}
+
+/* ダークモードはライトの「下のぼかしレイヤー」によるにじみは消す */
+body.dark .ruby-led::before {
+  display: none;
+}
+
+/* ダークモード: 原画のドットに沿って、オレンジにわずかに滲む(アニメなし・静的) */
+body.dark .ruby-led::after {
+  filter: drop-shadow(0 0 .5px rgba(255, 165, 80, .3))
+          drop-shadow(0 0 1.5px rgba(255, 165, 80, .14));
+}
+
+/* Rubyを構成する丸い LED ひと粒ずつに重ねるきらめき。
+   位置は script.js が画像から検出した 57 個の LED 中心(正規化座標)に合わせて生成。
+   ::after(くっきり原画)より上に出すため z-index を持たせる。 */
+.led-glint {
+  --glint: 255, 255, 255;     /* きらめきの色(RGB)。ライト=白 / ダークは緑に差し替え */
+  --glint-bleed: var(--pink); /* にじみ(drop-shadow)の色 */
+  position: absolute;
+  width: 6.6%;              /* LED 直径(≈8.2%)より一回り小さい丸 */
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;       /* 円形にクリップ(縁は AA)。中を光の面が斜めに通過する */
+  overflow: hidden;
+  opacity: 0;               /* .kira のときだけ一瞬点く */
+  z-index: 1;
+  pointer-events: none;
+  mix-blend-mode: screen;   /* 下の赤い LED を照り返す(白いきらめき向け) */
+  will-change: opacity;
+}
+/* ダークモード: 緑に「発光」しているように。芯は赤ドット上で白く飛び(中心=白く明るい)、
+   外側へ向けて緑の光暈(drop-shadow)がにじむ。screen で光らせる(normal だとベタっと見える)。 */
+body.dark .led-glint {
+  --glint: 236, 255, 242;      /* 芯=ほぼ白(ほんのり緑)。screen で白く熱い中心になる */
+  --glint-bleed: rgb(86, 240, 150);
+}
+body.dark .led-glint.kira {
+  /* 緑の光暈を2枚重ねて、暗い背景にじんわり緑が発光して見えるように */
+  filter: drop-shadow(0 0 2px var(--glint-bleed)) drop-shadow(0 0 7px var(--glint-bleed));
+}
+/* 円の中を流れる光の面: "\" 方向(=対角に直交)の帯。左下から入って右上へ抜ける。
+   なめらかさを抑え、輪郭くっきりの純白プラトーにする。プラトーは円より広く取り、
+   中央を通る瞬間に円ぜんぶが真っ白になる。 */
+.led-glint::before {
+  content: "";
+  position: absolute;
+  left: -60%; top: -60%; width: 220%; height: 220%;
+  background: linear-gradient(45deg,
+    rgba(var(--glint),0) 18%, rgb(var(--glint)) 22%, rgb(var(--glint)) 78%, rgba(var(--glint),0) 82%);
+  transform: translate(-80%, 80%); /* 初期は左下の外(まだ円に入っていない) */
+}
+/* ひと粒のきらめき: 左下から面積が増え → 一瞬まっ白 → 右上へ白い輝きが抜ける。
+   面の移動は led-sweep(等速)、中央で opacity を短くホールドして「一瞬まっ白」を作る。 */
+.led-glint.kira {
+  animation: led-kira .35s linear;
+  filter: drop-shadow(0 0 1.5px var(--glint-bleed)); /* にじみ(ライト=ピンク / ダーク=緑) */
+}
+.led-glint.kira::before { animation: led-sweep .35s linear; }
+@keyframes led-kira {
+  0%   { opacity: 0; }
+  42%  { opacity: .75; } /* 中央: 円ぜんぶが白く */
+  58%  { opacity: .75; }
+  100% { opacity: 0; }   /* 右上へ抜けて消える */
+}
+@keyframes led-sweep {
+  0%   { transform: translate(-80%, 80%); }  /* 左下の外 */
+  100% { transform: translate(80%, -80%); }  /* 右上の外へ抜ける */
+}
+
+/* cross: ドット絵風の4方向スパークル(十字)。四角いピクセル(--u)を box-shadow で十字に組む。
+   ぼかしを使わず輪郭をくっきり保つ。中心+内腕は白、先端チップだけテーマ色(ライト=ローズ/ダーク=緑)。
+   拡大するとピクセルがボケるのでスケールはせず、opacity の点滅だけで表示する。 */
+.cross {
+  position: absolute;
+  width: var(--u, 4px); height: var(--u, 4px);
+  background: #fff;
+  transform: translate(-50%, -50%);   /* --u を偶数pxにすれば中心が整数pxに乗る */
+  opacity: 0;
+  z-index: 2;
+  pointer-events: none;
+  --tint: #ff96b9;                     /* ライト=ローズ */
+  box-shadow:
+    /* 上下左右の長い光彩(内腕=白 1〜4u＋先端チップ色 5u) */
+    0 calc(-1 * var(--u)) #fff, 0 calc(-2 * var(--u)) #fff, 0 calc(-3 * var(--u)) #fff, 0 calc(-4 * var(--u)) #fff,
+    0 var(--u) #fff,            0 calc(2 * var(--u)) #fff,   0 calc(3 * var(--u)) #fff, 0 calc(4 * var(--u)) #fff,
+    calc(-1 * var(--u)) 0 #fff, calc(-2 * var(--u)) 0 #fff, calc(-3 * var(--u)) 0 #fff, calc(-4 * var(--u)) 0 #fff,
+    var(--u) 0 #fff,            calc(2 * var(--u)) 0 #fff,   calc(3 * var(--u)) 0 #fff, calc(4 * var(--u)) 0 #fff,
+    0 calc(-5 * var(--u)) var(--tint), 0 calc(5 * var(--u)) var(--tint),
+    calc(-5 * var(--u)) 0 var(--tint), calc(5 * var(--u)) 0 var(--tint),
+    /* 斜め4方向の短い光彩(内=白1段＋先端チップ色。上下左右より短い) */
+    calc(-1 * var(--u)) calc(-1 * var(--u)) #fff, var(--u) calc(-1 * var(--u)) #fff,
+    calc(-1 * var(--u)) var(--u) #fff,            var(--u) var(--u) #fff,
+    calc(-2 * var(--u)) calc(-2 * var(--u)) var(--tint), calc(2 * var(--u)) calc(-2 * var(--u)) var(--tint),
+    calc(-2 * var(--u)) calc(2 * var(--u)) var(--tint),  calc(2 * var(--u)) calc(2 * var(--u)) var(--tint);
+}
+body.dark .cross { --tint: #56f096; } /* ダーク=緑 */
+.cross.go { animation: cross var(--kd, .45s) linear; }
+@keyframes cross {
+  0%   { opacity: 0; }
+  22%  { opacity: var(--ka, 1); }  /* 一度だけ光って */
+  42%  { opacity: var(--ka, 1); }
+  100% { opacity: 0; }             /* 少しゆっくりめにフェードアウト(単発) */
+}
+
+.sparkle {
+  display: none; /* きらきらはいったん非表示 */
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  background: #fff;
+  z-index: 6;
+  box-shadow: 0 -7px var(--yellow), 0 7px var(--yellow), -7px 0 var(--yellow), 7px 0 var(--yellow);
+  animation: sparkle var(--sd) steps(2) infinite;
+}
+
+@keyframes sparkle {
+  0%, 100% { opacity: 0; transform: scale(.4); }
+  45% { opacity: 1; transform: scale(1); }
+}
+
+/* ===== LOGO ===== */
+.title {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 26px;
+  text-align: center;
+  margin-top: clamp(4px, 1.4vh, 18px);
+}
+
+.title .prk {
+  font-family: 'Bitcount Single', 'Jersey 10', sans-serif;
+  font-size: clamp(44px, min(8.8vw, 12.4vh), 112px);
+  line-height: .86;
+  color: #fff; /* Kaigi=白(PicoRubyは下で上書き) */
+  letter-spacing: .04em;
+  font-variation-settings: 'wght' 330, 'ELSH' 50; /* デフォルトのドットを四角(LED風)に・細め */
+}
+
+.title .prk .picoruby {
+  color: #f64b5b; /* PicoRuby=少し明るいピンク */
+}
+
+/* PicoRubyは赤茶色の枠(消灯時)。点灯時は frame-lit で太めの薄ピンク=外枠になる */
+.title .prk .picoruby > .l-chika {
+  --frame: #da1d3c;
+  -webkit-text-stroke: 6px var(--frame);
+  paint-order: stroke fill;
+}
+
+/* Kaigi(=.kaigi内の文字)はグレーの枠(消灯時)。PicoRubyは.picoruby内なので対象外 */
+.title .prk .kaigi > .l-chika {
+  --frame: #454747;
+  -webkit-text-stroke: 6px var(--frame);
+  paint-order: stroke fill;
+}
+
+/* PicoRuby / Kaigi はそれぞれ改行不可の塊にする。折り返し位置は HTML の両者間 <wbr> が唯一の改行機会。 */
+.title .prk .picoruby,
+.title .prk .kaigi {
+  white-space: nowrap;
+}
+
+/* PicoRuby の字間微調整。文字は P(1) i(2) c(3) o(4) R(5) u(6) b(7) y(8) の順。 */
+.title .prk .picoruby > .l-chika:nth-child(2) { margin-left: .02em; }  /* 「Pi」 */
+.title .prk .picoruby > .l-chika:nth-child(3) { margin-left: -.03em; } /* 「ic」 */
+.title .prk .picoruby > .l-chika:nth-child(4) { margin-left: .02em; }  /* 「co」 */
+.title .prk .picoruby > .l-chika:nth-child(5) { margin-left: .04em; }  /* 「oR」 */
+.title .prk .picoruby > .l-chika:nth-child(6) { margin-left: .04em; }  /* 「Ru」 */
+.title .prk .picoruby > .l-chika:nth-child(7) { margin-left: .04em; }  /* 「ub」 */
+.title .prk .picoruby > .l-chika:nth-child(8) { margin-left: .02em; }  /* 「by」 */
+
+/* Kaigi の字間微調整。文字は K(1) a(2) i(3) g(4) i(5) の順。 */
+.title .prk .kaigi > .l-chika:nth-child(1) { margin-left: .04em; }  /* 「yK」(PicoRuby と Kaigi の境目) */
+.title .prk .kaigi > .l-chika:nth-child(2) { margin-left: 0; }      /* 「Ka」 */
+.title .prk .kaigi > .l-chika:nth-child(3) { margin-left: .02em; }  /* 「ai」 */
+.title .prk .kaigi > .l-chika:nth-child(4) { margin-left: -.07em; } /* 「ig」 */
+
+.title .prk .l-chika {
+  position: relative;
+  display: inline-block;
+  /* 点灯時はベース枠を太め薄ピンクにして、::before のピンク内枠の外にはみ出させる(=二重枠) */
+  /* --chase0: チェイスの先頭文字オフセット(既定0)。ダンス(JS駆動)終了時に「次の文字」を入れて
+     CSS チェイスを頭(文字0)からでなく続きから再開させる。非ダンス時は 0=従来どおり。 */
+  /* チェイスはパーティ(JS)と同じ拍で回す: STEP=beat*2≒.83333s(DANCE_BPM 144)、周期=13文字×STEP=10.8333s。
+     周期を文字数×STEPに合わせる=末尾の余白(間)が消え、最後の文字→先頭が1ステップで繋がる(連続チェイス)。 */
+  animation: frame-lit 10.8333s linear infinite;
+  animation-delay: calc((var(--i) - var(--chase0, 0)) * .83333s);
+}
+
+/* 消灯時は --frame(茶/グレー)。点灯の瞬間だけ枠を点灯色にして、にじみ(発光)で光らせる。
+   ライト/ダーク共通の唯一のキーフレーム。色は変数(--lit-*)で差し替えるのでアニメ名は不変
+   =モード切替で再スタートせず、::before/::after とズレない(=二重に光らない)。 */
+@keyframes frame-lit {
+  0%, 0.19% { -webkit-text-stroke: 6px var(--frame); filter: none; text-shadow: var(--rest-bleed, none); }
+  0.2%, 2.88% { -webkit-text-stroke: 6px var(--lit-stroke);     /* 点灯保持 0.2%→2.88% = 0.29s(パーティの LIT と一致) */
+               filter: drop-shadow(0 0 5px var(--lit-glow-a)) drop-shadow(0 0 13px var(--lit-glow-b));
+               text-shadow: var(--lit-bleed, var(--rest-bleed, none)); }  /* 点灯中は地のにじみを点灯色に差し替える(ピンクの上に緑が乗らない) */
+  2.93%, 100% { -webkit-text-stroke: 6px var(--frame); filter: none; text-shadow: var(--rest-bleed, none); }
+}
+
+/* 点灯時の見た目: ピンク枠 → 白い面 → ピンク芯
+   ::before=白い四角+ピンクの枠(ELSH50) / ::after=中心の小さいピンクの円(ELSH0)
+   色は周囲の暖色(朱赤 #ff4a2e)に馴染む暖かいコーラル(#ff9e73)
+   (フル版 Bitcount の Square+Circle レイヤー重ねを、無料の wght/ELSH 軸で近似) */
+.title .prk .l-chika::before,
+.title .prk .l-chika::after {
+  content: attr(data-ch);
+  position: absolute;
+  left: 0;
+  top: 0;
+  text-shadow: none;
+  opacity: 0;
+  animation: l-chika 10.8333s linear infinite;
+  animation-delay: calc((var(--i) - var(--chase0, 0)) * .83333s);   /* --chase0=チェイス先頭オフセット(ベースと一致させる) */
+}
+.title .prk .l-chika::before {
+  font-variation-settings: 'wght' 330, 'ELSH' 50; /* デフォルトと同じ四角 */
+  color: #fff;                          /* 中の面＝白(中心は白く光らせる) */
+  -webkit-text-stroke: 6px #ff9e73;     /* 内枠＝コーラル(朱赤を明るくしたティント) */
+  paint-order: stroke fill;
+}
+.title .prk .l-chika::after {
+  font-variation-settings: 'wght' 200, 'ELSH' 0; /* 中心の円(少し大きめ・四角の内側に収まる) */
+  color: #fff;                          /* 芯＝白(輪なしで塗りに直接乗せる) */
+  -webkit-text-stroke: 5px #ffe7d8;     /* 芯のまわり＝塗りと同じ薄いコーラル(一体化) */
+  paint-order: stroke fill;             /* 白い芯を上に、薄コーラル円は外側に */
+}
+
+@keyframes l-chika {
+  0%, 100% {
+    opacity: 0;
+  }
+  0.2% {     /* ほぼ瞬時に点灯 */
+    opacity: 1;
+  }
+  2.93% {    /* 点灯を保持。frame-lit が枠を暗色へ戻す(2.93%)を“越えて”面を残し、
+                戻る一瞬に地の文字色(PicoRubyのピンク)が覗くのを白い面で隠す */
+    opacity: 1;
+  }
+  2.98% {    /* 枠が暗色に戻りきってから面を落とす=瞬間的に消灯(地色の覗きなし) */
+    opacity: 0;
+  }
+}
+
+.title .year {
+  font-family: 'Micro 5', sans-serif;
+  font-size: clamp(30px, min(5.9vw, 7.7vh), 68px);
+  line-height: .8;
+  color: var(--ink);
+  letter-spacing: .12em;
+  margin-top: -.12em;
+  position: relative;
+  left: .06em;
+}
+
+.title .assemble {
+  font-family: 'Jersey 10', sans-serif;
+  font-size: clamp(16px, min(2.7vw, 3.5vh), 31px);
+  color: var(--ink);
+  letter-spacing: .18em;
+  margin-top: -.25em;
+  position: relative;
+  left: .02em;
+}
+
+/* ===== MENU: board images with labels ===== */
+.button {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(24px, 4.2vw, 64px);
+  margin-top: clamp(12px, 2.8vh, 38px);
+}
+
+.button-icon {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1px;
+  /* フォントは px 上限(18px)で頭打ちなので、ボタン(=背景ボード)を大きめに取り、文字を USB端子(左~13%)と
+     chip(右~74%)の間に収める。vw 係数を上げて 768〜1100px 帯でも板幅を確保。 */
+  height: clamp(64px, min(10.5vw, 10.5vh), 84px);
+  container-type: inline-size;   /* 文字の頭をボード幅基準(cqw)で置くため(下の .button-icon > span) */
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  cursor: pointer;
+  /* オーバーシュート付き(制御点 y>1)で、hover時に少し行き過ぎてから戻る。steps の段階移動はやめる */
+  transition: transform .16s cubic-bezier(.2, 1.8, .4, 1);
+}
+
+.button-icon.ticket {
+  aspect-ratio: 2.741;
+  background-image: url('images/board_red_t.png');
+}
+
+.button-icon.proposal {
+  aspect-ratio: 2.446;
+  background-image: url('images/board_green_t.png');
+}
+
+.button-icon.sponsor {
+  aspect-ratio: 2.520;
+  background-image: url('images/board_yellow_t.png');
+}
+
+/* 文字の頭はボード幅基準(cqw)で USB端子(~13%)の右に置く。フォントサイズは変えない。 */
+.button-icon > span {
+  margin-left: 16cqw;
+}
+
+.button-icon .button-label-jp {
+  font-family: 'Conti Neue 2P', 'DotGothic16', monospace;
+  font-size: clamp(13px, 2.7vw, 18px);  /* 中間幅(タブレット)で上限まで。狭幅13/デスクトップ上限18は据置 */
+  color: #1f1d23;
+}
+
+.button-icon.ticket .button-label-jp {
+  letter-spacing: .18em;
+}
+
+.button-icon.sponsor .button-label-jp {
+  letter-spacing: .1em;
+}
+
+.button-icon .button-label-en {
+  font-family: 'Jersey 10', sans-serif;
+  font-size: clamp(11px, 2vw, 14px);  /* 中間幅で上限まで。狭幅11/デスクトップ上限14は据置 */
+  color: #1f1d23;
+  letter-spacing: .03em;
+  line-height: 1;
+}
+
+.button-icon:hover {
+  transform: translateY(-4px);
+}
+
+/* モバイル専用の日付+会場(静的・複数行)。デフォルト(=デスクトップ)は非表示。モバイルで表示に切替。 */
+.venue {
+  display: none;
+}
+
+/* ===== 電光掲示板ティッカー: 日付+会場が右→左へ流れる ===== */
+.ticker {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: clamp(36px, 5.4vh, 54px);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  background: #16141c;
+  box-shadow: inset 0 2px 7px rgba(0, 0, 0, .55);
+  z-index: 6;
+  --tk-led: 249, 205, 208; /* 電光掲示板のLED色(KEYNOTEの赤 --red #e8404b を白で薄めた同系の淡スカーレット)。塗り/グロー/ドット/ピンが全部これを参照 */
+  /* 点灯ムラ: パネル全体の明るさが小刻みに揺れる(電源の揺らぎ風)。1サイクルに数回チラつかせて分かるように */
+  animation: ticker-flicker 6.5s linear infinite;
+}
+
+/* ドットマトリクス: 消灯したLEDの粒(パネルの地)を描く。
+   フォント自体がドット系で、文字の上に重ねると二重ドットで潰れるため、
+   文字(.ticker-track, z-index:1)の背面(z-index:0)に置いて地のテクスチャにする。 */
+.ticker::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  /* 暗い地に、ほんのり明るい粒。点灯文字はこの上で潰れない */
+  background-image: radial-gradient(circle, rgba(var(--tk-led), .14) 1px, transparent 1.6px);
+  background-size: 5px 5px;
+}
+
+/* 点灯ムラ: ほぼ点灯のまま、1サイクルに2回ほど一瞬だけ沈む/跳ねる(LED看板の揺らぎ) */
+@keyframes ticker-flicker {
+  0%, 22%, 48%, 70%, 100% { filter: brightness(1); }
+  24% { filter: brightness(.78); }
+  26% { filter: brightness(1.08); }
+  28% { filter: brightness(.88); }
+  30% { filter: brightness(1); }
+  72% { filter: brightness(.82); }
+  74% { filter: brightness(1.06); }
+  76% { filter: brightness(.9); }
+  78% { filter: brightness(1); }
+}
+
+.ticker-track {
+  position: relative;
+  z-index: 1; /* ドットマトリクス(.ticker::after, z-index:2)より下に文字を置く */
+  display: flex;
+  flex: none;
+  align-items: center;
+  white-space: nowrap;
+  /* --shift(1フィルの幅px)と所要秒は script.js が実測して設定。JS不在時は静止 */
+  animation: ticker-scroll var(--dur, 60s) linear infinite;
+  will-change: transform;
+}
+
+/* track を「1フィル(=画面幅を超える最小ユニット数)」ぶんだけ流す。
+   2フィル並べてあるので、流し切った瞬間に絵柄が一致して継ぎ目なくループする。 */
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(calc(-1 * var(--shift, 0px))); }
+}
+
+.ticker-unit {
+  display: inline-flex;
+  flex: none;        /* 縮ませない(各ユニットを等幅に保つ) */
+  align-items: center; /* 会場は従来どおりバー中央に置く */
+}
+
+.ticker-item {
+  font-family: 'Micro 5', sans-serif;
+  font-size: clamp(22px, 3.4vw, 38px);
+  line-height: 1;
+  color: rgb(var(--tk-led)); /* LED色は .ticker の --tk-led 1か所で替える */
+  letter-spacing: .06em;
+  padding: 0 .55em;
+  display: inline-flex;
+  align-items: center;
+  gap: .25em;
+  /* グローは塗りと同じ色で強めに滲ませる=色は落ち着いたまま発光感(LED看板) */
+  text-shadow: 0 0 3px rgba(var(--tk-led), .55), 0 0 10px rgba(var(--tk-led), .32);
+}
+
+.ticker-where {
+  font-family: 'Conti Neue 2P', 'DotGothic16', monospace;
+  /* 会場フォントは固定。電光掲示板はマーキーで横スクロールするので幅で縮める必要がなく、
+     日付(.ticker-when=2.5em→body16px基準で実質固定40px)と揃えて常に同じ大きさで読ませる。 */
+  font-size: 22px; /* Micro5の日付より詰まるので少し小さめの固定値 */
+  letter-spacing: .12em;
+  margin: 0 .8em; /* 日付との間隔(左)と次ユニットの日付との間隔(右)を左右対称に */
+}
+
+/* 会場名は公式サイトへのリンク。ホバーで破線下線を出す。 */
+a.ticker-where { cursor: pointer; }
+.ticker-where-label {
+  padding-bottom: .40em;
+  margin-bottom: -.40em;   /* padding ぶんの箱の高さ増を相殺し、日付との下端揃えを保つ(線だけ下げる) */
+  background-repeat: repeat-x;
+  background-position: left bottom;
+  background-size: 8px 2px;   /* ダッシュ周期 8px / 線の高さ 2px(ここで高さを抑える) */
+}
+a.ticker-where:hover .ticker-where-label {
+  background-image: repeating-linear-gradient(to right, currentColor 0 4px, transparent 4px 8px);
+}
+
+/* 会場のピンアイコン: 周囲の LED/ドット世界観に合わせ、セル単位で描いたピクセルのアイコン */
+.ticker-pin {
+  height: 1.1em; /* viewBox 6行ぶん。1セルの大きさは従来(1.3em/7行)と同等 */
+  width: auto;
+  flex: none;
+  fill: currentColor; /* 会場文字と同じLED色を継承 */
+  shape-rendering: crispEdges;
+  margin-right: .28em; /* ピンと「浅草橋」の間を少し空ける(gap .25em に追加) */
+  /* SVG には text-shadow が効かないので drop-shadow で文字と同じ発光を付ける */
+  filter: drop-shadow(0 0 2px rgba(var(--tk-led), .55)) drop-shadow(0 0 5px rgba(var(--tk-led), .32));
+}
+
+.ticker-amp {
+  font-size: .8em;          /* ＆ だけ少し小さく */
+  vertical-align: bottom;   /* 小さくした ＆ を下辺に揃える */
+  margin: 0 -.1em;          /* ＆ の左右が広く見えるので少し詰める */
+}
+
+.ticker-kanji { letter-spacing: .17em; } /* 漢字「浅草橋」だけ詰まって見えるので追加で広げる */
+
+.ticker-when {
+  align-items: baseline;          /* 小さくした SAT を日付のベースライン(=下端)に揃える */
+  font-size: 2.5em;               /* Micro5 は字面が小さいので大きめに。会場より少し大きい見た目に */
+  padding-left: 1em;
+  padding-right: .5em;
+  line-height: .58;               /* 字面に対して行ボックスを詰め、バーを高くせず収める */
+  /* Micro5 は字面がem内で上寄りに置かれるため、中央揃えだと日付が上に浮く。
+     下端を会場の下端に合わせるぶんだけ下げる(ローカルMicro5で実測・校正) */
+  transform: translateY(.11em);
+}
+.ticker-dow { font-size: .8em; line-height: 1; }
+
+/* ダークモード: 電光掲示板は緑に光る(暗闇で発光する看板) */
+body.dark .ticker { --tk-led: 92, 191, 100; }
+
+/* 電光掲示板モジュールの脚(ピンヘッダ): ディスプレイ上辺に 4本の金色ピン。
+   stage の左0基準なので背景グリッドと座標原点が一致。各ピンの left は script.js が
+   最寄りの穴列(12.5 + 24n px)へスナップして設定する(左2本・右2本)。 */
+.ticker-legs {
+  position: absolute;
+  left: 0;
+  bottom: clamp(36px, 5.4vh, 54px); /* = .ticker の高さ。ディスプレイ上辺に密着 */
+  width: 100%;
+  height: 13px;
+  z-index: 6;
+  pointer-events: none;
+}
+
+/* ゴールドの脚(chip.png/motor.png の足に寄せたドット絵風)。left は JS が設定。 */
+.ticker-legs .pin {
+  position: absolute;
+  bottom: 0;
+  width: 6px;
+  height: 100%;
+  border-top: 1px solid #454747;
+  clip-path: polygon(
+    1px 0, 5px 0,
+    5px 1px, 6px 1px,
+    6px 100%, 0 100%,
+    0 1px, 1px 1px);
+  background: linear-gradient(90deg,
+    #454747 0 1px,    /* 左フチ */
+    #c79a31 1px 2px,  /* 金 */
+    #e6bd55 2px 4px,  /* ハイライト */
+    #c79a31 4px 5px,  /* 金 */
+    #454747 5px 6px); /* 右フチ */
+  /* LED(下のパネル)がピンの下側に落とす影。ピン内側の下端を暗くする */
+  box-shadow: inset 0 -2px 2px -1px rgba(0, 0, 0, .55);
+}
+
+@media (max-width: 860px) {
+  .keynotes .keynote-name {
+    white-space: normal;
+  }
+  .scene {
+    width: min(78vw, 360px);
+    /* 高さは正方形(360px)だと中央の小さいRuby上下に巨大余白が出て縦を圧迫する。
+       768〜860px(デスクトップ型タブレット)では svh 連動で抑える。767px 以下はモバイル側で上書き。 */
+    height: clamp(120px, 22svh, 220px);
+  }
+}
+
+/* ===== モバイル型(縦): ヒーロー部を1stビューに確実に収める =====
+   スマホ〜小型タブレット縦(〜767px)。横長基板前提のデスクトップ型は横一列ソケットが
+   601〜767pxで画面外に見切れるため、この幅まではモバイル型(Ruby直下ソケット/静的会場/2ボタン)に
+   切替える。下限フォントを下げてロゴを保ち、各テキスト/ボタンを画面内に収める。 */
+@media (max-width: 767px) {
+  .wrap {
+    /* レール帯(y0〜96)を避けて先頭を置く。中央寄せだと内容が縦に溢れた時にロゴがレールへめり込むため、
+       flex-start で必ず下へ溢れさせる(超過は縦スクロール)。 */
+    justify-content: flex-start;
+    /* 高さ・縦間隔は svh 基準(URLバー表示時の実1stビュー)。100vh だとバー表示中にボタンが見切れる。 */
+    min-height: 100svh;
+    /* 上パディングはレール帯回避の最小限(≈96px)。下は控えめ(電光掲示板が無いので最小)。縦の余りスラックは
+       .title/.scene の margin-top:auto で「ロゴ上/Ruby上」へ回す(短い端末では0=圧縮してボタンまで収める)。 */
+    padding: clamp(96px, 11svh, 104px) 4vw clamp(8px, 1svh, 16px);
+    gap: clamp(2px, .7svh, 8px);
+  }
+
+  /* ロゴ: 1行に収まらない幅では PicoRuby / Kaigi の2行で見せる(折り返しは .picoruby/.kaigi の nowrap で境界に固定)。 */
+  .title {
+    padding: 4px 4px;
+    margin-top: auto;   /* 縦の余りを .scene と分け合ってロゴ上の余白に(短い端末では0=圧縮) */
+    gap: clamp(4px, 1svh, 10px);   /* 各行の行間を少し広げる */
+  }
+  .title .prk {
+    font-size: clamp(38px, 14.5vw, 68px);
+    line-height: .96;   /* PicoRuby/Kaigi が2行になる幅でも行間を確保 */
+  }
+  .title .year {
+    font-size: clamp(28px, 8.8vw, 54px);
+    margin-top: 0;      /* 負マージンをやめて 2026 を詰めすぎない */
+  }
+  .title .assemble {
+    font-size: clamp(15px, 4.8vw, 31px);
+    margin-top: 0;      /* Assemble も詰めすぎない */
+  }
+
+  /* scene を小さく(Ruby丈)してRuby上下の余白を解消(svh連動)。縦の余りスラックは margin-top:auto で
+     Ruby上へ、ソケット/部品バンド(Ruby直下・absolute)のクリアランスは margin-bottom で担保。 */
+  .scene {
+    height: clamp(74px, 12svh, 150px);
+    margin-top: auto;                          /* 余りを .title と分けてRuby上の余白に(短い端末では0=圧縮) */
+    margin-bottom: clamp(62px, 11svh, 90px);   /* ソケット下端クリアランス。venue を auto にして「Ruby上」と均等配分 */
+  }
+
+  /* Rubyは短い端末で縮めて縦を稼ぐ(svh連動。JS が rect 実測でソケット/部品を追従)。
+     transform の下オフセットは JS の ROFF と一致(読み込み後 JS が同値で上書き=未実行時のチラつき防止)。 */
+  .ruby-led {
+    height: clamp(72px, 12svh, 102px);
+    transform: translate(-50%, calc(-50% + clamp(5px, 1.2svh, 16px)));
+  }
+
+  /* venue 直下なので小さい間隔でよい(Ruby上/ソケット下/ボタン下の均等分配は scene/venue/button の auto が担当)。 */
+  .info {
+    margin-top: clamp(4px, 1svh, 22px);
+  }
+
+  .keynotes {
+    gap: clamp(10px, 3vw, 20px);   /* ラベルと名前の間隔をやや詰める */
+  }
+
+  /* CTA: 参加登録(ticket)は非表示、プロポーザル/スポンサーは横並び。 */
+  .button-icon.ticket {
+    display: none;
+  }
+  .button {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: clamp(12px, 3.5vw, 24px);
+    margin-top: clamp(12px, 3svh, 30px);   /* KEYNOTE↔ボタンの間隔 */
+    margin-bottom: auto;                   /* 細長い端末では余りをボタン下にも分配(ロゴ上/Ruby上/ボタン下の3者) */
+  }
+  .button-icon {
+    height: clamp(56px, 14.5vw, 86px);
+    /* 頭の位置は base の cqw margin が担う(ボード幅基準) */
+  }
+
+  /* モバイルは流れる電光掲示板をやめ静的・複数行のプレーン表示に(長い会場名を折り返して全文を出す)。 */
+  .ticker,
+  .ticker-legs {
+    display: none;
+  }
+  .venue {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: clamp(1px, .3svh, 4px);   /* 日付↔会場の行間はせまく */
+    margin-top: auto;              /* クリアランスは scene の margin-bottom が担保。余りを「ソケット下」に分配(短い端末では0) */
+    color: var(--ink);
+    width: 100%;
+  }
+  .venue-when {
+    font-family: 'Micro 5', sans-serif;
+    font-size: clamp(32px, 9vw, 52px);     /* 日付は大きく */
+    letter-spacing: .08em;
+    line-height: 1;
+  }
+  .venue-dow {
+    font-size: .66em;
+    letter-spacing: .04em;
+    margin-left: -.28em;       /* 日付("…31.")と SAT の間を詰める */
+    color: var(--red);         /* SAT は赤 */
+  }
+  .venue-where {
+    font-family: 'Conti Neue 2P', 'DotGothic16', monospace;
+    font-size: clamp(12px, 3.3vw, 18px);   /* 会場は控えめに(日付より小さく)。折り返すので幅制約なし */
+    letter-spacing: .04em;
+    line-height: 1.45;
+    max-width: 94%;                        /* この幅で自然に折り返す */
+  }
+  .venue-pin {
+    height: .92em;
+    width: auto;
+    fill: currentColor;
+    shape-rendering: crispEdges;
+    vertical-align: -0.06em;
+    margin-right: .22em;
+  }
+}
+
+/* 機能ON/OFF(配置で通電=回路側が body にクラス付与) */
+body.fx-lchika-off .title .prk .l-chika { animation: none; }
+body.fx-lchika-off .title .prk .l-chika::before,
+body.fx-lchika-off .title .prk .l-chika::after { animation: none; }
+
+/* ダークモード: breadboard_dark.png のカラーリング(配置・デザインは同じ)。
+   背景=濃紺、ホール=ティールグリーン、レールは赤/青のまま。文字は明色に反転。 */
+body.dark { --bg: #10131c; --ink: #ece9df; }
+body.dark .stage {
+  background:
+    url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2796%27%3E%3Crect%20x=%270%27%20y=%270%27%20width=%2724%27%20height=%2796%27%20fill=%27%2310131c%27/%3E%3Crect%20x=%270%27%20y=%2712%27%20width=%2724%27%20height=%274%27%20fill=%27%23e8404b%27/%3E%3Crect%20x=%279.5%27%20y=%2731.5%27%20width=%275%27%20height=%275%27%20fill=%27%232e5247%27/%3E%3Crect%20x=%2711%27%20y=%2733%27%20width=%274%27%20height=%274%27%20fill=%27%2316302a%27/%3E%3Crect%20x=%279.5%27%20y=%2755.5%27%20width=%275%27%20height=%275%27%20fill=%27%232e5247%27/%3E%3Crect%20x=%2711%27%20y=%2757%27%20width=%274%27%20height=%274%27%20fill=%27%2316302a%27/%3E%3Crect%20x=%270%27%20y=%2776%27%20width=%2724%27%20height=%274%27%20fill=%27%234a7bd6%27/%3E%3C/svg%3E") left top/24px 96px repeat-x,
+    url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2724%27%3E%3Crect%20x=%279.5%27%20y=%279.5%27%20width=%275%27%20height=%275%27%20fill=%27%232e5247%27/%3E%3Crect%20x=%2711%27%20y=%2711%27%20width=%274%27%20height=%274%27%20fill=%27%2316302a%27/%3E%3C/svg%3E") 0 0/24px 24px, var(--bg);
+}
+/* ===== ダークモード: ロゴを REPL(ターミナル)風に =====
+   PicoRuby=Ruby のリン光レッド / Kaigi=ターミナルのリン光グリーン(シンタックスハイライト風)。
+   文字は画面のように淡く発光し、L-chika 点灯は暖色コーラルから緑白のリン光フラッシュへ。
+   行末に点滅するブロックカーソルを置いて REPL らしさを出す。 */
+body.dark .title .prk {
+  color: #6ef0a0;                                  /* Kaigi = リン光グリーン */
+  text-shadow: 0 0 6px rgba(110,240,160,.40), 0 0 16px rgba(110,240,160,.22);
+}
+body.dark .title .prk .picoruby {
+  color: #fb5479;                                  /* PicoRuby = 原色とキャンディピンクの中間(ダークだけパーティ感) */
+  text-shadow: 0 0 7px rgba(251,84,121,.55), 0 0 20px rgba(251,84,121,.35);
+}
+/* にじみ(text-shadow)を消灯/点灯で持ち替える。--rest-bleed=消灯時(地の色), --lit-bleed=点灯時(点灯色)。
+   点灯中はピンク(地)を消して点灯色のにじみに差し替える=にじみ自体は残し色だけ揃える。
+   --rest-bleed の値は上の .prk/.picoruby の text-shadow と同じ。--lit-bleed はにじみ方(半径/濃さ)をピンクと揃え色だけ緑に。 */
+body.dark .title .prk .l-chika {
+  --rest-bleed: 0 0 6px rgba(110,240,160,.40), 0 0 16px rgba(110,240,160,.22);
+  --lit-bleed: 0 0 7px rgba(94,232,154,.55), 0 0 20px rgba(94,232,154,.35);  /* 点灯色(緑)のにじみ */
+}
+body.dark .title .prk .picoruby > .l-chika { --rest-bleed: 0 0 7px rgba(251,84,121,.55), 0 0 20px rgba(251,84,121,.35); }
+
+/* 消灯時フレーム: それぞれの色のくすんだリン光に(濃紺でも沈まない) */
+body.dark .title .prk .kaigi > .l-chika { --frame: #2c6b4a; }     /* Kaigi: 暗い緑 */
+body.dark .title .prk .picoruby > .l-chika { --frame: #97233a; } /* PicoRuby: ピンクを暗くしたリン光オフ色(ライト#da1d3cと同系) */
+
+/* L-chika 点灯: ダークは点灯色だけ緑のリン光に差し替え(キーフレームは共通の frame-lit)。
+   アニメ名を変えないので、モード切替で再スタートせず二重に光らない。 */
+body.dark {
+  --lit-stroke: #8affc4;
+  --lit-glow-a: #8affc4;
+  --lit-glow-b: rgba(94,232,154,.7);
+}
+body.dark .title .prk .l-chika::before {
+  color: #fff;                       /* 面 = 白(中心は白く光らせる) */
+  -webkit-text-stroke: 6px #5be89a;  /* 内枠 = リン光グリーン */
+}
+body.dark .title .prk .l-chika::after {
+  color: #fff;
+  -webkit-text-stroke: 5px #e8fff2;
+}
+
+/* ダンス中の L-chika は JS(script.js)が音の拍(danceClock)に合わせて点灯する。
+   ダンス中は CSS の自走チェイスを止め(.beat-driven)、JS が「今光ってる文字の次から」2拍ごとに
+   .beat-lit を1文字ずつ付け替える。点灯はクラス1つでベース枠と白い面を同時に切替=2つのCSSアニメの
+   再開ズレ(光とピンクのズレ)が起きない。色は --frame/--lit-* がモードごとに解決されるので非スコープ。 */
+.title .prk .l-chika.beat-driven,
+.title .prk .l-chika.beat-driven::before,
+.title .prk .l-chika.beat-driven::after { animation: none; }
+/* 消灯(地)状態: frame-lit の 0% と同じ=モードごとの暗枠(--frame) */
+.title .prk .l-chika.beat-driven {
+  -webkit-text-stroke: 6px var(--frame);
+  filter: none;
+}
+/* 点灯: frame-lit の点灯フレームと同じ見た目を即時に(枠＝点灯色＋発光) */
+.title .prk .l-chika.beat-lit {
+  -webkit-text-stroke: 6px var(--lit-stroke);
+  filter: drop-shadow(0 0 5px var(--lit-glow-a)) drop-shadow(0 0 13px var(--lit-glow-b));
+  text-shadow: var(--lit-bleed, var(--rest-bleed, none));  /* 点灯中は地のにじみを点灯色に差し替える(frame-lit と揃える) */
+}
+/* 白い面オーバーレイを同時に出す(ベース枠と一致) */
+.title .prk .l-chika.beat-lit::before,
+.title .prk .l-chika.beat-lit::after { opacity: 1; }
+
+/* 回路スロット(部品をソケットに挿すと通電→モード切替) */
+/* ソケット = 「破線の枠 + ドット地」。枠の形は各パーツのシルエットを輪郭追跡し、
+   stroke-dasharray で“まっすぐ輪郭に沿った破線”にした SVG
+   (images/<part>-slot.svg, tools/gen_slot_outlines.rb で生成)を background-image で表示。
+   強さ(通常/誘導/ダーク)は opacity で切り替える。ドット地はボード背景が透けて見える。 */
+.circuit-slot {
+  position: absolute;
+  z-index: 6;
+  pointer-events: none;
+  background: var(--slot-img) center / contain no-repeat;
+  opacity: .72;
+  transition: opacity .3s ease, filter .4s ease;
+}
+.circuit-slot--chip    { --slot-img: url('images/chip-slot.svg'); }
+.circuit-slot--battery { --slot-img: url('images/battery-slot.svg'); }
+.circuit-slot--motor   { --slot-img: url('images/motor-slot.svg'); }
+.circuit-slot--speaker { --slot-img: url('images/speaker-slot.svg'); }
+.circuit-slot--seg7    { --slot-img: url('images/seg7-slot.svg'); }
+body.seg7-2 .circuit-slot--seg7 { --slot-img: url('images/seg7-slot-2.svg'); }  /* 2桁モードは2桁スロット枠 */
+
+/* hint: 輪郭に沿って明滅(drop-shadow は破線の形に追従) */
+.circuit-slot.hint {
+  animation: slot-hint-soft 1.4s steps(2) infinite;
+}
+@keyframes slot-hint-soft {
+  0%, 100% { filter: drop-shadow(0 0 2px rgba(255, 193, 46, .28)); }
+  50%      { filter: drop-shadow(0 0 6px rgba(255, 193, 46, .55)); }
+}
+/* 部品が挿さったら枠は消す(スロット非表示)。opacity を使うモードより優先 */
+.circuit-slot.filled {
+  opacity: 0 !important;
+}
+/* ダークモード時は主張を弱める(暗闇でボードが生きている状態) */
+body.dark .circuit-slot {
+  opacity: .42;
+}
+body.dark .circuit-slot.hint {
+  animation: slot-hint-dark 1.5s steps(2) infinite;
+}
+@keyframes slot-hint-dark {
+  0%, 100% { filter: drop-shadow(0 0 2px rgba(255, 193, 46, .18)); }
+  50%      { filter: drop-shadow(0 0 6px rgba(255, 193, 46, .4)); }
+}
+
+/* 挿す部品(画像)。ドラッグして所定のソケット/レールに挿すと回路が成立 */
+.bb-chip,
+.bb-battery,
+.bb-motor,
+.bb-speaker,
+.bb-seg7 {
+  position: absolute;
+  z-index: 8;
+  cursor: grab;
+  touch-action: none;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  image-rendering: pixelated;
+}
+/* 7セグ(カウントダウン表示)。中身(画像+点灯セグメント+ラベル)は script.js が生成。サイズはここで確定 */
+.bb-seg7 {
+  width: 108px;
+  height: 53px;   /* 7seg-2.png 330x163 の比 */
+}
+/* サイズ＝印象バランス。比はそれぞれ元画像を維持 */
+.bb-chip {
+  width: 56px;
+  height: 56px;
+  background-image: url('images/chip.png');     /* IC: 139x139 */
+}
+.bb-battery {
+  width: 26.5px;
+  height: 45.3px;
+  background-image: url('images/battery.png');   /* 乾電池: 110x188 */
+}
+.bb-motor {
+  width: 44px;
+  height: 56.4px;
+  background-image: url('images/motor.png');     /* モーター: 110x141 */
+}
+.bb-speaker {
+  width: 44px;
+  height: 44px;                                  /* スピーカー: 137x138 */
+  background-image: url('images/spaeker.png');
+}
+/* タッチのグラブ範囲拡大: 背景画像はホスト要素側にあり、スナップ幾何(offsetWidth/Height)も
+   ホストの箱は不変なので、見た目とスナップは1pxも変えずに「当たり判定」だけ外側へ広げる。
+   battery は幅26.5pxと細く指で掴みにくいため特に有効(周囲は余白で隣の部品と重ならない)。 */
+.bb-battery::before,
+.bb-speaker::before {
+  content: "";
+  position: absolute;       /* inset でホスト箱の外側まで透明に拡張(ポインタ判定はホストに届く) */
+}
+.bb-battery::before { inset: -9px; }   /* 26.5×45 → 約 44×63px の当たり判定 */
+.bb-speaker::before { inset: -4px; }   /* 44×44 → 約 52×52px */
+
+/* スピーカー上の吹き出しヒント(子要素なので部品位置に追従)。挿入/ドラッグ中は引っ込む。 */
+.spk-hint {
+  --spk-fill: #fff8ec;               /* 中の地色(でっぱりの白塗りで参照) */
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  margin-bottom: 5px;                /* 尾の高さぶん部品の上に浮かせる */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px;
+  background: none;                  /* 中の塗りは border-image(fill)が担う。background だと角の透明部分から四角が覗く */
+  /* KEYNOTE ラベルと同じドット絵の段差角丸。中を塗りたいので fill キーワード＋中央を地色で塗ったSVGにする */
+  border: 5px solid var(--ink);      /* フォールバック色 & 枠の太さ */
+  border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect x='4' y='2' width='8' height='12' fill='%23fff8ec'/%3E%3Crect x='2' y='4' width='12' height='8' fill='%23fff8ec'/%3E%3Cg fill='%2326242f'%3E%3Crect x='4' y='0' width='8' height='2'/%3E%3Crect x='4' y='14' width='8' height='2'/%3E%3Crect x='0' y='4' width='2' height='8'/%3E%3Crect x='14' y='4' width='2' height='8'/%3E%3Crect x='2' y='2' width='2' height='2'/%3E%3Crect x='12' y='2' width='2' height='2'/%3E%3Crect x='2' y='12' width='2' height='2'/%3E%3Crect x='12' y='12' width='2' height='2'/%3E%3C/g%3E%3C/svg%3E") 6 fill / 5px stretch;
+  pointer-events: none;
+  z-index: 20;
+  transition: opacity .08s linear;   /* 持ち上げた瞬間にぱっと消す(短いフェード) */
+  animation: spk-bob 1.8s ease-in-out infinite;
+}
+/* ダークモード: 枠を白・中を暗色に(border-imageのSVGは色をハードコードするため別SVGで上書き) */
+body.dark .spk-hint {
+  --spk-fill: #1b2030;
+  border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect x='4' y='2' width='8' height='12' fill='%231b2030'/%3E%3Crect x='2' y='4' width='12' height='8' fill='%231b2030'/%3E%3Cg fill='%23ffffff'%3E%3Crect x='4' y='0' width='8' height='2'/%3E%3Crect x='4' y='14' width='8' height='2'/%3E%3Crect x='0' y='4' width='2' height='8'/%3E%3Crect x='14' y='4' width='2' height='8'/%3E%3Crect x='2' y='2' width='2' height='2'/%3E%3Crect x='12' y='2' width='2' height='2'/%3E%3Crect x='2' y='12' width='2' height='2'/%3E%3Crect x='12' y='12' width='2' height='2'/%3E%3C/g%3E%3C/svg%3E") 6 fill / 5px stretch;
+}
+.spk-hint .spk-ico { width: auto; height: 10px; fill: var(--ink); flex: none; shape-rendering: crispEdges; }
+/* 下向きの尾(2段): 2段目は中=地色/左右=ink で吹き出しと地続きに(接合部が白)。先端は ink の点。
+   top の 100% はパディング境界(=枠の内側)基準なので、枠ぶん足して下辺の線から外へ出す。 */
+.spk-hint::before,
+.spk-hint::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.spk-hint::before {                  /* 2段目: 線(外側2px)に重ねて始め、中を白で通す */
+  top: calc(100% + 3px);
+  width: 6px; height: 4px;
+  box-sizing: border-box;
+  background: var(--spk-fill);
+  border-left: 2px solid var(--ink);
+  border-right: 2px solid var(--ink);
+}
+.spk-hint::after {                   /* 1段目(先端)の点 */
+  top: calc(100% + 7px);
+  width: 2px; height: 2px;
+  background: var(--ink);
+}
+@keyframes spk-bob {
+  0%, 100% { transform: translate(-50%, 0); }
+  50%      { transform: translate(-50%, -3px); }
+}
+/* 挿さったら(音が鳴っている)/掴んでいる間は役目を終えて引っ込む */
+.bb-speaker.lit-src .spk-hint,
+.bb-speaker.dragging .spk-hint {
+  opacity: 0;
+  animation: none;
+}
+.bb-chip.dragging,
+.bb-battery.dragging,
+.bb-motor.dragging,
+.bb-speaker.dragging,
+.bb-seg7.dragging {
+  cursor: grabbing;
+  z-index: 30;
+}
+/* 保護スペース(会場名/KEYNOTE/ボタン)に被った部品を「周辺」へ弾く時の演出。
+   reset のタンブル(回転)だけ流用し、垂直落下はしない。位置の移動は JS が left/top に
+   トランジションを掛けてスライドさせ、ここでは軽い回転を一往復させて着地。 */
+@keyframes part-eject {
+  0%   { transform: rotate(0deg); }
+  35%  { transform: rotate(var(--eject-rot, -16deg)); }
+  100% { transform: rotate(0deg); }
+}
+.bb-chip.ejecting,
+.bb-battery.ejecting,
+.bb-motor.ejecting,
+.bb-speaker.ejecting,
+.bb-seg7.ejecting {
+  animation: part-eject .42s ease-out;
+  z-index: 30;
+}
+/* 走行中だけ: モーターが小刻みに振動して「回っている」感じ(プラレールが走り終えたら止まる) */
+.bb-motor.driving {
+  animation: motor-buzz .12s steps(2) infinite;
+}
+@keyframes motor-buzz {
+  0%   { transform: translate(0, 0); }
+  50%  { transform: translate(.6px, -.6px); }
+  100% { transform: translate(-.6px, .6px); }
+}
+
+/* プラレール: 普段は画面右の外で待機(たまにヘッドだけチラ見せ)。motorを挿すと右→左へ一度走り抜ける。
+   位置(translateX)は JS が制御。待機=右外 / チラ見せ=ヘッドだけ顔出し / 走行=右→左。 */
+.prarail {
+  position: absolute;
+  left: 0;
+  top: 62%;                         /* 画面中ほど(通過が映える高さ) */
+  height: 80px;
+  aspect-ratio: 2150 / 310;         /* prarail.png の比(高さから幅を決定) */
+  z-index: 50;                      /* 手前を横切る */
+  background: url('images/prarail.png') center/contain no-repeat;
+  image-rendering: pixelated;
+  transform: translate(110vw, -50%);  /* 初期は右画面外(JSが即補正) */
+  pointer-events: none;
+  will-change: transform;
+}
+/* ダークモードでは少しだけ落ち着かせる(夜の電車) */
+body.dark .prarail { filter: brightness(.92); }
+/* ダークモード: 窓だけを暖色で点灯させる(夜行電車の灯り) */
+.prarail::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url('images/prarail-windows.png') center/contain no-repeat;
+  image-rendering: pixelated;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .4s ease;
+}
+body.dark .prarail::after {
+  opacity: 1;
+  filter: blur(.6px)
+          drop-shadow(0 0 4px rgba(255, 224, 170, .85))
+          drop-shadow(0 0 9px rgba(255, 190, 120, .6))
+          drop-shadow(0 0 18px rgba(255, 165, 90, .35));
+}
+
+/* イントロ誘導: しばらくソケットに挿さっていない部品は、時々「ぶるぶるっ」と震えて誘う。
+   各パーツの中心(transform-origin 既定=50% 50%)を支点に、時計回り⇄反時計回りへ小刻みに振れる。 */
+@keyframes part-shiver {
+  0%, 100% { transform: rotate(0); }
+  6%  { transform: rotate(16deg); }   /* 1回目: 時計回り(強) */
+  19% { transform: rotate(-16deg); }  /*        反時計回り(強) */
+  31% { transform: rotate(15deg); }   /* 2回目(強) */
+  44% { transform: rotate(-14deg); }
+  56% { transform: rotate(8deg); }    /* 3回目(弱・余韻) */
+  69% { transform: rotate(-6deg); }
+  81% { transform: rotate(5deg); }    /* 4回目(弱・余韻) */
+  94% { transform: rotate(-3deg); }
+}
+.bb-chip.shiver,
+.bb-battery.shiver,
+.bb-motor.shiver,
+.bb-speaker.shiver,
+.bb-seg7.shiver {
+  transform-origin: 50% 50%;   /* 中心を支点に回す(既定値の明示) */
+  animation: part-shiver .52s ease-in-out;
+  z-index: 20;   /* 震えている間だけ手前へ(ドラッグ中=30 より下) */
+}
+
+/* ===== マイコンボード群: ステージをぐるりと囲む。位置は JS が算出。スピーカーを挿すとビートに乗って踊る。 ===== */
+.dancers {
+  position: absolute;
+  inset: 0;
+  z-index: 7;            /* 電光掲示板の脚(ピン z6)より前。部品(z8)・矢印(z9)より後ろ */
+  pointer-events: none;
+  --beat: .45s;         /* JS が DANCE_BPM から実値を設定 */
+}
+.dancer {
+  position: absolute;
+  left: 0;
+  top: 0;               /* 基点(0,0)。JS が transform: translate でリング上の点へ運ぶ */
+  width: 30px;
+  height: 14px;
+  margin-left: -15px;   /* 中心を基点に合わせる(translate先=ボード中心) */
+  margin-top: -7px;
+  opacity: 0;                  /* デフォルトは非表示。出現は JS が枚数を1枚ずつ増やして制御(フェードしない) */
+  will-change: transform;
+  /* ドット絵PNG(色違いは JS が背景画像で割り当て)。ピクセルをくっきり拡大。 */
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  image-rendering: pixelated;
+}
+/* オンボードLED: 基板右側の赤パッド上に重なる粒。踊ると拍で点滅。
+   PNG の LED パッド(x23-24,y4-5)にぴったり乗せる。 */
+.dancer .d-led {
+  position: absolute;
+  right: 5px;
+  top: 4px;
+  width: 2px;
+  height: 2px;
+  background: #ffe7a0;
+  opacity: .2;
+  --led-glow: 0 0 4px #ffd47a;   /* 点灯時の発光(ライト=控えめ) */
+}
+
+/* 位置(リング上の定位置＋拍ごとの4隅スナップ)も表示/非表示(出現枚数)も JS が制御する。
+   CSS animation は inline transform を上書きするので、ここでは持たせない。 */
+body.dance-on .dancer .d-led {
+  animation: d-blink var(--beat) linear infinite;
+  animation-delay: var(--d, 0s);
+}
+@keyframes d-blink {
+  0%, 49%   { opacity: 1;  box-shadow: var(--led-glow); }
+  50%, 100% { opacity: .2; box-shadow: none; }
+}
+/* パーティモード(=ダーク+ダンス): ボード全体が自分の色でネオン発光し、拍に合わせて脈打つ。 */
+body.dark.dance-on .dancer {
+  animation: d-glow var(--beat) linear infinite;
+  animation-delay: var(--d, 0s);
+}
+/* パーティモードでは、最後のお手ふりの子も光ったまま振る。 */
+body.dark .dancer.bye {
+  animation: d-glow var(--beat) linear infinite;
+}
+@keyframes d-glow {
+  /* オン: ボード自体をパッと点灯(brightness/saturate)＋白い芯＋色ブルーム=フラッシュ(コントラストは少し控えめ) */
+  0%, 42%   { filter: brightness(1.5) saturate(1.35)
+                      drop-shadow(0 0 2px #fff) drop-shadow(0 0 7px var(--glow)) drop-shadow(0 0 15px var(--glow)); }
+  /* オフ: 落とすが暗くしすぎない */
+  50%, 100% { filter: brightness(.82) drop-shadow(0 0 2px var(--glow)); }
+}
+/* LED粒も同じ色で(芯は白く):  */
+body.dark.dance-on .dancer .d-led {
+  background: #fff;
+  --led-glow: 0 0 3px #fff, 0 0 8px var(--glow, #ffd152);
+}
+
+/* パーティモードの画面全体ディスコ照明: 四隅の扇形光は形・明るさを一定に保ち、色相だけを
+   1/4周ずつ位相ずらしで巡らせる→色の変化が中心を移動していくように見える。screenで足し、最大でも薄め。 */
+.party-fx {
+  position: absolute;
+  inset: 0;
+  z-index: 6;              /* 本文(z4)の上・ダンサー(z7)/部品(z8)の下 */
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.8s ease-in-out;   /* 入った瞬間に光がパッと噴き出さず、じわっと点いてくるよう立ち上がりをゆっくり */
+  --pT: 22s;               /* パーティ演出の周期(明暗の巡り・色中心の移動・色相)。ここ1か所で速度調整 */
+}
+/* 各角は別レイヤー。扇形(中央へ膨らむ)で形は固定。色相サイクルを delay でずらす(明るさは動かさない)。
+   最大でも薄い色(不透明度低め)。 */
+.party-fx .pf {
+  position: absolute;
+  inset: -16vmin;           /* 旋回(±13vmin)で端に素の暗い帯が出ないよう画面より大きく取る。中心は角(=16vmin)に置く */
+  mix-blend-mode: screen;
+}
+.party-fx .c1 { background: radial-gradient(64vw 64vh at 16vmin 16vmin,                   rgba(255,145,160,.5) 0%, rgba(255,145,160,.5) 12%, transparent 100%); }
+.party-fx .c2 { background: radial-gradient(64vw 64vh at calc(100% - 16vmin) 16vmin,        rgba(255,145,160,.5) 0%, rgba(255,145,160,.5) 12%, transparent 100%); }
+.party-fx .c3 { background: radial-gradient(64vw 64vh at calc(100% - 16vmin) calc(100% - 16vmin), rgba(255,145,160,.5) 0%, rgba(255,145,160,.5) 12%, transparent 100%); }
+.party-fx .c4 { background: radial-gradient(64vw 64vh at 16vmin calc(100% - 16vmin),        rgba(255,145,160,.5) 0%, rgba(255,145,160,.5) 12%, transparent 100%); }
+
+/* 蝋燭の炎が風に揺れるような有機的なゆらめき: 乱流ノイズで光全体を歪ませる(SVGフィルタはindex.html) */
+body.dark.dance-on .party-fx { opacity: 1; filter: url(#party-flicker); }
+/* 一度に概ね1隅だけ点灯(party-spot)→隣へクロスフェードで受け渡し＝扇形のまま光の中心(点く隅)がめぐる。
+   色相(party-hue)も同じ位相で巡る。delay 0/-6/-4/-2s = 1/4周ずつ → c1→c2→c3→c4 時計回り(8s周回)。 */
+body.dark.dance-on .pf {
+  /* party-color=色相をゆっくり巡らせる(=色が移動) / party-spot=明るさの山が時計回りに巡る(1隅明/対角2番/隣暗) */
+  animation: party-color var(--pT) linear infinite, party-spot var(--pT) ease-in-out infinite;
+}
+/* delayは [color, spot]。どちらも隅ごとに1/4周ずらして時計回り(c1→c2→c3→c4)。--pT基準で自動スケール。 */
+body.dark.dance-on .c1 { animation-delay: 0s, 0s; }
+body.dark.dance-on .c2 { animation-delay: calc(var(--pT) * -0.75), calc(var(--pT) * -0.75); }
+body.dark.dance-on .c3 { animation-delay: calc(var(--pT) * -0.5),  calc(var(--pT) * -0.5); }
+body.dark.dance-on .c4 { animation-delay: calc(var(--pT) * -0.25), calc(var(--pT) * -0.25); }
+
+@keyframes party-color {     /* 淡い(白っぽい)色のまま色相だけをゆっくり巡らせる。白へ振る別フェーズは持たない */
+  from { filter: hue-rotate(0deg); }
+  to   { filter: hue-rotate(360deg); }
+}
+@keyframes party-swirl {     /* 各隅の光の中心を時計回りに小さく旋回(上→右→下→左) */
+  0%, 100% { transform: translate(0,      -13vmin); }
+  25%      { transform: translate(13vmin,   0); }
+  50%      { transform: translate(0,       13vmin); }
+  75%      { transform: translate(-13vmin,  0); }
+}
+@keyframes party-spot {      /* 主が最も明るく/時計回りで次の角が2番目/残り2つ(直前の隣・対角)は暗め。位相ずれで時計回りに巡る */
+  0%, 100% { opacity: .82; } /* 主＝最も明るい(コントラスト強化) */
+  25%      { opacity: .05; } /* 直前にピークだった隣＝最も暗い */
+  50%      { opacity: .12; } /* 対角＝暗 */
+  75%      { opacity: .5; }  /* 時計回りで次の角(次にピーク)＝2番目に明るい */
+}
+
+/* 「色がちょっと違う中心」: 扇形の形でマスクしたラッパーの中で色ブロブを動かす→扇形の中にだけ色差が現れ、
+   別個の光として浮かない。マスクは扇形(=四隅の扇形と同じ形・固定)。中の色ブロブが外周を時計回りに移動する。 */
+.party-fx .pf-hueclip {
+  position: absolute;
+  inset: -16vmin;          /* 四隅の扇形と同じボックス(座標を合わせる) */
+  -webkit-mask:
+    radial-gradient(64vw 64vh at 16vmin 16vmin,                   #000 42%, transparent 100%),
+    radial-gradient(64vw 64vh at calc(100% - 16vmin) 16vmin,        #000 42%, transparent 100%),
+    radial-gradient(64vw 64vh at calc(100% - 16vmin) calc(100% - 16vmin), #000 42%, transparent 100%),
+    radial-gradient(64vw 64vh at 16vmin calc(100% - 16vmin),        #000 42%, transparent 100%);
+          mask:
+    radial-gradient(64vw 64vh at 16vmin 16vmin,                   #000 42%, transparent 100%),
+    radial-gradient(64vw 64vh at calc(100% - 16vmin) 16vmin,        #000 42%, transparent 100%),
+    radial-gradient(64vw 64vh at calc(100% - 16vmin) calc(100% - 16vmin), #000 42%, transparent 100%),
+    radial-gradient(64vw 64vh at 16vmin calc(100% - 16vmin),        #000 42%, transparent 100%);
+}
+.party-fx .pf-hue {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 220vmin; height: 220vmin; margin: -110vmin;   /* 画面中心基準。大きめの円(マスクで扇形内にクリップ) */
+  /* 保持なしで中心からゆるやかに減衰=輪郭をぼかす */
+  background: radial-gradient(closest-side circle,
+    rgba(120,200,255,.6) 0%, transparent 82%);
+}
+body.dark.dance-on .pf-hue {
+  /* color=ベースと別の色相を巡らせる(常に色差) / move=外周を時計回りに一周(--pT=明暗のparty-spotと同期) */
+  animation: party-color var(--pT) linear infinite, party-move var(--pT) linear infinite;
+  animation-delay: calc(var(--pT) * -0.5), 0s;
+}
+@keyframes party-move {       /* 楕円軌道で時計回り(角は折れずに内側を回り込む/辺の中央は壁=半円)。角をなぞる感を消す */
+  0%, 100% { transform: translate(-35vw, -35vh); }  /* 左上寄り(内側) */
+  12.5%    { transform: translate(0,     -50vh); }  /* 上辺中央(壁) */
+  25%      { transform: translate(35vw,  -35vh); }  /* 右上寄り */
+  37.5%    { transform: translate(50vw,   0); }     /* 右辺中央(壁) */
+  50%      { transform: translate(35vw,   35vh); }  /* 右下寄り */
+  62.5%    { transform: translate(0,      50vh); }  /* 下辺中央(壁) */
+  75%      { transform: translate(-35vw,  35vh); }  /* 左下寄り */
+  87.5%    { transform: translate(-50vw,  0); }     /* 左辺中央(壁) */
+}
+
+/* ===== 縦長タブレット(iPad Mini/Air 縦 など, min-width:768 portrait): デスクトップ型(中央寄せ)だが
+   縦に余りやすい。ロゴ/2026/Assemble を大きくし、scene/Rubyオフセットを詰めて Ruby 上下の余白を抑え、
+   3ブロックを中央に程よくまとめる(ロゴ下・CTA上)。Rubyの下オフセットは JS の ROFF と整合。 ===== */
+@media (min-width: 768px) and (orientation: portrait) {
+  .scene {
+    height: clamp(108px, 14vh, 150px);   /* Ruby丈に寄せて Ruby 上下の余白を詰める */
+  }
+  .ruby-led {
+    transform: translate(-50%, calc(-50% + clamp(16px, 3svh, 36px)));   /* JS未実行時用。読み込み後はJSが同値で上書き */
+  }
+  /* Ruby↔KEYNOTE が広いと CTA が下がるので詰める(=CTAを上へ・3ブロックを中央へまとめる)。 */
+  .info {
+    margin-top: clamp(28px, 4.5vh, 66px);
+  }
+  /* 重心が下寄りになる(上の空き>下の空き)ので、下パディングを増やして中央寄せの基準を上げる
+     =クラスタ全体を少し上へ。電光掲示板(下端)ぶんの視覚的な重さも相殺する。 */
+  .wrap {
+    padding-bottom: clamp(110px, 13svh, 172px);
+  }
+
+  .title {
+    gap: 2px;   /* Kaigi↔2026↔Assemble の行間(やや狭め=上重心を抑える) */
+  }
+  .title .prk {
+    font-size: clamp(72px, 11.5vw, 124px);
+    line-height: .98;   /* PicoRuby↔Kaigi の行間(やや狭め) */
+  }
+  .title .year {
+    font-size: clamp(46px, 7.6vw, 84px);
+    margin-top: 0;
+  }
+  .title .assemble {
+    font-size: clamp(22px, 3.6vw, 40px);
+    margin-top: 0;
+  }
+}
+
+/* ===== さらに縦長で大きい端末(iPad Pro 12.9 / Surface Pro 縦など, min-height>=1200px):
+   中央寄せだとクラスタが小さな島になり上下の余白が余る。ブロック間(title↔Ruby / Ruby↔KEYNOTE)を
+   広げてクラスタを縦に充実させ、上下の余白を削る。iPad Mini/Air(1024〜1180px)は対象外で不変。 ===== */
+@media (min-width: 768px) and (orientation: portrait) and (min-height: 1200px) {
+  /* タイトル行間をわずかに広げる(大画面で .98/gap:2 は窮屈)。 */
+  .title {
+    gap: 5px;
+  }
+  .title .prk {
+    line-height: 1.02;
+  }
+  /* ブロック間と外周の上下余白を近い大きさに揃えてバランス(離しすぎ=散漫/詰めすぎ=島 を避ける)。 */
+  .scene {
+    margin-top: clamp(20px, 6vh, 104px);     /* PicoRuby〜Assemble ↔ Ruby */
+  }
+  .info {
+    margin-top: clamp(45px, 8vh, 132px);     /* Ruby ↔ KEYNOTE〜CTA */
+  }
+}
+
+/* ===== 横長デスクトップ(PC): Ruby を主役にする構図。
+   タイトルは締まった「ロゴ塊」(行間は読める範囲で詰める)、KEYNOTE〜CTA も塊。Ruby のまわりだけ
+   広く均等に余白を取って隔離し、画面中央に置く=視線が Ruby に集まる(サイズは変えない)。 ===== */
+@media (min-width: 768px) and (orientation: landscape) {
+  .title {
+    gap: 5px;   /* 行間は読める範囲で詰めてロゴを1塊に(負マージンは解除) */
+  }
+  .title .year { margin-top: 0; }
+  .title .assemble { margin-top: 0; }
+  /* Ruby を上下とも広く均等に隔離(=主役)。KEYNOTE〜CTA塊・タイトル塊は詰まっているので Ruby が際立つ。 */
+  .scene {
+    margin-top: clamp(16px, 4vh, 56px);      /* PicoRuby〜Assemble ↔ Ruby */
+  }
+  .info {
+    margin-top: clamp(44px, 8.5vh, 100px);   /* Ruby ↔ KEYNOTE〜CTA */
+  }
+
+  /* Ruby(宝石)以外=タイトルと KEYNOTE を少し小さくして、Ruby を相対的に主役にする(CTAボタンは据え置き)。 */
+  .title .prk      { font-size: clamp(40px, min(7.4vw, 10.5vh), 95px); }
+  .title .year     { font-size: clamp(26px, min(5vw, 6.5vh), 58px); }
+  .title .assemble { font-size: clamp(14px, min(2.3vw, 3vh), 26px); }
+  .keynotes .keynote-label   { font-size: clamp(12px, 2vw, 18px); }
+  .keynotes .keynote-name.en { font-size: clamp(13px, 2.5vw, 19px); }
+  .keynotes .keynote-name.ja { font-size: clamp(15px, 3.2vw, 25px); }
+}

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Ruby light-path picker</title>
+<style>
+  body{font-family:system-ui,sans-serif;margin:0;background:#1a0a10;color:#eee;display:flex;gap:16px;padding:16px}
+  .stage{position:relative;flex:0 0 auto}
+  .stage img{display:block;width:640px;image-rendering:pixelated;background:#2a0a12}
+  svg{position:absolute;left:0;top:0;width:640px;height:auto}
+  polyline{fill:none;stroke:#7cf;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;
+           filter:drop-shadow(0 0 6px #7cf)}
+  circle{fill:#fff;stroke:#0a0;stroke-width:2;cursor:grab}
+  circle.drag{cursor:grabbing;fill:#ff0}
+  circle.head{stroke:#3f6}      /* 始点 */
+  circle.tail{stroke:#f66}      /* 終点 */
+  text{fill:#fff;font:bold 20px monospace;paint-order:stroke;stroke:#000;stroke-width:5px;
+       pointer-events:none;user-select:none}
+  .panel{font-size:14px;line-height:1.7}
+  textarea{width:360px;height:80px;font-family:monospace;font-size:13px}
+  button{font-size:13px;padding:4px 10px;margin:2px 0;cursor:pointer}
+  code{background:#000;padding:1px 5px;border-radius:3px}
+  #pos{font-family:monospace;color:#9f9}
+</style>
+</head>
+<body>
+  <div class="stage">
+    <img src="images/ruby.png" alt="">
+    <svg id="ov" viewBox="0 0 1078 955"></svg>
+  </div>
+  <div class="panel">
+    <b>使い方</b>
+    <ol style="padding-left:18px;margin:6px 0">
+      <li>丸を<b>ドラッグ</b>して、光が走らせたいライン上に合わせる</li>
+      <li>線の<b>近くをクリック</b>すると、その線分の間に<b>中間点を挿入</b>（滑らかにできる）</li>
+      <li>丸を<b>右クリック</b>で頂点を削除（最小2点まで）</li>
+      <li>下の2行を <code>script.js</code> の <code>P</code> と <code>route</code> の行に貼り替える</li>
+    </ol>
+    <span style="color:#3f6">緑=始点</span> /
+    <span style="color:#f66">赤=終点</span><br>
+    カーソル位置: <span id="pos">-</span><br><br>
+    <b>script.js に貼る2行:</b><br>
+    <textarea id="out" readonly></textarea><br>
+    <button onclick="copyOut()">コピー</button>
+    <button onclick="reset()">初期値に戻す</button>
+    <p style="color:#aaa;font-size:12px">調整が終わったらこのファイル(_light_picker.html)は削除してOKです。</p>
+  </div>
+<script>
+const VW=1078, VH=955;
+// 初期値 = いまの script.js の P（SL→GL→GR→SR の順）
+const INIT=[[14,378],[150,478],[802,484],[1066,352]];
+let pts=INIT.map(p=>p.slice());
+const ov=document.getElementById('ov'), out=document.getElementById('out'), pos=document.getElementById('pos');
+const SVGNS='http://www.w3.org/2000/svg';
+let dragging=-1;
+
+function toV(e){ // client -> viewBox coords
+  const r=ov.getBoundingClientRect();
+  return [Math.round((e.clientX-r.left)/r.width*VW), Math.round((e.clientY-r.top)/r.height*VH)];
+}
+// 頂点ラベル: 始点=SL, 終点=SR, 中間=M1,M2...
+function labels(n){
+  if(n===1) return ['SL'];
+  const a=['SL']; for(let i=1;i<n-1;i++) a.push('M'+i); a.push('SR'); return a;
+}
+function render(){
+  ov.innerHTML='';
+  const line=document.createElementNS(SVGNS,'polyline');
+  line.setAttribute('points',pts.map(p=>p.join(',')).join(' '));
+  ov.appendChild(line);
+  const lab=labels(pts.length);
+  pts.forEach((p,i)=>{
+    const t=document.createElementNS(SVGNS,'text');
+    t.setAttribute('x',p[0]+14); t.setAttribute('y',p[1]-12); t.textContent=lab[i];
+    ov.appendChild(t);
+    const c=document.createElementNS(SVGNS,'circle');
+    c.setAttribute('cx',p[0]); c.setAttribute('cy',p[1]); c.setAttribute('r',9);
+    if(i===0) c.classList.add('head'); if(i===pts.length-1) c.classList.add('tail');
+    c.addEventListener('mousedown',e=>{dragging=i;c.classList.add('drag');e.stopPropagation();e.preventDefault();});
+    c.addEventListener('contextmenu',e=>{e.preventDefault();if(pts.length>2){pts.splice(i,1);render();}});
+    ov.appendChild(c);
+  });
+  // 出力: script.js に貼れる2行
+  const obj=pts.map((p,i)=>`${lab[i]}:[${p[0]},${p[1]}]`).join(',');
+  const route=lab.map(k=>`'${k}'`).join(',');
+  out.value=`  const P={${obj}};\n  const route=[${route}];`;
+}
+// 点をどの線分の間に挿入するか: 各線分への最短距離が一番小さい所
+function nearestSeg(v){
+  let best=-1, bd=Infinity;
+  for(let i=0;i<pts.length-1;i++){
+    const a=pts[i], b=pts[i+1];
+    const dx=b[0]-a[0], dy=b[1]-a[1], len2=dx*dx+dy*dy||1;
+    let t=((v[0]-a[0])*dx+(v[1]-a[1])*dy)/len2; t=Math.max(0,Math.min(1,t));
+    const px=a[0]+dx*t, py=a[1]+dy*t;
+    const d=Math.hypot(v[0]-px,v[1]-py);
+    if(d<bd){bd=d;best=i;}
+  }
+  return best;
+}
+ov.addEventListener('mousemove',e=>{
+  const v=toV(e); pos.textContent=v[0]+','+v[1];
+  if(dragging>=0){ pts[dragging]=v; render(); pos.textContent=v[0]+','+v[1]; }
+});
+window.addEventListener('mouseup',()=>{dragging=-1;});
+ov.addEventListener('click',e=>{
+  if(dragging>=0)return;
+  const v=toV(e);
+  const seg=nearestSeg(v);
+  pts.splice(seg+1,0,v); // 一番近い線分の間に挿入
+  render();
+});
+function copyOut(){ out.select(); navigator.clipboard.writeText(out.value); }
+function reset(){ pts=INIT.map(p=>p.slice()); render(); }
+render();
+</script>
+</body>
+</html>

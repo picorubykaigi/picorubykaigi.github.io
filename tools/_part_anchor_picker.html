@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Part fit picker — 画像サイズを穴に合わせる</title>
+<style>
+  body{font-family:system-ui,sans-serif;margin:0;background:#15171e;color:#eee;padding:16px}
+  h1{font-size:16px;margin:0 0 8px}
+  .hint{color:#9aa;font-size:12px;line-height:1.7;margin-bottom:12px}
+  .row{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start}
+  .part{background:#202430;border:1px solid #333a48;border-radius:8px;padding:12px}
+  .part h2{font-size:13px;margin:0 0 8px;color:#bcd}
+  .frame{position:relative;background:#eceade;border-radius:4px;overflow:hidden;touch-action:none;
+    /* 穴グリッド(中央に穴がくる) */
+    background-image:radial-gradient(rgba(40,36,30,.30) 2.5px, transparent 3px);}
+  .frame img{position:absolute;image-rendering:pixelated;display:block;cursor:move;user-select:none;-webkit-user-drag:none}
+  .pin{position:absolute;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;
+    background:rgba(255,59,59,.22);border:2px solid #ff3b3b;cursor:grab;
+    display:flex;align-items:center;justify-content:center;font-size:9px;color:#ff3b3b;font-weight:700}
+  .pin.drag{cursor:grabbing;background:rgba(255,200,0,.3);border-color:#ffd000;color:#ffd000}
+  .ctl{margin-top:10px;font-size:12px;line-height:1.9}
+  .ctl input[type=range]{width:200px;vertical-align:middle}
+  .ctl input[type=number]{width:56px;background:#0c0e13;color:#cde;border:1px solid #44506a;border-radius:4px;padding:2px 4px}
+  .read{font-family:monospace;font-size:12px;color:#9f9;margin-top:6px;white-space:pre-line}
+  .panel{margin-top:16px}
+  textarea{width:520px;max-width:92vw;height:150px;font-family:monospace;font-size:13px;
+    background:#0c0e13;color:#cde;border:1px solid #333a48;border-radius:6px;padding:8px}
+  button{font-size:13px;padding:5px 12px;margin:4px 6px 4px 0;cursor:pointer;border-radius:6px;
+    border:1px solid #44506a;background:#2b3346;color:#dfe}
+  code{background:#000;padding:1px 5px;border-radius:3px}
+</style>
+</head>
+<body>
+  <h1>部品フィットピッカー — 画像サイズを調整して、ピンを穴に合わせる</h1>
+  <div class="hint">
+    操作：<b>画像をドラッグ</b>で移動 ／ <b>スライダー（または数値）</b>で表示サイズを調整 ／ <b>赤い丸=ピン</b>をドラッグして各ピン位置を指定。<br>
+    薄いグレーの点は穴グリッド（実盤面と同じ24px間隔・同じ拡大率 Z=<span id="z"></span>）。各ピンが穴の点に重なるようにサイズ＆位置を合わせる。<br>
+    合ったら下の出力（<code>width/height</code>）を <code>styles.css</code> に反映します。
+  </div>
+  <div class="row" id="row"></div>
+
+  <div class="panel">
+    <b>出力</b><br>
+    <textarea id="out" readonly></textarea><br>
+    <button onclick="copyOut()">コピー</button>
+    <p class="hint">調整が終わったらこのファイル(_part_anchor_picker.html)は削除してOK。</p>
+  </div>
+
+<script>
+const Z = 6;                 // 画面拡大率(穴24pxも同率)
+const PITCH = 24;            // 穴ピッチ(px)
+const FRAME = 480;           // 枠の画面サイズ(px)
+document.getElementById('z').textContent = Z;
+
+// 既定ピン(画像内 0..1)。chip=8(各辺2), battery=2, motor=2。あとでドラッグ調整。
+const PARTS = [
+  { key:'chip', src:'../images/chip.png', nat:[143,143], w:50,
+    pins:[[0.30,0.07],[0.70,0.07],[0.93,0.30],[0.93,0.70],[0.70,0.93],[0.30,0.93],[0.07,0.70],[0.07,0.30]] },
+  { key:'battery', src:'../images/battery.png', nat:[110,188], w:34,
+    pins:[[0.50,0.06],[0.50,0.94]] },
+  { key:'motor', src:'../images/motor.png', nat:[110,141], w:32,
+    pins:[[0.40,0.96],[0.60,0.96]] },
+];
+const out = document.getElementById('out');
+
+function build(p){
+  const aspect = p.nat[1]/p.nat[0];              // h/w
+  p.h = p.w*aspect;
+  // 画像は枠中央スタート
+  p.left = (FRAME - p.w*Z)/2;
+  p.top  = (FRAME - p.h*Z)/2;
+
+  const wrap=document.createElement('div'); wrap.className='part';
+  wrap.innerHTML='<h2>'+p.key+'</h2>';
+  const frame=document.createElement('div'); frame.className='frame';
+  frame.style.width=FRAME+'px'; frame.style.height=FRAME+'px';
+  frame.style.backgroundSize=(PITCH*Z)+'px '+(PITCH*Z)+'px';
+  frame.style.backgroundPosition='center';
+  const img=document.createElement('img'); img.src=p.src; img.draggable=false;
+  frame.appendChild(img);
+  const pinEls=p.pins.map((pin,i)=>{ const d=document.createElement('div'); d.className='pin'; d.textContent=(i+1); frame.appendChild(d); return d; });
+
+  const ctl=document.createElement('div'); ctl.className='ctl';
+  ctl.innerHTML='幅 <input type="range" min="14" max="120" step="1"> '
+    +'<input type="number" min="6" max="200" step="0.5"> px';
+  const range=ctl.querySelector('input[type=range]'), num=ctl.querySelector('input[type=number]');
+  const read=document.createElement('div'); read.className='read';
+  wrap.appendChild(frame); wrap.appendChild(ctl); wrap.appendChild(read);
+  document.getElementById('row').appendChild(wrap);
+
+  function render(){
+    img.style.width=(p.w*Z)+'px'; img.style.height=(p.h*Z)+'px';
+    img.style.left=p.left+'px'; img.style.top=p.top+'px';
+    p.pins.forEach((pin,i)=>{ pinEls[i].style.left=(p.left+pin[0]*p.w*Z)+'px'; pinEls[i].style.top=(p.top+pin[1]*p.h*Z)+'px'; });
+    range.value=p.w; num.value=Math.round(p.w*10)/10;
+    read.textContent='width: '+(Math.round(p.w*10)/10)+'px  height: '+(Math.round(p.h*10)/10)+'px'
+      +'\n(枠中央の穴を基準にピンを合わせる)';
+    sync();
+  }
+  function setW(w){ w=Math.max(6,Math.min(200,w));
+    // サイズ変更は中心を保って拡縮
+    const cx=p.left+p.w*Z/2, cy=p.top+p.h*Z/2;
+    p.w=w; p.h=w*aspect; p.left=cx-p.w*Z/2; p.top=cy-p.h*Z/2; render(); }
+  range.addEventListener('input',()=>setW(+range.value));
+  num.addEventListener('input',()=>setW(+num.value));
+
+  // 画像ドラッグ=移動
+  let mode=null, px0,py0,l0,t0,pinIdx=-1;
+  frame.addEventListener('pointerdown',e=>{
+    const t=e.target;
+    if(t.classList.contains('pin')){ mode='pin'; pinIdx=+t.textContent-1; t.classList.add('drag'); }
+    else if(t===img){ mode='move'; l0=p.left; t0=p.top; }
+    else return;
+    px0=e.clientX; py0=e.clientY; frame.setPointerCapture(e.pointerId); e.preventDefault();
+  });
+  frame.addEventListener('pointermove',e=>{
+    if(!mode) return; const dx=e.clientX-px0, dy=e.clientY-py0;
+    if(mode==='move'){ p.left=l0+dx; p.top=t0+dy; render(); }
+    else if(mode==='pin'){ const r=frame.getBoundingClientRect();
+      let nx=(e.clientX-r.left-p.left)/(p.w*Z), ny=(e.clientY-r.top-p.top)/(p.h*Z);
+      p.pins[pinIdx]=[Math.max(0,Math.min(1,nx)),Math.max(0,Math.min(1,ny))]; render(); }
+  });
+  frame.addEventListener('pointerup',()=>{ mode=null; pinEls.forEach(d=>d.classList.remove('drag')); });
+
+  p._render=render; render();
+}
+
+function sync(){
+  const obj={};
+  PARTS.forEach(p=>{ obj[p.key]={ w:+(Math.round(p.w*10)/10), h:+(Math.round(p.h*10)/10),
+    pins:p.pins.map(q=>[+q[0].toFixed(3),+q[1].toFixed(3)]) }; });
+  let css='/* styles.css に反映 */\n';
+  PARTS.forEach(p=>{ css+='.bb-'+p.key+'{width:'+Math.round(p.w*10)/10+'px;height:'+Math.round(p.h*10)/10+'px;}\n'; });
+  out.value=css+'\n// 接点(0..1, 画像内) — スナップ用\nconst PIN = '+JSON.stringify(obj,null,0)+';';
+}
+function copyOut(){ out.select(); navigator.clipboard.writeText(out.value); }
+
+PARTS.forEach(build);
+sync();
+</script>
+</body>
+</html>
