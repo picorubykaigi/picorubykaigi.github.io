@@ -44,8 +44,7 @@ body {
   overflow: hidden;
   color: var(--ink);
   background:
-    url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2724%27%3E%3Crect%20x=%2711%27%20y=%2711%27%20width=%275%27%20height=%275%27%20fill=%27%231c180e%27%20fill-opacity=%27.14%27/%3E%3Crect%20x=%279.5%27%20y=%279.5%27%20width=%275%27%20height=%275%27%20fill=%27%2339352b%27%20fill-opacity=%27.11%27/%3E%3C/svg%3E") 0 0/24px 24px,
-    var(--bg);
+    url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2796%27%3E%3Crect%20x=%270%27%20y=%270%27%20width=%2724%27%20height=%2796%27%20fill=%27%23eceade%27/%3E%3Crect%20x=%270%27%20y=%2712%27%20width=%2724%27%20height=%274%27%20fill=%27%23e8404b%27/%3E%3Crect%20x=%279.5%27%20y=%2731.5%27%20width=%275%27%20height=%275%27%20fill=%27%2339352b%27%20fill-opacity=%27.11%27/%3E%3Crect%20x=%2711%27%20y=%2733%27%20width=%275%27%20height=%275%27%20fill=%27%231c180e%27%20fill-opacity=%27.14%27/%3E%3Crect%20x=%279.5%27%20y=%2755.5%27%20width=%275%27%20height=%275%27%20fill=%27%2339352b%27%20fill-opacity=%27.11%27/%3E%3Crect%20x=%2711%27%20y=%2757%27%20width=%275%27%20height=%275%27%20fill=%27%231c180e%27%20fill-opacity=%27.14%27/%3E%3Crect%20x=%270%27%20y=%2776%27%20width=%2724%27%20height=%274%27%20fill=%27%235f7cb8%27/%3E%3C/svg%3E") left top/24px 96px repeat-x, url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2796%27%3E%3Crect%20x=%270%27%20y=%270%27%20width=%2724%27%20height=%2796%27%20fill=%27%23eceade%27/%3E%3Crect%20x=%270%27%20y=%2716%27%20width=%2724%27%20height=%274%27%20fill=%27%23e8404b%27/%3E%3Crect%20x=%279.5%27%20y=%2735.5%27%20width=%275%27%20height=%275%27%20fill=%27%2339352b%27%20fill-opacity=%27.11%27/%3E%3Crect%20x=%2711%27%20y=%2737%27%20width=%275%27%20height=%275%27%20fill=%27%231c180e%27%20fill-opacity=%27.14%27/%3E%3Crect%20x=%279.5%27%20y=%2759.5%27%20width=%275%27%20height=%275%27%20fill=%27%2339352b%27%20fill-opacity=%27.11%27/%3E%3Crect%20x=%2711%27%20y=%2761%27%20width=%275%27%20height=%275%27%20fill=%27%231c180e%27%20fill-opacity=%27.14%27/%3E%3Crect%20x=%270%27%20y=%2780%27%20width=%2724%27%20height=%274%27%20fill=%27%235f7cb8%27/%3E%3C/svg%3E") left bottom/24px 96px repeat-x, url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2724%27%3E%3Crect%20x=%279.5%27%20y=%279.5%27%20width=%275%27%20height=%275%27%20fill=%27%2339352b%27%20fill-opacity=%27.11%27/%3E%3Crect%20x=%2711%27%20y=%2711%27%20width=%275%27%20height=%275%27%20fill=%27%231c180e%27%20fill-opacity=%27.14%27/%3E%3C/svg%3E") 0 0/24px 24px, var(--bg);
 }
 
 .wrap {
@@ -58,8 +57,9 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: clamp(6px, 1.8vh, 22px);
-  padding: 36px 3vw 44px;
+  gap: clamp(4px, 1.2vh, 14px);
+  /* 上下のレール帯ぶんの余白を対称に確保(956px級でも1stビューに収まるよう圧縮) */
+  padding: clamp(74px, 9vh, 92px) 3vw;
 }
 
 /* ===== TOP: date(left) | ruby(center) | keynote(right) ===== */
@@ -69,7 +69,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0;
-  margin-top: clamp(12px, 3vh, 40px);
+  margin-top: clamp(2px, 0.5vh, 8px);
 }
 
 .meta {
@@ -78,13 +78,13 @@ body {
   align-items: flex-end;
   gap: 10px;
   text-align: right;
-  margin-top: clamp(24px, 6vh, 64px);
+  margin-top: clamp(6px, 1.5vh, 18px);
   margin-right: clamp(0px, 0.4vw, 18px);
 }
 
 .when {
   font-family: 'Micro 5', sans-serif;
-  font-size: clamp(42px, 7vw, 86px);
+  font-size: clamp(38px, 6.2vw, 76px);
   line-height: .8;
   color: var(--ink);
   letter-spacing: .01em;
@@ -93,7 +93,7 @@ body {
 
 .where {
   font-family: 'Conti Neue 2P', 'DotGothic16', monospace;
-  font-size: clamp(12px, 1.35vw, 16px);
+  font-size: clamp(11px, 1.2vw, 14px);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -121,7 +121,7 @@ body {
 
 .keynotes .keynote-label {
   font-family: 'Jersey 10', sans-serif;
-  font-size: clamp(16px, 1.4vw, 24px);
+  font-size: clamp(14px, 1.25vw, 21px);
   color: var(--red);
   letter-spacing: .14em;
   line-height: 1;
@@ -130,7 +130,7 @@ body {
 
 .keynotes .keynote-name {
   font-family: 'Jersey 10', sans-serif;
-  font-size: clamp(22px, 2.3vw, 38px);
+  font-size: clamp(20px, 2vw, 33px);
   color: var(--ink);
   line-height: 1.2;
   white-space: nowrap;
@@ -153,8 +153,8 @@ body {
 .scene {
   position: relative;
   flex: 0 0 auto;
-  width: clamp(280px, 34vw, 470px);
-  height: clamp(280px, 34vw, 470px);
+  width: clamp(230px, min(28vw, 45vh), 408px);
+  height: clamp(230px, min(28vw, 45vh), 408px);
 }
 
 .ruby {
@@ -279,7 +279,7 @@ body {
 
 .title .prk {
   font-family: 'Bitcount Single', 'Jersey 10', sans-serif;
-  font-size: clamp(48px, 9.8vw, 124px);
+  font-size: clamp(44px, min(8.8vw, 12.4vh), 112px);
   line-height: .86;
   color: #fff; /* Kaigi=白(PicoRubyは下で上書き) */
   letter-spacing: .02em;
@@ -364,7 +364,7 @@ body {
 
 .title .year {
   font-family: 'Micro 5', sans-serif;
-  font-size: clamp(44px, 8.8vw, 101px);
+  font-size: clamp(30px, min(5.9vw, 7.7vh), 68px);
   line-height: .8;
   color: var(--ink);
   letter-spacing: .12em;
@@ -375,7 +375,7 @@ body {
 
 .title .assemble {
   font-family: 'Jersey 10', sans-serif;
-  font-size: clamp(20px, 3.4vw, 40px);
+  font-size: clamp(16px, min(2.7vw, 3.5vh), 31px);
   color: var(--ink);
   letter-spacing: .18em;
   margin-top: -.25em;
@@ -401,7 +401,7 @@ body {
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  gap: clamp(28px, 4.8vw, 76px);
+  gap: clamp(24px, 4.2vw, 64px);
   margin-top: clamp(2px, 1vh, 14px);
 }
 
@@ -412,8 +412,8 @@ body {
   align-items: flex-start;
   justify-content: center;
   gap: 1px;
-  height: clamp(80px, 11vw, 108px);
-  padding-left: clamp(26px, 3.6vw, 46px);
+  height: clamp(60px, min(8.6vw, 9.6vh), 84px);
+  padding-left: clamp(20px, 2.8vw, 35px);
   background-repeat: no-repeat;
   background-position: center;
   background-size: contain;
@@ -438,7 +438,7 @@ body {
 
 .button-icon .button-label-jp {
   font-family: 'Conti Neue 2P', 'DotGothic16', monospace;
-  font-size: clamp(17px, 1.9vw, 23px);
+  font-size: clamp(13px, 1.5vw, 18px);
   color: #1f1d23;
 }
 
@@ -452,7 +452,7 @@ body {
 
 .button-icon .button-label-en {
   font-family: 'Jersey 10', sans-serif;
-  font-size: clamp(13px, 1.4vw, 18px);
+  font-size: clamp(11px, 1.1vw, 14px);
   color: #1f1d23;
   letter-spacing: .03em;
   line-height: 1;
