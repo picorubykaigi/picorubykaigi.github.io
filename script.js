@@ -73,9 +73,18 @@ document.querySelectorAll('.scene').forEach(scene=>{
   };
 })();
 
+// モバイル(縦)判定。768px 以上=デスクトップ型(横一列ソケット)、以下=モバイル型(ソケットをRuby直下へ再構成)。
+const BB_MOBILE=()=>window.matchMedia('(max-width: 767px)').matches;
+// モバイル: 4部品(seg7/speaker/motor/chip)のソケットをRuby直下に横一列で並べる。バッテリーのソケットは
+// 電源レール右上に別置き。部品本体の初期位置はソケットに連動せずランダムに散らす(下の defaultPos)。
+const M_DX={ seg7:-102, speaker:-6, motor:58, chip:128 };  // Ruby中心からの各ソケット中心オフセット(隙間20px)
+const M_SOCKET_GAP=24;   // ソケット行: Ruby下端から1レール(穴ピッチ)あけて配置
+const M_BAT_RIGHT=50;    // バッテリーソケット: ステージ右端から中心までの距離(右上レール)
+const M_BAT_PARTGAP=42;  // バッテリー部品はソケットの左隣(中心間距離)
+
 // ===== 部品スナップ共有定義(ドラッグ／回路の両方で使用) =====
 const BB_GRID=24;
-// 背景レールの水平シフト量(px)。ルビー先端に穴列を合わせるため背景をずらした量を
+// 背景レールの水平シフト量(px)。Ruby先端に穴列を合わせるため背景をずらした量を
 // ここに一元化し、部品/ソケット/電光掲示板の脚など全スナップの x がこれに追従する。
 let BB_BGX=0;
 const BB_PIN={
@@ -96,19 +105,25 @@ const bbAnchor=part=>{ const p=BB_PIN[part]; if(!p) return [0.5,0.5];
   let ax=0,ay=0; p.forEach(q=>{ax+=q[0];ay+=q[1];}); return [ax/p.length, ay/p.length]; };
 // (left,top: ステージ基準px)→ 接点を穴に合わせたスナップ位置[x,y]
 function bbSnapPos(part, left, top, W, H, stageH){
-  const a=bbAnchor(part), px=left+a[0]*W, py=top+a[1]*H;
+  const a=bbAnchor(part);
+  // モバイルの横一列4部品(seg7/speaker/motor/chip)は y を上端スナップで揃える。
+  // ピン位置基準(部品ごとに異なる)だと部品高の差でソケット上端が段差になるため、各部品の上端を
+  // 同じ穴行へ合わせて4ソケットを同じy位置(上辺)に整列させる(ドロップ時も同じ行に吸着=判定一致)。
+  const ay=(BB_MOBILE() && part!=='battery') ? 0 : a[1];
+  const px=left+a[0]*W, py=top+ay*H;
   const x=bbSnapP(px,part,0)-a[0]*W;
   let y;
   if(part==='battery'){
     const cyEl=top+H/2, railY=(cyEl<96)?45:(cyEl>stageH-96)?(stageH-46):null; // 上/下レール帯なら中央へ
     y=(railY!=null)?(railY-H/2):(bbSnapP(py,part,1)-a[1]*H);
-  } else { y=bbSnapP(py,part,1)-a[1]*H; }
-  const nd=BB_NUDGE[part]||[0,0];
+  } else { y=bbSnapP(py,part,1)-ay*H; }
+  // 微調整(motor)はデスクトップの見た目用。モバイルは整列を崩さないよう無効化。
+  const nd=BB_MOBILE()?[0,0]:(BB_NUDGE[part]||[0,0]);
   return [x+nd[0], y+nd[1]];
 }
 
-// ===== ルビー整列 + 背景シフト(BB_BGX)の一元処理 =====
-// 縦: ルビーを最寄りの穴行へ寄せる。横: ルビー先端(=画像の水平中央)のXに穴列が来るよう
+// ===== Ruby整列 + 背景シフト(BB_BGX)の一元処理 =====
+// 縦: Rubyを最寄りの穴行へ寄せる。横: Ruby先端(=画像の水平中央)のXに穴列が来るよう
 // 背景を水平シフトし、その量を BB_BGX に保存(部品/ソケット/脚の x スナップが追従)。
 function bbApplyGridShift(){
   const stage=document.querySelector('.stage');
@@ -116,7 +131,13 @@ function bbApplyGridShift(){
   if(!stage||!ruby) return;
   const HOLE0=12.5, PITCH=24;
   const snap=v=>HOLE0+PITCH*Math.round((v-HOLE0)/PITCH);
-  const BASE='translate(-50%, calc(-50% + clamp(26px, 5vh, 52px)))'; // CSS と同じ中央配置
+  // Rubyの下方向オフセット(CSS .ruby-led と一致させる)。モバイル＆縦持ちタブレットは箱中央付近に置いて
+  // Ruby上の余白を詰める(大きいオフセットだと scene箱の中でRubyが下寄りになり Ruby上が広がりすぎる)。
+  const portraitTablet = window.matchMedia('(min-width: 768px) and (orientation: portrait)').matches;
+  const ROFF = portraitTablet ? 'clamp(16px, 3svh, 36px)'      // 縦持ちタブレット: Ruby上を少し広く(下=Ruby↔KEYNOTEは詰まる)
+             : BB_MOBILE()    ? 'clamp(5px, 1.2svh, 16px)'
+             :                  'clamp(26px, 5vh, 52px)';
+  const BASE='translate(-50%, calc(-50% + '+ROFF+'))'; // CSS と同じ中央配置
   ruby.style.transform=BASE;                          // まず素の中央配置に戻して測る
   const sr=stage.getBoundingClientRect();
   const r=ruby.getBoundingClientRect();
@@ -132,6 +153,7 @@ function bbApplyGridShift(){
 (function(){
   const stage=document.querySelector('.stage'); if(!stage) return;
   bbApplyGridShift();   // 部品を並べる前に背景シフト量(BB_BGX)を確定させる
+  const scatterPlaced=[];   // 初期スキャッターで確定した各部品の占有矩形(部品どうしの重なりを避ける)
   const setC=(k,v)=>{document.cookie=k+'='+v+';path=/;max-age=31536000';};
   const getC=k=>{const m=document.cookie.match('(?:^|; )'+k+'=([^;]*)');return m?m[1]:null;};
   // ドラッグの効果音(WebAudio)。actxはユーザー操作時に生成
@@ -159,33 +181,124 @@ function bbApplyGridShift(){
     const s=c.createBufferSource(); s.buffer=buf; const ng=c.createGain(); ng.gain.value=0.14;
     s.connect(ng); ng.connect(c.destination); s.start(t);
   }catch(e){} };
+  // 跳ね返し「ぽよんっ」: やわらかいゴムボールが弾む弾力音(保護パーツに弾かれた時)。
+  // 低い芯→高い頂点へ駆け上がる。高い頂点は減衰中に通し＋ローパスで丸め、余韻に減衰ビブラートを重ねて弾みを出す。
+  const boing=()=>{ try{ const c=ctx(); if(!c) return; const t=c.currentTime;
+    const base=300, top=1200, amp=0.2, dur=0.24, up=dur*0.58, dip=dur*0.34;
+    const lp=c.createBiquadFilter(); lp.type='lowpass'; lp.Q.value=0.4;
+    lp.frequency.setValueAtTime(1800,t); lp.frequency.exponentialRampToValueAtTime(820,t+dur*0.9); // 高域を丸めてゴムのやわらかさに
+    lp.connect(c.destination);
+    // 本体(丸いsine): 低い芯(ぽ)→ためて沈む→高い頂点へ駆け上がる(よ)。頂点では小さく=芯が主役
+    const o=c.createOscillator(), g=c.createGain(); o.type='sine';
+    o.frequency.setValueAtTime(base,t);
+    o.frequency.setValueAtTime(base,t+dur*0.2);
+    o.frequency.exponentialRampToValueAtTime(base*0.82,t+dip);
+    o.frequency.exponentialRampToValueAtTime(top,t+up);
+    o.frequency.exponentialRampToValueAtTime(top*1.03,t+up+0.03);
+    g.gain.setValueAtTime(0.0001,t); g.gain.linearRampToValueAtTime(amp,t+0.04);
+    g.gain.exponentialRampToValueAtTime(amp*0.22,t+up);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.connect(g); g.connect(lp); o.start(t); o.stop(t+dur+0.04);
+    // 余韻: 頂点音程を減衰ビブラートさせる
+    const osc=c.createOscillator(), wg=c.createGain(); osc.type='sine'; osc.frequency.setValueAtTime(top,t+up);
+    const lfo=c.createOscillator(), lg=c.createGain(); lfo.type='sine'; lfo.frequency.value=16;
+    lg.gain.setValueAtTime(top*0.05,t+up); lg.gain.exponentialRampToValueAtTime(1,t+dur*1.4);
+    lfo.connect(lg); lg.connect(osc.frequency);
+    wg.gain.setValueAtTime(0.0001,t+up); wg.gain.linearRampToValueAtTime(amp*0.28,t+up+0.02);
+    wg.gain.exponentialRampToValueAtTime(0.0001,t+dur*1.5);
+    osc.connect(wg); wg.connect(lp); osc.start(t+up); osc.stop(t+dur*1.6); lfo.start(t+up); lfo.stop(t+dur*1.6);
+  }catch(e){} };
   // 現在位置(left,top)から接点を穴に合わせたスナップ位置[x,y](共有の bbSnapPos を使用)
   const computeSnap=(el,left,top)=>bbSnapPos(el.dataset.part, left, top, el.offsetWidth, el.offsetHeight, stage.getBoundingClientRect().height);
   document.querySelectorAll('[data-part]').forEach(el=>{
     const id=el.dataset.part; if(!id) return;
-    // 保存位置を復元(あれば inline の初期位置を上書き)。無ければ初期位置を穴にスナップ
-    const saved=getC('pos_'+id);
-    if(saved){ const p=saved.split(',').map(Number);
-      el.style.left=p[0]+'px'; el.style.top=p[1]+'px'; el.style.right='auto'; el.style.bottom='auto'; }
-    else if(el.dataset.part){
-      const r=el.getBoundingClientRect(), sr=stage.getBoundingClientRect();
-      // 3部品は chip(=L-chika ソケットの列)を起点に、左→右へ chip,motor,battery と並べる
-      const TRAY_DX={chip:0, motor:72, battery:132, speaker:192};
-      const colX=()=>{ const lg=document.querySelector('.title .prk'); if(!lg) return r.left-sr.left;
-        return lg.getBoundingClientRect().right-stage.getBoundingClientRect().left+16+(TRAY_DX[id]||0); };
-      const [fx,fy]=computeSnap(el, colX(), r.top-sr.top);
-      el.style.left=fx+'px'; el.style.top=fy+'px'; el.style.right='auto'; el.style.bottom='auto';
-      // ロゴはWebフォント(Bitcount)読込で幅が変わる→フォント確定後に列を再スナップ(未操作時のみ)。
-      // 1回計算だと実行時のフォント未適用幅で1セルずれることがあるため。
-      if(document.fonts && document.fonts.ready){
-        document.fonts.ready.then(()=>requestAnimationFrame(()=>{
-          if(getC('pos_'+id)||dragging||moved) return;
-          const [gx]=computeSnap(el, colX(), parseFloat(el.style.top)||0);
-          el.style.left=gx+'px';
-        }));
+    let sx,sy,ox,oy,moved=false,dragging=false,seed=null;
+    // 初期配置: ステージ上のランダムな点(seed=1回だけ確定)を起点に、avoidProtected で保護要素を避けた
+    // 最寄りの空きへ寄せる(基板にパーツがばらまかれた風)。
+    const defaultPos=sr=>{
+      if(!seed){
+        const w=el.offsetWidth, h=el.offsetHeight;
+        const minX=10, maxX=Math.max(10, sr.width-w-10);
+        const minY=40, maxY=Math.max(40, sr.height-h-30);   // 上=電源レール下/下=余白を少し空ける
+        seed={x:rnd(minX,maxX), y:rnd(minY,maxY)};
       }
-    }
-    let sx,sy,ox,oy,moved=false,dragging=false;
+      return avoidProtected(...computeSnap(el, seed.x, seed.y), false, true);   // 初期=strict(要素全体を避ける)
+    };
+    const rectOf=(e,sr,pad)=>{ const r=e.getBoundingClientRect(); if(r.width<1||r.height<1) return null;
+      return {l:r.left-sr.left, t:r.top-sr.top, r:r.right-sr.left, b:r.bottom-sr.top, pad}; };
+    // 「かぶってはいけないもの」= 中央UI各要素 + 他の各部品(ソケットは除外=挿入できる)。
+    // 各行の [上,右,下,左] は保護矩形の縮め量px(正=内側へ詰める→その辺の外＝余白側に部品を置ける / 負=外へ広げる)。
+    // display:none の要素(会場名/電光掲示板=ビューポート依存)は0サイズで自動スキップ。
+    const PROTECT=[
+      ['.title .picoruby', -2, 8, -2, 8],   // PicoRuby行: 横を詰めて脇に部品を置ける
+      ['.title .kaigi',    -2, 20, -2, 20],   // Kaigi行: 横をさらに詰める
+      ['.title .year',     -2, -2, -2, -2],
+      ['.title .assemble', -2, -2, -2, -2],
+      ['.ruby-led',  -3, -3, -3, -3],
+      ['.venue-when', -2, -2, -2, -2],
+      ['.venue-where',-2, -2, -2, -2],
+      ['.keynotes',  -2, -2, -2, -2],
+      ['.button',    -3,  4, 26, 4],   // 下を緩和(ラベル下の無地ボード〜下は置ける)
+      ['.ticker',    12, -2, -2, -2],  // 上を詰めて基盤との間のかぶりは許容
+    ];
+    // strict(初期ロード)=インセット無視で各要素の全体(+2px)を避ける / 非strict(ドロップ)=インセット適用(端のかぶり許容)。
+    const forbiddenRects=(sr, strict)=>{
+      const out=[];
+      for(const [s,it,ir,ib,il] of PROTECT){ const e=document.querySelector(s); const r=e&&e.getBoundingClientRect();
+        if(!r || r.width<1 || r.height<1) continue;
+        const T=strict?-2:it, R=strict?-2:ir, B=strict?-2:ib, L=strict?-2:il;
+        out.push({l:r.left-sr.left+L, t:r.top-sr.top+T, r:r.right-sr.left-R, b:r.bottom-sr.top-B, pad:0});
+      }
+      document.querySelectorAll('[data-part]').forEach(p=>{ if(p===el) return; const b=rectOf(p,sr,2); if(b) out.push(b); });
+      return out;   // ※ソケットは保護対象に含めない(=ドラッグでソケットに挿入できる)
+    };
+    // 自分のソケットに重ねている時は「挿入」とみなして回避しない(ソケットはRuby脇=保護Rubyに重なるため、
+    // これが無いとRuby近接ソケットへ挿せない)。
+    const ownSocketHit=(l,t)=>{ const s=document.querySelector('.circuit-slot--'+id); if(!s) return false;
+      const sr=stage.getBoundingClientRect(), r=s.getBoundingClientRect();
+      const sl=r.left-sr.left, st=r.top-sr.top, sR=r.right-sr.left, sB=r.bottom-sr.top;
+      return l<sR && l+el.offsetWidth>sl && t<sB && t+el.offsetHeight>st; };   // 部品が自ソケットに重なる
+    const avoidProtected=(l,t,allowSocket,strict)=>{
+      if(allowSocket && ownSocketHit(l,t)) return [l,t];   // 挿入(ドロップ)時だけソケットを許可。初期配置では Ruby を避ける
+      const sr=stage.getBoundingClientRect();
+      const w=el.offsetWidth, h=el.offsetHeight;
+      const rects=forbiddenRects(sr, strict);
+      const free=(x,y)=> !rects.some(z=>{ const p=z.pad||0; return x<z.r+p && x+w>z.l-p && y<z.b+p && y+h>z.t-p; });
+      // 縦横とも多少のはみ出し可だが、掴めるぶん(GRAB)は必ず画面内に残す(小さい部品は全部・大きいものは一部のみはみ出す)。
+      const GRAB=Math.min(w, 40), GRABY=Math.min(h, 40);
+      const clampX=x=> Math.max(GRAB-w, Math.min(x, sr.width-GRAB));
+      const clampY=y=> Math.max(8, Math.min(y, sr.height-GRABY));   // 上は据え置き(レール)/下は GRABY 残して はみ出し可
+      const inX=x=> x>=GRAB-w && x<=sr.width-GRAB;
+      const inY=y=> y>=8 && y<=sr.height-GRABY;
+      if(free(l,t) && inY(t) && inX(l)) return [l,t];             // 既に空いていて掴める範囲ならそのまま
+      for(let rad=1; rad<=30; rad++) for(let dx=-rad; dx<=rad; dx++) for(let dy=-rad; dy<=rad; dy++){
+        if(Math.max(Math.abs(dx),Math.abs(dy))!==rad) continue;   // その半径の外周セルだけ
+        const nx=l+dx*BB_GRID, ny=t+dy*BB_GRID;
+        if(inY(ny) && inX(nx) && free(nx,ny)) return [nx,ny];
+      }
+      return [clampX(l), clampY(t)];
+    };
+    // 保存位置が「掴めるぶん(GRAB/GRABY)を画面内に残しているか」。多少のはみ出しは尊重(定位置へ戻さない)。
+    const fits=(l,t,sr)=>{ const w=el.offsetWidth, h=el.offsetHeight, gx=Math.min(w,40), gy=Math.min(h,40);
+      return l>=gx-w-2 && l<=sr.width-gx+2 && t>=6 && t<=sr.height-gy+2; };
+    // 配置の確定/更新: 保存位置が現在ビューポートで画面内ならそれを尊重、画面外/未保存なら定位置へ。
+    // (別幅で保存した Cookie やリサイズでも部品が画面外に取り残されない。ドラッグ中は触らない。)
+    const reflow=()=>{
+      if(dragging) return;
+      const sr=stage.getBoundingClientRect();
+      const saved=getC('pos_'+id);
+      let l, t;
+      if(saved){ const p=saved.split(',').map(Number);
+        if(fits(p[0],p[1],sr)){ l=p[0]; t=p[1]; } else { [l,t]=defaultPos(sr); } }
+      else { [l,t]=defaultPos(sr); }
+      el.style.left=l+'px'; el.style.top=t+'px'; el.style.right='auto'; el.style.bottom='auto';
+    };
+    reflow();
+    // ソケットは後続のIIFEで生成されるため、生成後(次フレーム)にもう一度評価してソケットも避ける。
+    requestAnimationFrame(reflow);
+    // ロゴはWebフォント(Bitcount)で幅が変わる/リサイズで基準位置が動く→確定後・リサイズで再評価。
+    if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>requestAnimationFrame(reflow));
+    let rt; window.addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(reflow,200); });
     el.addEventListener('pointerdown',e=>{
       if(e.button!==undefined && e.button!==0) return;
       const r=el.getBoundingClientRect(), sr=stage.getBoundingClientRect();
@@ -206,9 +319,22 @@ function bbApplyGridShift(){
       if(!dragging) return; dragging=false; el.classList.remove('dragging');
       if(moved){
         const [fx,fy]=computeSnap(el, parseFloat(el.style.left), parseFloat(el.style.top));
-        el.style.left=fx+'px'; el.style.top=fy+'px';
-        setC('pos_'+id, fx+','+fy);
-        dropPop(); // 穴に「ぱちっ」
+        const [ax,ay]=avoidProtected(fx,fy,true,false);   // ドロップ時=自ソケット挿入を許可＋インセット適用(端への多少のかぶり許容)
+        const ejected = Math.round(ax)!==Math.round(fx) || Math.round(ay)!==Math.round(fy);
+        if(ejected){
+          // 保護スペースに被せて離した → 周辺へスライド+軽い回転(落下はしない)で弾き返す
+          const rot=(Math.random()<0.5?-1:1)*(6+(Math.random()*6|0));   // 振れ角は控えめ(±6〜11°)
+          el.style.setProperty('--eject-rot', rot+'deg');
+          el.style.transition='left .42s cubic-bezier(.2,.75,.25,1), top .42s cubic-bezier(.2,.75,.25,1)';
+          el.classList.add('ejecting');
+          boing(); // 弾かれた「ぽよんっ」
+          requestAnimationFrame(()=>{ el.style.left=ax+'px'; el.style.top=ay+'px'; });
+          el.addEventListener('animationend', ()=>{ el.style.transition=''; el.classList.remove('ejecting'); }, {once:true});
+        }else{
+          el.style.left=fx+'px'; el.style.top=fy+'px';
+          dropPop(); // 穴に「ぱちっ」
+        }
+        setC('pos_'+id, ax+','+ay);
       }
 
     };
@@ -274,16 +400,27 @@ function bbApplyGridShift(){
     blip(t+0.16,587,0.22,0.15,523);   // D5(ワ〜ン↓)
   }catch(e){} };
   const body=document.body;
-  // 各ソケット: 所定の部品(part)が所定の位置(place)に挿さる演出ON。
-  // ソケットは Ruby を中心に1列に並べる。左から: speaker → (Ruby) → motor → chip。
-  // いずれも scene を基準に置き、Ruby の縦中心(rubyCY)に各部品の中心を合わせる。
+  // 各ソケット: 所定の部品(part)が所定の位置(place)に挿さる演出ON。いずれも scene を基準に置く。
+  // デスクトップ: Ruby の縦中心(rubyCY)に各ソケット中心を合わせて横1列。左から seg7→speaker→(Ruby)→motor→chip。
+  // モバイル(BB_MOBILE): Ruby 下端の下へ横一列に再配置(mPlace。上端を揃える)。
   const cx  =(a,sr)=>a.left-sr.left+a.width/2;     // Ruby の水平中心(scene中心)
   const rubyCY=(a,sr)=>{ if(rubyLed){ const r=rubyLed.getBoundingClientRect(); return r.top-sr.top+r.height/2; } return a.top-sr.top+a.height/2; };
+  const rubyBottom=(a,sr)=>{ if(rubyLed){ const r=rubyLed.getBoundingClientRect(); return r.top-sr.top+r.height; } return a.top-sr.top+a.height; };
   const rowTop=(a,sr,h)=>rubyCY(a,sr)-h/2;         // 高さhの部品をRuby縦中心に合わせた上端Y
+  // モバイルのソケット左上座標: Ruby下端から1レールあけ、4ソケットの「上端」を揃える。
+  const mPlace=(a,sr,part,w,h)=>
+    ({ sx:cx(a,sr)+M_DX[part]-w/2, sy:rubyBottom(a,sr)+M_SOCKET_GAP });
   const SOCKETS=[
+    // 7セグ → スピーカーのさらに左 → 会期カウントダウンが点灯(抜くと消灯)。
+    scene && { part:'seg7', anchor:scene, h:53,
+               get w(){ const e=document.querySelector('.bb-seg7'); return e?e.offsetWidth:108; }, // 桁数で部品幅が変わる→追従
+               place(a,sr){ const w=this.w; return BB_MOBILE() ? mPlace(a,sr,'seg7',w,53)
+                            : ({ sx:cx(a,sr)-256-w/2, sy:rowTop(a,sr,53) }); },   // 中心(cx-256)固定。3桁=cx-310 / 2桁は中心保ったまま縮む
+               apply:on=>{ const el=document.querySelector('.bb-seg7'); if(el) el.classList.toggle('lit', on); } },
     // スピーカー → Ruby の左 → 縁のマイコンボードが一斉に踊る(グルーヴ再生)。抜くと停止。
     scene && { part:'speaker', anchor:scene, w:44, h:44,
-               place:(a,sr)=>({ sx:cx(a,sr)-164, sy:rowTop(a,sr,44) }),
+               place:(a,sr)=> BB_MOBILE() ? mPlace(a,sr,'speaker',44,44)
+                                          : ({ sx:cx(a,sr)-164, sy:rowTop(a,sr,44) }),
                apply:on=>{ body.classList.toggle('dance-on', on);
                  if(window.prarailDancing) window.prarailDancing(on);   // 踊り中はプラレールのチラ見せを止める
                  // パーティモード=ダーク(バッテリー)＋ダンス(スピーカー)。先に状態を確定してから開始すると、
@@ -294,15 +431,18 @@ function bbApplyGridShift(){
     // モーター → Ruby の右 → 挿した瞬間にプラレールが右→左へ一度走り抜ける(通過音つき)。
     // 挿入前の待機/チラ見せ・発進・帰還はプラレールコントローラ(window.prarailMotor)が担う。
     scene && { part:'motor',   anchor:scene, w:44, h:57,
-               place:(a,sr)=>({ sx:cx(a,sr)+104, sy:rowTop(a,sr,57) }),
+               place:(a,sr)=> BB_MOBILE() ? mPlace(a,sr,'motor',44,57)
+                                          : ({ sx:cx(a,sr)+104, sy:rowTop(a,sr,57) }),
                apply:on=>{ if(window.prarailMotor) window.prarailMotor(on); } },
     // チップ → モーターの右(行の右端) → PicoRubyKaigi がLチカ。
     scene && { part:'chip',    anchor:scene, w:56, h:56,
-               place:(a,sr)=>({ sx:cx(a,sr)+204, sy:rowTop(a,sr,56) }),
+               place:(a,sr)=> BB_MOBILE() ? mPlace(a,sr,'chip',56,56)
+                                          : ({ sx:cx(a,sr)+204, sy:rowTop(a,sr,56) }),
                apply:on=>body.classList.toggle('fx-lchika-off', !on) },
     // バッテリー → 電源レール(赤+/青-)をまたぐ → ダークモード(暗闇でボードが光る)。位置は据え置き。
     {            part:'battery', anchor:stage, w:27, h:46,
-               place:(a,sr)=>({ sx:a.width-180, sy:24 }), // レール・右寄り(中心<96でレール中央へスナップ)
+               place:(a,sr)=> BB_MOBILE() ? ({ sx:a.width-M_BAT_RIGHT-13.5, sy:24 })  // モバイル: 右上の電源レール
+                                          : ({ sx:a.width-180, sy:24 }), // レール・右寄り(中心<96でレール中央へスナップ)
                apply:on=>{ body.classList.toggle('dark', on);
                  // ダンス中にダーク切替されたらパーティモードのベース増強も追従
                  if(window.danceParty) window.danceParty(on && body.classList.contains('dance-on')); } },
@@ -345,35 +485,30 @@ function bbApplyGridShift(){
   requestAnimationFrame(frame);
 })();
 
-// ---- イントロ誘導: 一定時間どの部品も操作されなければ、最初のアクション=チップの真上に矢印を薄く点滅 ----
+// ---- イントロ誘導: しばらく経ってもソケットに収まっていない部品があると、時々「ぶるぶるっ」と震えて誘う ----
 (function(){
-  const stage=document.querySelector('.stage'); if(!stage) return;
-  const chip=document.querySelector('.bb-chip'); if(!chip) return;
-  const DELAY=4000;   // 4秒どの部品も操作されなければ矢印を出す
-  let interacted=false, arrow=null;
-  const hide=()=>{ if(arrow){ arrow.remove(); arrow=null; } document.body.classList.remove('intro-hint'); };
-  const place=()=>{ if(!arrow) return;
-    const r=chip.getBoundingClientRect(), sr=stage.getBoundingClientRect();
-    arrow.style.left=(r.left-sr.left+r.width/2)+'px';
-    arrow.style.top=(r.top-sr.top-40)+'px';
+  const parts=[...document.querySelectorAll('[data-part]')];
+  if(!parts.length) return;
+  const START=3000;   // ページ表示から3秒経ってから誘導開始
+  const seated=p=>p.classList.contains('lit-src');                                  // ソケットにぴったり挿さっている
+  const busy=p=>p.classList.contains('dragging')||p.classList.contains('ejecting'); // 操作中/弾き演出中は触らない
+  const shiver=p=>{
+    if(busy(p)||p.classList.contains('shiver')) return;
+    p.classList.add('shiver');
+    p.addEventListener('animationend',()=>p.classList.remove('shiver'),{once:true});
   };
-  document.querySelectorAll('[data-part]').forEach(el=>
-    el.addEventListener('pointerdown',()=>{ interacted=true; hide(); }));
-  setTimeout(()=>{
-    if(interacted) return;
-    document.body.classList.add('intro-hint');   // スロットの主張を上げる
-    arrow=document.createElement('div');
-    arrow.className='intro-arrow';
-    // x,yとも半ドット解像度(2=1ドット)。幅: 段1=7 / 段2=5 / 段3=3 / 先端=2 ドット。高さ: 1.5 / 1.5 / 1 / 1 ドット
-    arrow.innerHTML='<svg width="28" height="20" viewBox="0 0 14 10" preserveAspectRatio="none" shape-rendering="crispEdges">'
-      +'<rect x="0" y="0" width="14" height="3"/>'
-      +'<rect x="2" y="3" width="10" height="3"/>'
-      +'<rect x="4" y="6" width="6" height="2"/>'
-      +'<rect x="5" y="8" width="4" height="2"/></svg>';
-    stage.appendChild(arrow);
-    place();
-  }, DELAY);
-  window.addEventListener('resize', place);
+  // 外れているパーツだけを対象に、ランダム順で1巡ずつローテーション(同じパーツが続けて偏らない)。
+  let queue=[];
+  const tick=()=>{
+    if(!queue.length){                                     // 1巡し終えたら、その時点で外れているパーツで作り直す
+      queue=parts.filter(p=>!seated(p)&&!busy(p));
+      for(let i=queue.length-1;i>0;i--){ const j=(Math.random()*(i+1))|0; const t=queue[i]; queue[i]=queue[j]; queue[j]=t; } // シャッフル
+    }
+    const p=queue.shift();
+    if(p && !seated(p) && !busy(p)) shiver(p);              // キュー作成後に挿された/掴まれたパーツは飛ばす
+    setTimeout(tick, 2400+Math.random()*2600);             // 次の誘導まで(約2.4〜5.0s間隔)
+  };
+  setTimeout(tick, START);
 })();
 
 // ---- 電光掲示板ティッカー ----
@@ -429,7 +564,7 @@ function bbApplyGridShift(){
   let t; window.addEventListener('resize',()=>{ clearTimeout(t); t=setTimeout(layout,200); });
 })();
 
-// ---- ルビー先端のXに背景の穴列を合わせる(共有の bbApplyGridShift を使用) ----
+// ---- Ruby先端のXに背景の穴列を合わせる(共有の bbApplyGridShift を使用) ----
 // 実処理は bbApplyGridShift() に集約(BB_BGX を更新し、部品/ソケット/脚の x が追従)。
 // ここでは初回・フォント確定後・リサイズで再適用するだけ。
 (function(){
@@ -577,7 +712,9 @@ function bbApplyGridShift(){
     const x0=M, y0=46, x1=W-M, y1=H-(tickH+M);
     if(x1<=x0||y1<=y0) return;
     const per=2*((x1-x0)+(y1-y0));
-    const n=Math.max(12, Math.min(40, Math.round(per/76)));   // 周長に応じて枚数(≈76px間隔)
+    // 周長に応じて枚数。モバイルは縦長で周長が伸び枚数が増えすぎるため、間隔を広く・上限を低くして間引く。
+    const sp=BB_MOBILE()?120:76, nmin=BB_MOBILE()?8:12, nmax=BB_MOBILE()?18:40;
+    const n=Math.max(nmin, Math.min(nmax, Math.round(per/sp)));
     if(n!==count) build(n);
     geom={x0,y0,x1,y1,n};
     // LED点滅の位相を位置でずらす(リングをきらめきが渡る)

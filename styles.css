@@ -44,7 +44,7 @@ body {
 
 .stage {
   position: relative;
-  min-height: 100vh;
+  min-height: 100svh;   /* 実際の1stビュー(タブレット等のバー表示時の小さい視高)基準。PCでは svh==vh で不変 */
   overflow: hidden;
   color: var(--ink);
   background:
@@ -56,14 +56,15 @@ body {
   z-index: 4;
   max-width: 1320px;
   margin: 0 auto;
-  min-height: 100vh;
+  min-height: 100svh;   /* 1stビュー=実視高(svh)基準。PCでは svh==vh で不変、タブレットのバー表示に追従 */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: clamp(4px, 1.2vh, 14px);
-  /* 上下のレール帯ぶんの余白を対称に確保(956px級でも1stビューに収まるよう圧縮) */
-  padding: clamp(74px, 9vh, 92px) 3vw;
+  gap: clamp(4px, 1.2svh, 14px);
+  /* 上: ロゴが上部レール帯(赤y12-16 / 青y76-80)に被らないよう、青レール下端から明確に離す
+     (下限96px=帯の高さ。これより上げない)。下: 電光掲示板(高さ≈54px)ぶんを確保。 */
+  padding: clamp(96px, 10svh, 116px) 3vw clamp(64px, 8svh, 96px);
 }
 
 /* ===== INFO: date / venue / keynotes (centered, below logo) ===== */
@@ -74,7 +75,9 @@ body {
   align-items: center;
   text-align: center;
   gap: clamp(6px, 1.1vh, 13px);
-  margin-top: clamp(42px, 7.8vh, 108px);
+  /* svh 連動 + 下限を下げて、背の低いタブレット(601〜)でも電光掲示板まで収める。
+     背の高い画面では上限まで広がりデスクトップの余白感を保つ。 */
+  margin-top: clamp(20px, 6svh, 108px);
 }
 
 .keynotes {
@@ -89,7 +92,7 @@ body {
 
 .keynotes .keynote-label {
   font-family: 'Jersey 10', sans-serif;
-  font-size: clamp(14px, 1.25vw, 21px);
+  font-size: clamp(14px, 2.4vw, 21px);  /* vw係数大=中間幅(タブレット)で大きく。狭幅は下限14/デスクトップは上限21で据置 */
   color: var(--ink);                 /* 黒(インク色) */
   letter-spacing: .14em;
   text-indent: .14em;                /* letter-spacing は末尾にも入る→先頭に同量足して左右の偏りを相殺 */
@@ -128,8 +131,8 @@ body.dark .keynotes .keynote-label {
   align-items: center;
 }
 
-.keynotes .keynote-name.en { font-size: clamp(15px, 1.45vw, 22px); letter-spacing: .3em; }
-.keynotes .keynote-name.ja { font-size: clamp(17px, 1.7vw, 29px); letter-spacing: .26em; }
+.keynotes .keynote-name.en { font-size: clamp(15px, 2.9vw, 22px); letter-spacing: .3em; }   /* 中間幅で上限近くまで(狭幅15/上限22据置) */
+.keynotes .keynote-name.ja { font-size: clamp(17px, 3.8vw, 29px); letter-spacing: .26em; }  /* 同上(狭幅17/上限29据置) */
 
 .keynotes .keynote-name + .keynote-name {
   margin-top: .38em;
@@ -148,7 +151,7 @@ body.dark .keynotes .keynote-label {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 86%; /* ルビーを少し小さく */
+  width: 86%; /* Rubyを少し小さく */
   z-index: 5;
 }
 
@@ -204,7 +207,7 @@ body.dark .ruby-led::after {
           drop-shadow(0 0 1.5px rgba(255, 165, 80, .14));
 }
 
-/* ルビーを構成する丸い LED ひと粒ずつに重ねるきらめき。
+/* Rubyを構成する丸い LED ひと粒ずつに重ねるきらめき。
    位置は script.js が画像から検出した 57 個の LED 中心(正規化座標)に合わせて生成。
    ::after(くっきり原画)より上に出すため z-index を持たせる。 */
 .led-glint {
@@ -309,11 +312,18 @@ body.dark .led-glint.kira {
   paint-order: stroke fill;
 }
 
-/* Kaigi(=.prk直下の文字)はグレーの枠(消灯時)。PicoRubyは.picoruby内なので対象外 */
-.title .prk > .l-chika {
+/* Kaigi(=.kaigi内の文字)はグレーの枠(消灯時)。PicoRubyは.picoruby内なので対象外 */
+.title .prk .kaigi > .l-chika {
   --frame: #454747;
   -webkit-text-stroke: 6px var(--frame);
   paint-order: stroke fill;
+}
+
+/* PicoRuby / Kaigi はそれぞれ改行不可の塊にする。これで折り返しは必ず両者の境界でだけ起き、
+   "PicoRubyKai / gi" のような単語途中での折り返しを防ぐ(モバイルで2行になる時は PicoRuby / Kaigi)。 */
+.title .prk .picoruby,
+.title .prk .kaigi {
+  white-space: nowrap;
 }
 
 .title .prk .l-chika {
@@ -415,8 +425,10 @@ body.dark .led-glint.kira {
   align-items: flex-start;
   justify-content: center;
   gap: 1px;
-  height: clamp(60px, min(8.6vw, 9.6vh), 84px);
-  padding-left: clamp(20px, 2.8vw, 35px);
+  /* フォントは px 上限(18px)で頭打ちなので、ボタン(=背景ボード)を大きめに取り、文字を USB端子(左~13%)と
+     chip(右~74%)の間に収める。vw 係数を上げて 768〜1100px 帯でも板幅を確保。 */
+  height: clamp(64px, min(10.5vw, 10.5vh), 84px);
+  container-type: inline-size;   /* 文字の頭をボード幅基準(cqw)で置くため(下の .button-icon > span) */
   background-repeat: no-repeat;
   background-position: center;
   background-size: contain;
@@ -439,9 +451,14 @@ body.dark .led-glint.kira {
   background-image: url('images/board_yellow_t.png');
 }
 
+/* 文字の頭はボード幅基準(cqw)で USB端子(~13%)の右に置く。フォントサイズは変えない。 */
+.button-icon > span {
+  margin-left: 16cqw;
+}
+
 .button-icon .button-label-jp {
   font-family: 'Conti Neue 2P', 'DotGothic16', monospace;
-  font-size: clamp(13px, 1.5vw, 18px);
+  font-size: clamp(13px, 2.7vw, 18px);  /* 中間幅(タブレット)で上限まで。狭幅13/デスクトップ上限18は据置 */
   color: #1f1d23;
 }
 
@@ -455,7 +472,7 @@ body.dark .led-glint.kira {
 
 .button-icon .button-label-en {
   font-family: 'Jersey 10', sans-serif;
-  font-size: clamp(11px, 1.1vw, 14px);
+  font-size: clamp(11px, 2vw, 14px);  /* 中間幅で上限まで。狭幅11/デスクトップ上限14は据置 */
   color: #1f1d23;
   letter-spacing: .03em;
   line-height: 1;
@@ -463,6 +480,11 @@ body.dark .led-glint.kira {
 
 .button-icon:hover {
   transform: translateY(-3px);
+}
+
+/* モバイル専用の日付+会場(静的・複数行)。デフォルト(=デスクトップ)は非表示。モバイルで表示に切替。 */
+.venue {
+  display: none;
 }
 
 /* ===== 電光掲示板ティッカー: 日付+会場が右→左へ流れる ===== */
@@ -551,7 +573,9 @@ body.dark .led-glint.kira {
 
 .ticker-where {
   font-family: 'Conti Neue 2P', 'DotGothic16', monospace;
-  font-size: clamp(13px, 1.9vw, 22px); /* 会場フォント。Micro5より詰まるので少し小さめに */
+  /* 会場フォントは固定。電光掲示板はマーキーで横スクロールするので幅で縮める必要がなく、
+     日付(.ticker-when=2.5em→body16px基準で実質固定40px)と揃えて常に同じ大きさで読ませる。 */
+  font-size: 22px; /* Micro5の日付より詰まるので少し小さめの固定値 */
   letter-spacing: .12em;
   margin: 0 .8em; /* 日付との間隔(左)と次ユニットの日付との間隔(右)を左右対称に */
 }
@@ -632,7 +656,129 @@ body.dark .ticker { --tk-led: 92, 191, 100; }
   }
   .scene {
     width: min(78vw, 360px);
-    height: min(78vw, 360px);
+    /* 高さは正方形(360px)だと中央の小さいRuby上下に巨大余白が出て縦を圧迫する。
+       768〜860px(デスクトップ型タブレット)では svh 連動で抑える。767px 以下はモバイル側で上書き。 */
+    height: clamp(120px, 22svh, 220px);
+  }
+}
+
+/* ===== モバイル型(縦): ヒーロー部を1stビューに確実に収める =====
+   スマホ〜小型タブレット縦(〜767px)。横長基板前提のデスクトップ型は横一列ソケットが
+   601〜767pxで画面外に見切れるため、この幅まではモバイル型(Ruby直下ソケット/静的会場/2ボタン)に
+   切替える。下限フォントを下げてロゴを保ち、各テキスト/ボタンを画面内に収める。 */
+@media (max-width: 767px) {
+  .wrap {
+    /* レール帯(y0〜96)を避けて先頭を置く。中央寄せだと内容が縦に溢れた時にロゴがレールへめり込むため、
+       flex-start で必ず下へ溢れさせる(超過は縦スクロール)。 */
+    justify-content: flex-start;
+    /* 高さ・縦間隔は svh 基準(URLバー表示時の実1stビュー)。100vh だとバー表示中にボタンが見切れる。 */
+    min-height: 100svh;
+    /* 上パディングはレール帯回避の最小限(≈96px)。下は控えめ(電光掲示板が無いので最小)。縦の余りスラックは
+       .title/.scene の margin-top:auto で「ロゴ上/Ruby上」へ回す(短い端末では0=圧縮してボタンまで収める)。 */
+    padding: clamp(96px, 11svh, 104px) 4vw clamp(8px, 1svh, 16px);
+    gap: clamp(2px, .7svh, 8px);
+  }
+
+  /* ロゴ: 1行に収まらない幅では PicoRuby / Kaigi の2行で見せる(折り返しは .picoruby/.kaigi の nowrap で境界に固定)。 */
+  .title {
+    padding: 4px 4px;
+    margin-top: auto;   /* 縦の余りを .scene と分け合ってロゴ上の余白に(短い端末では0=圧縮) */
+    gap: clamp(4px, 1svh, 10px);   /* 各行の行間を少し広げる */
+  }
+  .title .prk {
+    font-size: clamp(38px, 14.5vw, 68px);
+    line-height: .96;   /* PicoRuby/Kaigi が2行になる幅でも行間を確保 */
+  }
+  .title .year {
+    font-size: clamp(28px, 8.8vw, 54px);
+    margin-top: 0;      /* 負マージンをやめて 2026 を詰めすぎない */
+  }
+  .title .assemble {
+    font-size: clamp(15px, 4.8vw, 31px);
+    margin-top: 0;      /* Assemble も詰めすぎない */
+  }
+
+  /* scene を小さく(Ruby丈)してRuby上下の余白を解消(svh連動)。縦の余りスラックは margin-top:auto で
+     Ruby上へ、ソケット/部品バンド(Ruby直下・absolute)のクリアランスは margin-bottom で担保。 */
+  .scene {
+    height: clamp(74px, 12svh, 150px);
+    margin-top: auto;                          /* 余りを .title と分けてRuby上の余白に(短い端末では0=圧縮) */
+    margin-bottom: clamp(62px, 11svh, 90px);   /* ソケット下端クリアランス。venue を auto にして「Ruby上」と均等配分 */
+  }
+
+  /* Rubyは短い端末で縮めて縦を稼ぐ(svh連動。JS が rect 実測でソケット/部品を追従)。
+     transform の下オフセットは JS の ROFF と一致(読み込み後 JS が同値で上書き=未実行時のチラつき防止)。 */
+  .ruby-led {
+    height: clamp(72px, 12svh, 102px);
+    transform: translate(-50%, calc(-50% + clamp(5px, 1.2svh, 16px)));
+  }
+
+  /* venue 直下なので小さい間隔でよい(Ruby上/ソケット下/ボタン下の均等分配は scene/venue/button の auto が担当)。 */
+  .info {
+    margin-top: clamp(4px, 1svh, 22px);
+  }
+
+  .keynotes {
+    gap: clamp(10px, 3vw, 20px);   /* ラベルと名前の間隔をやや詰める */
+  }
+
+  /* CTA: 参加登録(ticket)は非表示、プロポーザル/スポンサーは横並び。 */
+  .button-icon.ticket {
+    display: none;
+  }
+  .button {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: clamp(12px, 3.5vw, 24px);
+    margin-top: clamp(12px, 3svh, 30px);   /* KEYNOTE↔ボタンの間隔 */
+    margin-bottom: auto;                   /* 細長い端末では余りをボタン下にも分配(ロゴ上/Ruby上/ボタン下の3者) */
+  }
+  .button-icon {
+    height: clamp(56px, 14.5vw, 86px);
+    /* 頭の位置は base の cqw margin が担う(ボード幅基準) */
+  }
+
+  /* モバイルは流れる電光掲示板をやめ静的・複数行のプレーン表示に(長い会場名を折り返して全文を出す)。 */
+  .ticker,
+  .ticker-legs {
+    display: none;
+  }
+  .venue {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: clamp(1px, .3svh, 4px);   /* 日付↔会場の行間はせまく */
+    margin-top: auto;              /* クリアランスは scene の margin-bottom が担保。余りを「ソケット下」に分配(短い端末では0) */
+    color: var(--ink);
+    width: 100%;
+  }
+  .venue-when {
+    font-family: 'Micro 5', sans-serif;
+    font-size: clamp(32px, 9vw, 52px);     /* 日付は大きく */
+    letter-spacing: .08em;
+    line-height: 1;
+  }
+  .venue-dow {
+    font-size: .66em;
+    letter-spacing: .04em;
+    margin-left: -.28em;       /* 日付("…31.")と SAT の間を詰める */
+    color: var(--red);         /* SAT は赤 */
+  }
+  .venue-where {
+    font-family: 'Conti Neue 2P', 'DotGothic16', monospace;
+    font-size: clamp(12px, 3.3vw, 18px);   /* 会場は控えめに(日付より小さく)。折り返すので幅制約なし */
+    letter-spacing: .04em;
+    line-height: 1.45;
+    max-width: 94%;                        /* この幅で自然に折り返す */
+  }
+  .venue-pin {
+    height: .92em;
+    width: auto;
+    fill: currentColor;
+    shape-rendering: crispEdges;
+    vertical-align: -0.06em;
+    margin-right: .22em;
   }
 }
 
@@ -663,7 +809,7 @@ body.dark .title .prk .picoruby {
 }
 
 /* 消灯時フレーム: それぞれの色のくすんだリン光に(濃紺でも沈まない) */
-body.dark .title .prk > .l-chika { --frame: #2c6b4a; }            /* Kaigi: 暗い緑 */
+body.dark .title .prk .kaigi > .l-chika { --frame: #2c6b4a; }     /* Kaigi: 暗い緑 */
 body.dark .title .prk .picoruby > .l-chika { --frame: #97233a; } /* PicoRuby: ピンクを暗くしたリン光オフ色(ライト#da1d3cと同系) */
 
 /* L-chika 点灯: ダークは点灯色だけ緑のリン光に差し替え(キーフレームは共通の frame-lit)。
@@ -709,17 +855,6 @@ body.seg7-2 .circuit-slot--seg7 { --slot-img: url('images/seg7-slot-2.svg'); }  
 @keyframes slot-hint-soft {
   0%, 100% { filter: drop-shadow(0 0 2px rgba(255, 193, 46, .28)); }
   50%      { filter: drop-shadow(0 0 6px rgba(255, 193, 46, .55)); }
-}
-/* 一定時間(4秒)操作なしで誘導モード(body.intro-hint)に入ると、主張を上げる */
-body.intro-hint .circuit-slot {
-  opacity: 1;
-}
-body.intro-hint .circuit-slot.hint {
-  animation: slot-hint 1.4s steps(2) infinite;
-}
-@keyframes slot-hint {
-  0%, 100% { filter: drop-shadow(0 0 3px rgba(255, 193, 46, .45)); }
-  50%      { filter: drop-shadow(0 0 9px rgba(255, 193, 46, .85)); }
 }
 /* 部品が挿さったら枠は消す(スロット非表示)。opacity を使うモードより優先 */
 .circuit-slot.filled {
@@ -778,11 +913,38 @@ body.dark .circuit-slot.hint {
   height: 44px;                                  /* スピーカー: 137x138 */
   background-image: url('images/spaeker.png');
 }
+/* タッチのグラブ範囲拡大: 背景画像はホスト要素側にあり、スナップ幾何(offsetWidth/Height)も
+   ホストの箱は不変なので、見た目とスナップは1pxも変えずに「当たり判定」だけ外側へ広げる。
+   battery は幅26.5pxと細く指で掴みにくいため特に有効(周囲は余白で隣の部品と重ならない)。 */
+.bb-battery::before,
+.bb-speaker::before {
+  content: "";
+  position: absolute;       /* inset でホスト箱の外側まで透明に拡張(ポインタ判定はホストに届く) */
+}
+.bb-battery::before { inset: -9px; }   /* 26.5×45 → 約 44×63px の当たり判定 */
+.bb-speaker::before { inset: -4px; }   /* 44×44 → 約 52×52px */
 .bb-chip.dragging,
 .bb-battery.dragging,
 .bb-motor.dragging,
-.bb-speaker.dragging {
+.bb-speaker.dragging,
+.bb-seg7.dragging {
   cursor: grabbing;
+  z-index: 30;
+}
+/* 保護スペース(会場名/KEYNOTE/ボタン)に被った部品を「周辺」へ弾く時の演出。
+   reset のタンブル(回転)だけ流用し、垂直落下はしない。位置の移動は JS が left/top に
+   トランジションを掛けてスライドさせ、ここでは軽い回転を一往復させて着地。 */
+@keyframes part-eject {
+  0%   { transform: rotate(0deg); }
+  35%  { transform: rotate(var(--eject-rot, -16deg)); }
+  100% { transform: rotate(0deg); }
+}
+.bb-chip.ejecting,
+.bb-battery.ejecting,
+.bb-motor.ejecting,
+.bb-speaker.ejecting,
+.bb-seg7.ejecting {
+  animation: part-eject .42s ease-out;
   z-index: 30;
 }
 /* 走行中だけ: モーターが小刻みに振動して「回っている」感じ(プラレールが走り終えたら止まる) */
@@ -831,23 +993,27 @@ body.dark .prarail::after {
           drop-shadow(0 0 18px rgba(255, 165, 90, .35));
 }
 
-/* イントロ誘導: 一定時間どの部品も操作されなければ、チップの真上に矢印をうっすら点滅 */
-.intro-arrow {
-  position: absolute;
-  z-index: 9;
-  transform: translateX(-50%);
-  pointer-events: none;
-  filter: drop-shadow(0 0 5px rgba(255, 193, 46, .45));
-  animation: intro-blink 1.2s ease-in-out infinite;
+/* イントロ誘導: しばらくソケットに挿さっていない部品は、時々「ぶるぶるっ」と震えて誘う。
+   各パーツの中心(transform-origin 既定=50% 50%)を支点に、時計回り⇄反時計回りへ小刻みに振れる。 */
+@keyframes part-shiver {
+  0%, 100% { transform: rotate(0); }
+  6%  { transform: rotate(16deg); }   /* 1回目: 時計回り(強) */
+  19% { transform: rotate(-16deg); }  /*        反時計回り(強) */
+  31% { transform: rotate(15deg); }   /* 2回目(強) */
+  44% { transform: rotate(-14deg); }
+  56% { transform: rotate(8deg); }    /* 3回目(弱・余韻) */
+  69% { transform: rotate(-6deg); }
+  81% { transform: rotate(5deg); }    /* 4回目(弱・余韻) */
+  94% { transform: rotate(-3deg); }
 }
-.intro-arrow svg {
-  display: block;
-  fill: var(--yellow);
-  image-rendering: pixelated;
-}
-@keyframes intro-blink {
-  0%, 100% { opacity: .1; }
-  50%      { opacity: .5; }
+.bb-chip.shiver,
+.bb-battery.shiver,
+.bb-motor.shiver,
+.bb-speaker.shiver,
+.bb-seg7.shiver {
+  transform-origin: 50% 50%;   /* 中心を支点に回す(既定値の明示) */
+  animation: part-shiver .52s ease-in-out;
+  z-index: 20;   /* 震えている間だけ手前へ(ドラッグ中=30 より下) */
 }
 
 /* ===== マイコンボード群: ステージをぐるりと囲む。位置は JS が算出。スピーカーを挿すとビートに乗って踊る。 ===== */
@@ -1011,4 +1177,87 @@ body.dark.dance-on .pf-hue {
   62.5%    { transform: translate(0,      50vh); }  /* 下辺中央(壁) */
   75%      { transform: translate(-35vw,  35vh); }  /* 左下寄り */
   87.5%    { transform: translate(-50vw,  0); }     /* 左辺中央(壁) */
+}
+
+/* ===== 縦長タブレット(iPad Mini/Air 縦 など, min-width:768 portrait): デスクトップ型(中央寄せ)だが
+   縦に余りやすい。ロゴ/2026/Assemble を大きくし、scene/Rubyオフセットを詰めて Ruby 上下の余白を抑え、
+   3ブロックを中央に程よくまとめる(ロゴ下・CTA上)。Rubyの下オフセットは JS の ROFF と整合。 ===== */
+@media (min-width: 768px) and (orientation: portrait) {
+  .scene {
+    height: clamp(108px, 14vh, 150px);   /* Ruby丈に寄せて Ruby 上下の余白を詰める */
+  }
+  .ruby-led {
+    transform: translate(-50%, calc(-50% + clamp(16px, 3svh, 36px)));   /* JS未実行時用。読み込み後はJSが同値で上書き */
+  }
+  /* Ruby↔KEYNOTE が広いと CTA が下がるので詰める(=CTAを上へ・3ブロックを中央へまとめる)。 */
+  .info {
+    margin-top: clamp(28px, 4.5vh, 66px);
+  }
+  /* 重心が下寄りになる(上の空き>下の空き)ので、下パディングを増やして中央寄せの基準を上げる
+     =クラスタ全体を少し上へ。電光掲示板(下端)ぶんの視覚的な重さも相殺する。 */
+  .wrap {
+    padding-bottom: clamp(110px, 13svh, 172px);
+  }
+
+  .title {
+    gap: 2px;   /* Kaigi↔2026↔Assemble の行間(やや狭め=上重心を抑える) */
+  }
+  .title .prk {
+    font-size: clamp(72px, 11.5vw, 124px);
+    line-height: .98;   /* PicoRuby↔Kaigi の行間(やや狭め) */
+  }
+  .title .year {
+    font-size: clamp(46px, 7.6vw, 84px);
+    margin-top: 0;
+  }
+  .title .assemble {
+    font-size: clamp(22px, 3.6vw, 40px);
+    margin-top: 0;
+  }
+}
+
+/* ===== さらに縦長で大きい端末(iPad Pro 12.9 / Surface Pro 縦など, min-height>=1200px):
+   中央寄せだとクラスタが小さな島になり上下の余白が余る。ブロック間(title↔Ruby / Ruby↔KEYNOTE)を
+   広げてクラスタを縦に充実させ、上下の余白を削る。iPad Mini/Air(1024〜1180px)は対象外で不変。 ===== */
+@media (min-width: 768px) and (orientation: portrait) and (min-height: 1200px) {
+  /* タイトル行間をわずかに広げる(大画面で .98/gap:2 は窮屈)。 */
+  .title {
+    gap: 5px;
+  }
+  .title .prk {
+    line-height: 1.02;
+  }
+  /* ブロック間と外周の上下余白を近い大きさに揃えてバランス(離しすぎ=散漫/詰めすぎ=島 を避ける)。 */
+  .scene {
+    margin-top: clamp(20px, 6vh, 104px);     /* PicoRuby〜Assemble ↔ Ruby */
+  }
+  .info {
+    margin-top: clamp(45px, 8vh, 132px);     /* Ruby ↔ KEYNOTE〜CTA */
+  }
+}
+
+/* ===== 横長デスクトップ(PC): Ruby を主役にする構図。
+   タイトルは締まった「ロゴ塊」(行間は読める範囲で詰める)、KEYNOTE〜CTA も塊。Ruby のまわりだけ
+   広く均等に余白を取って隔離し、画面中央に置く=視線が Ruby に集まる(サイズは変えない)。 ===== */
+@media (min-width: 768px) and (orientation: landscape) {
+  .title {
+    gap: 5px;   /* 行間は読める範囲で詰めてロゴを1塊に(負マージンは解除) */
+  }
+  .title .year { margin-top: 0; }
+  .title .assemble { margin-top: 0; }
+  /* Ruby を上下とも広く均等に隔離(=主役)。KEYNOTE〜CTA塊・タイトル塊は詰まっているので Ruby が際立つ。 */
+  .scene {
+    margin-top: clamp(20px, 5.5vh, 78px);    /* PicoRuby〜Assemble ↔ Ruby */
+  }
+  .info {
+    margin-top: clamp(60px, 12vh, 140px);    /* Ruby ↔ KEYNOTE〜CTA */
+  }
+
+  /* Ruby(宝石)以外=タイトルと KEYNOTE を少し小さくして、Ruby を相対的に主役にする(CTAボタンは据え置き)。 */
+  .title .prk      { font-size: clamp(40px, min(7.4vw, 10.5vh), 95px); }
+  .title .year     { font-size: clamp(26px, min(5vw, 6.5vh), 58px); }
+  .title .assemble { font-size: clamp(14px, min(2.3vw, 3vh), 26px); }
+  .keynotes .keynote-label   { font-size: clamp(12px, 2vw, 18px); }
+  .keynotes .keynote-name.en { font-size: clamp(13px, 2.5vw, 19px); }
+  .keynotes .keynote-name.ja { font-size: clamp(15px, 3.2vw, 25px); }
 }

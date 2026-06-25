@@ -15,7 +15,7 @@
     <div class="wrap">
 
       <div class="title">
-        <div class="prk"><span class="picoruby">PicoRuby</span>Kaigi</div>
+        <div class="prk"><span class="picoruby">PicoRuby</span><span class="kaigi">Kaigi</span></div>
         <div class="year">2026</div>
         <div class="assemble">- Assemble -</div>
       </div>
@@ -23,6 +23,14 @@
       <div class="scene">
         <!-- LEDマトリクスの Ruby: 中央でルビーが点灯 -->
         <div class="ruby-led" role="img" aria-label="Ruby"></div>
+      </div>
+
+      <!-- モバイル専用: 流れる電光掲示板の代わりに、日付+会場を静的・複数行(折り返し可)でページに馴染ませて表示。
+           会場名が長く1行マーキーだと「読める大きさ」と「1画面に収まる」が両立しないため。デスクトップはCSSで非表示。
+           置き場所はソケット(ルビー直下の組み立てバンド)と KEYNOTE の間。 -->
+      <div class="venue">
+        <div class="venue-when">2026.10.31. <span class="venue-dow">SAT</span></div>
+        <div class="venue-where"><svg class="venue-pin" viewBox="0 0 5 6" aria-hidden="true"><path d="M1 0h3v1h-3z M0 1h5v1h-5z M0 2h2v1h-2z M3 2h2v1h-2z M0 3h5v1h-5z M1 4h3v1h-3z M2 5h1v1h-1z"/></svg><span class="venue-place">浅草橋ヒューリックホール＆カンファレンス</span></div>
       </div>
 
       <div class="info">
