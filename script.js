@@ -134,17 +134,35 @@ document.querySelectorAll('.scene').forEach(scene=>{
     d.style.left=(x*100).toFixed(2)+'%'; d.style.top=(y*100).toFixed(2)+'%';
     host.appendChild(d); return d;
   });
-  // ひと粒を一瞬光らせる。
+  // ひと粒を一瞬、斜めに光らせる。
   const kira=d=>{
     if(!d || d.classList.contains('kira')) return;
     d.classList.add('kira');
     d.addEventListener('animationend',()=>d.classList.remove('kira'),{once:true});
   };
   const pick=()=>dots[(Math.random()*dots.length)|0];
-  // 環境演出: 1粒ずつ、あちこちの LED を順に渡り歩く(同時多発させない)。
+  // 環境演出: 完成/未完成にかかわらず、1粒ずつ順に渡り歩く。
   (function loop(){
     kira(pick());
-    setTimeout(loop, 560+Math.random()*900);   // ≈0.56〜1.46s 間隔
+    setTimeout(loop, 560+Math.random()*900);
+  })();
+  // 完成(body.ruby-full)時だけの上乗せ: 右上に固定したドット絵の十字(cross)を定期的に光らせる。
+  const crossIdx=LEDS.reduce((b,p,i)=>Math.hypot(p[0]-0.70,p[1]-0.19)<Math.hypot(LEDS[b][0]-0.70,LEDS[b][1]-0.19)?i:b,0);
+  const crossEl=document.createElement('span'); crossEl.className='cross';
+  crossEl.dataset.x=LEDS[crossIdx][0]; crossEl.dataset.y=LEDS[crossIdx][1];
+  crossEl.style.setProperty('--u','2px');                                  // ピクセル単位(偶数=ドット絵がボケない)
+  crossEl.style.setProperty('--kd',(0.52+Math.random()*0.2).toFixed(2)+'s'); // 点滅1回の長さ
+  crossEl.addEventListener('animationend',()=>crossEl.classList.remove('go'));
+  host.appendChild(crossEl);
+  const crossFlash=()=>{
+    crossEl.style.setProperty('--ka',(0.86+Math.random()*0.1).toFixed(2));
+    crossEl.style.left=Math.round(crossEl.dataset.x*host.clientWidth)+'px';   // 整数pxへスナップ(にじまない)
+    crossEl.style.top =Math.round(crossEl.dataset.y*host.clientHeight)+'px';
+    crossEl.classList.remove('go'); void crossEl.offsetWidth; crossEl.classList.add('go');
+  };
+  (function crossLoop(){
+    if(document.body.classList.contains('ruby-full')) crossFlash();
+    setTimeout(crossLoop, 2500+Math.random()*300);   // 定期的(約2.5〜2.8s)
   })();
   // モーター連動フック
   window.rubyGlint=function(){

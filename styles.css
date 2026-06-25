@@ -287,6 +287,41 @@ body.dark .led-glint.kira {
   100% { transform: translate(80%, -80%); }  /* 右上の外へ抜ける */
 }
 
+/* cross: ドット絵風の4方向スパークル(十字)。四角いピクセル(--u)を box-shadow で十字に組む。
+   ぼかしを使わず輪郭をくっきり保つ。中心+内腕は白、先端チップだけテーマ色(ライト=ローズ/ダーク=緑)。
+   拡大するとピクセルがボケるのでスケールはせず、opacity の点滅だけで表示する。 */
+.cross {
+  position: absolute;
+  width: var(--u, 4px); height: var(--u, 4px);
+  background: #fff;
+  transform: translate(-50%, -50%);   /* --u を偶数pxにすれば中心が整数pxに乗る */
+  opacity: 0;
+  z-index: 2;
+  pointer-events: none;
+  --tint: #ff96b9;                     /* ライト=ローズ */
+  box-shadow:
+    /* 上下左右の長い光彩(内腕=白 1〜4u＋先端チップ色 5u) */
+    0 calc(-1 * var(--u)) #fff, 0 calc(-2 * var(--u)) #fff, 0 calc(-3 * var(--u)) #fff, 0 calc(-4 * var(--u)) #fff,
+    0 var(--u) #fff,            0 calc(2 * var(--u)) #fff,   0 calc(3 * var(--u)) #fff, 0 calc(4 * var(--u)) #fff,
+    calc(-1 * var(--u)) 0 #fff, calc(-2 * var(--u)) 0 #fff, calc(-3 * var(--u)) 0 #fff, calc(-4 * var(--u)) 0 #fff,
+    var(--u) 0 #fff,            calc(2 * var(--u)) 0 #fff,   calc(3 * var(--u)) 0 #fff, calc(4 * var(--u)) 0 #fff,
+    0 calc(-5 * var(--u)) var(--tint), 0 calc(5 * var(--u)) var(--tint),
+    calc(-5 * var(--u)) 0 var(--tint), calc(5 * var(--u)) 0 var(--tint),
+    /* 斜め4方向の短い光彩(内=白1段＋先端チップ色。上下左右より短い) */
+    calc(-1 * var(--u)) calc(-1 * var(--u)) #fff, var(--u) calc(-1 * var(--u)) #fff,
+    calc(-1 * var(--u)) var(--u) #fff,            var(--u) var(--u) #fff,
+    calc(-2 * var(--u)) calc(-2 * var(--u)) var(--tint), calc(2 * var(--u)) calc(-2 * var(--u)) var(--tint),
+    calc(-2 * var(--u)) calc(2 * var(--u)) var(--tint),  calc(2 * var(--u)) calc(2 * var(--u)) var(--tint);
+}
+body.dark .cross { --tint: #56f096; } /* ダーク=緑 */
+.cross.go { animation: cross var(--kd, .45s) linear; }
+@keyframes cross {
+  0%   { opacity: 0; }
+  22%  { opacity: var(--ka, 1); }  /* 一度だけ光って */
+  42%  { opacity: var(--ka, 1); }
+  100% { opacity: 0; }             /* 少しゆっくりめにフェードアウト(単発) */
+}
+
 .sparkle {
   display: none; /* きらきらはいったん非表示 */
   position: absolute;
