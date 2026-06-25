@@ -227,8 +227,9 @@ body {
   image-rendering: pixelated;
   opacity: 0;
   z-index: 6;
-  animation: cube var(--dur) steps(6) var(--delay) infinite;
 }
+/* モーター設置後、JSが1つずつ .on を付けてキューブを徐々に増やす */
+.cube.on { animation: cube var(--dur) steps(6) infinite; }
 
 @keyframes cube {
   0% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1.4); }
@@ -256,8 +257,10 @@ body {
 .builder {
   position: absolute;
   z-index: 7;
-  animation: builder-flow var(--dd) steps(13) var(--ddl, 0s) infinite;
+  opacity: 0;
 }
+/* モーター設置後、JSが順番に .on を付ける(まず右ひとり→下位置到達後に他が続く) */
+.builder.on { animation: builder-flow var(--dd) steps(13) infinite; }
 
 .builder img {
   width: 54px;
@@ -399,8 +402,10 @@ body {
 .title .logo-cube {
   position: absolute;
   image-rendering: pixelated;
-  animation: logo-cube var(--d) steps(5) var(--dl) infinite;
+  opacity: 0;
 }
+/* キューブと同様、モーター設置後に1つずつ .on を付けて点灯 */
+.title .logo-cube.on { animation: logo-cube var(--d) steps(5) infinite; }
 
 @keyframes logo-cube {
   0% { opacity: 0; transform: translate(var(--fx), var(--fy)) scale(1.4); }

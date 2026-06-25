@@ -49,6 +49,50 @@ document.querySelectorAll('.scene').forEach(scene=>{
   }
 });
 
+// motor演出のステージ制御: 設置するとまずビルダーが現れて運び入れ、少し遅れてキューブが1つずつ増えていく。
+// 抜くと全キューブを消灯。apply は毎フレーム呼ばれるので状態変化時のみ作動。
+const motorReveal=(function(){
+  const shuffle=a=>{ for(let i=a.length-1;i>0;i--){ const j=(Math.random()*(i+1))|0; [a[i],a[j]]=[a[j],a[i]]; } return a; };
+  // scene のキューブを先に、ロゴ周りのキューブを後に。各群はシャッフルで順不同に出す。
+  // ただし最初の1つは cube4。2番目くらいに大きく、動きはややゆっくりめにする
+  const sceneCubes=[...document.querySelectorAll('.scene .cube')];
+  const first=sceneCubes.find(c=>/cube4\.png(\?|$)/.test(c.src))||sceneCubes[0];
+  first.style.width='30px';                // 2番目くらいに大きいキューブ
+  first.style.setProperty('--dur','6.2s'); // 動きはややゆっくりめ
+  first.style.setProperty('--dx','0px');   // 斜めでなく真上から下に降りてくる
+  first.style.setProperty('--ex','0px');
+  // ルビー周りとロゴ周りを交互に混ぜ、ロゴ周りも早い段階から現れるようにする
+  const restScene=shuffle(sceneCubes.filter(c=>c!==first));
+  const logoCubes=shuffle([...document.querySelectorAll('.logo-cube')]);
+  const tail=[];
+  for(let i=0;i<Math.max(restScene.length,logoCubes.length);i++){
+    if(restScene[i]) tail.push(restScene[i]);
+    if(logoCubes[i]) tail.push(logoCubes[i]);
+  }
+  const cubeOrder=[first, ...tail];
+  // ビルダー: まず右がひとりで登場。右が下位置に着くまでは増やさない
+  const builders=[...document.querySelectorAll('.scene .builder')];
+  const rightB=builders.find(b=>b.style.right)||builders[builders.length-1];
+  const restB=builders.filter(b=>b!==rightB);
+  // builder-flow が下位置(--ty)に到達するのは 66% 地点。--dd[s] から所要msを計算
+  const toBottom=el=>(parseFloat(getComputedStyle(el).getPropertyValue('--dd'))||3.6)*660;
+  let timers=[], on=false;
+  const clear=()=>{ timers.forEach(clearTimeout); timers=[]; };
+  const at=(el,t)=>timers.push(setTimeout(()=>el.classList.add('on'), t));
+  return function(state){
+    if(state===on) return; on=state; clear();
+    if(!state){ [...builders,...cubeOrder].forEach(c=>c.classList.remove('on')); return; }
+    rightB.classList.add('on');           // 右ビルダーがひとりで登場
+    const t0=toBottom(rightB);            // 右が下位置に着くまでは増やさない
+    at(cubeOrder[0], t0);                 // 下に着くと、まずキューブが1つ現れる
+    // 2人目は、右が一旦消えてから2巡目に再登場する前の「谷間」に出す(=もう一呼吸、かつ被らない)
+    let bt=t0+1000;                       // 右がexit(≈82%)〜再登場(≈ --dd)の間に収まる
+    restB.forEach((b,i)=>at(b, bt+i*350));
+    let t=bt+450;                         // それからキューブが1つずつおだやかに増える
+    cubeOrder.slice(1).forEach(c=>{ at(c,t); t+=440+Math.random()*260; });
+  };
+})();
+
 // ruby: a tall sparkle streaks left->right across the lower-middle edges,
 // then the upper-right facet glints. Then a pause, and the cycle repeats.
 (function(){
