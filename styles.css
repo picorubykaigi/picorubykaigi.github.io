@@ -31,6 +31,10 @@ img {
   --redd: #c0223a;
   --yellow: #ffc12e;
   --pink: #ff4a2e; /* Ruby に寄せた光のにじみ色（オレンジ寄りの暖かい赤＝スカーレット。L-chika と共通） */
+  /* L-chika 点灯色(モードで色だけ差し替え。アニメ名は変えない=切替で再スタートしない) */
+  --lit-stroke: #ffe7d8;                 /* 点灯時の枠色 */
+  --lit-glow-a: #ffd9c2;                  /* にじみ(内) */
+  --lit-glow-b: rgba(255,158,115,.7);     /* にじみ(外) */
 }
 
 body {
@@ -312,11 +316,14 @@ body {
   animation-delay: calc(var(--i) * .82s);
 }
 
-/* 消灯時は --frame(茶/グレー)。点灯の瞬間だけ太め薄コーラル(#ffe7d8)の外枠に */
+/* 消灯時は --frame(茶/グレー)。点灯の瞬間だけ枠を点灯色にして、にじみ(発光)で光らせる。
+   ライト/ダーク共通の唯一のキーフレーム。色は変数(--lit-*)で差し替えるのでアニメ名は不変
+   =モード切替で再スタートせず、::before/::after とズレない(=二重に光らない)。 */
 @keyframes frame-lit {
-  0%, 0.19% { -webkit-text-stroke: 6px var(--frame); }
-  0.2%, 2.5% { -webkit-text-stroke: 15px #ffe7d8; }
-  2.55%, 100% { -webkit-text-stroke: 6px var(--frame); }
+  0%, 0.19% { -webkit-text-stroke: 6px var(--frame); filter: none; }
+  0.2%, 2.5% { -webkit-text-stroke: 6px var(--lit-stroke);
+               filter: drop-shadow(0 0 5px var(--lit-glow-a)) drop-shadow(0 0 13px var(--lit-glow-b)); }
+  2.55%, 100% { -webkit-text-stroke: 6px var(--frame); filter: none; }
 }
 
 /* 点灯時の見た目: ピンク枠 → 白い面 → ピンク芯
@@ -336,7 +343,7 @@ body {
 }
 .title .prk .l-chika::before {
   font-variation-settings: 'wght' 330, 'ELSH' 50; /* デフォルトと同じ四角 */
-  color: #ffe7d8;                       /* 中の面＝薄いコーラル(クリーム寄り)の塗りつぶし */
+  color: #fff;                          /* 中の面＝白(中心は白く光らせる) */
   -webkit-text-stroke: 6px #ff9e73;     /* 内枠＝コーラル(朱赤を明るくしたティント) */
   paint-order: stroke fill;
 }
@@ -484,4 +491,46 @@ body {
     width: min(78vw, 360px);
     height: min(78vw, 360px);
   }
+}
+
+/* ダークモード: breadboard_dark.png のカラーリング(配置・デザインは同じ)。
+   背景=濃紺、ホール=ティールグリーン、レールは赤/青のまま。文字は明色に反転。 */
+body.dark { --bg: #10131c; --ink: #ece9df; }
+body.dark .stage {
+  background:
+    url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2796%27%3E%3Crect%20x=%270%27%20y=%270%27%20width=%2724%27%20height=%2796%27%20fill=%27%2310131c%27/%3E%3Crect%20x=%270%27%20y=%2712%27%20width=%2724%27%20height=%274%27%20fill=%27%23e8404b%27/%3E%3Crect%20x=%279.5%27%20y=%2731.5%27%20width=%275%27%20height=%275%27%20fill=%27%232e5247%27/%3E%3Crect%20x=%2711%27%20y=%2733%27%20width=%274%27%20height=%274%27%20fill=%27%2316302a%27/%3E%3Crect%20x=%279.5%27%20y=%2755.5%27%20width=%275%27%20height=%275%27%20fill=%27%232e5247%27/%3E%3Crect%20x=%2711%27%20y=%2757%27%20width=%274%27%20height=%274%27%20fill=%27%2316302a%27/%3E%3Crect%20x=%270%27%20y=%2776%27%20width=%2724%27%20height=%274%27%20fill=%27%234a7bd6%27/%3E%3C/svg%3E") left top/24px 96px repeat-x,
+    url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2796%27%3E%3Crect%20x=%270%27%20y=%270%27%20width=%2724%27%20height=%2796%27%20fill=%27%2310131c%27/%3E%3Crect%20x=%270%27%20y=%2716%27%20width=%2724%27%20height=%274%27%20fill=%27%23e8404b%27/%3E%3Crect%20x=%279.5%27%20y=%2735.5%27%20width=%275%27%20height=%275%27%20fill=%27%232e5247%27/%3E%3Crect%20x=%2711%27%20y=%2737%27%20width=%274%27%20height=%274%27%20fill=%27%2316302a%27/%3E%3Crect%20x=%279.5%27%20y=%2759.5%27%20width=%275%27%20height=%275%27%20fill=%27%232e5247%27/%3E%3Crect%20x=%2711%27%20y=%2761%27%20width=%274%27%20height=%274%27%20fill=%27%2316302a%27/%3E%3Crect%20x=%270%27%20y=%2780%27%20width=%2724%27%20height=%274%27%20fill=%27%234a7bd6%27/%3E%3C/svg%3E") left bottom/24px 96px repeat-x,
+    url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2724%27%3E%3Crect%20x=%279.5%27%20y=%279.5%27%20width=%275%27%20height=%275%27%20fill=%27%232e5247%27/%3E%3Crect%20x=%2711%27%20y=%2711%27%20width=%274%27%20height=%274%27%20fill=%27%2316302a%27/%3E%3C/svg%3E") 0 0/24px 24px, var(--bg);
+}
+/* ===== ダークモード: ロゴを REPL(ターミナル)風に =====
+   PicoRuby=Ruby のリン光レッド / Kaigi=ターミナルのリン光グリーン(シンタックスハイライト風)。
+   文字は画面のように淡く発光し、L-chika 点灯は暖色コーラルから緑白のリン光フラッシュへ。
+   行末に点滅するブロックカーソルを置いて REPL らしさを出す。 */
+body.dark .title .prk {
+  color: #6ef0a0;                                  /* Kaigi = リン光グリーン */
+  text-shadow: 0 0 6px rgba(110,240,160,.40), 0 0 16px rgba(110,240,160,.22);
+}
+body.dark .title .prk .picoruby {
+  color: #ff5b54;                                  /* PicoRuby = Ruby のリン光レッド */
+  text-shadow: 0 0 6px rgba(255,91,84,.45), 0 0 16px rgba(255,91,84,.25);
+}
+
+/* 消灯時フレーム: それぞれの色のくすんだリン光に(濃紺でも沈まない) */
+body.dark .title .prk > .l-chika { --frame: #2c6b4a; }            /* Kaigi: 暗い緑 */
+body.dark .title .prk .picoruby > .l-chika { --frame: #8a352f; } /* PicoRuby: 暗い赤 */
+
+/* L-chika 点灯: ダークは点灯色だけ緑のリン光に差し替え(キーフレームは共通の frame-lit)。
+   アニメ名を変えないので、モード切替で再スタートせず二重に光らない。 */
+body.dark {
+  --lit-stroke: #8affc4;
+  --lit-glow-a: #8affc4;
+  --lit-glow-b: rgba(94,232,154,.7);
+}
+body.dark .title .prk .l-chika::before {
+  color: #fff;                       /* 面 = 白(中心は白く光らせる) */
+  -webkit-text-stroke: 6px #5be89a;  /* 内枠 = リン光グリーン */
+}
+body.dark .title .prk .l-chika::after {
+  color: #fff;
+  -webkit-text-stroke: 5px #e8fff2;
 }
