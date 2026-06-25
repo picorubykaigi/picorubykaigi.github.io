@@ -76,18 +76,25 @@ const motorReveal=(function(){
   const restB=builders.filter(b=>b!==rightB);
   // builder-flow が下位置(--ty)に到達するのは 66% 地点。--dd[s] から所要msを計算
   const toBottom=el=>(parseFloat(getComputedStyle(el).getPropertyValue('--dd'))||3.6)*660;
-  let timers=[], on=false;
-  const clear=()=>{ timers.forEach(clearTimeout); timers=[]; };
+  const ddMs=el=>(parseFloat(getComputedStyle(el).getPropertyValue('--dd'))||3.6)*1000;
+  let timers=[], intervals=[], on=false;
+  const clear=()=>{ timers.forEach(clearTimeout); intervals.forEach(clearInterval); timers=[]; intervals=[]; };
   const at=(el,t)=>timers.push(setTimeout(()=>el.classList.add('on'), t));
+  // ビルダーが下位置に到達するたびに ruby を光らせる(到達=登場開始+toBottom、以降 --dd ごと)。
+  const glint=()=>{ window.rubyGlint && window.rubyGlint(); };
+  const glintWith=(el,startAt)=>{ timers.push(setTimeout(()=>{
+    glint(); intervals.push(setInterval(glint, ddMs(el)));
+  }, startAt+toBottom(el))); };
   return function(state){
     if(state===on) return; on=state; clear();
     if(!state){ [...builders,...cubeOrder].forEach(c=>c.classList.remove('on')); return; }
     rightB.classList.add('on');           // 右ビルダーがひとりで登場
     const t0=toBottom(rightB);            // 右が下位置に着くまでは増やさない
+    glintWith(rightB, 0);                 // 右が下位置に着くたびに ruby が光る
     at(cubeOrder[0], t0);                 // 下に着くと、まずキューブが1つ現れる
     // 2人目は、右が一旦消えてから2巡目に再登場する前の「谷間」に出す(=もう一呼吸、かつ被らない)
     let bt=t0+1000;                       // 右がexit(≈82%)〜再登場(≈ --dd)の間に収まる
-    restB.forEach((b,i)=>at(b, bt+i*350));
+    restB.forEach((b,i)=>{ at(b, bt+i*350); glintWith(b, bt+i*350); });
     let t=bt+450;                         // それからキューブが1つずつおだやかに増える
     cubeOrder.slice(1).forEach(c=>{ at(c,t); t+=440+Math.random()*260; });
   };
@@ -158,6 +165,7 @@ const motorReveal=(function(){
     const f=faces[Math.floor(Math.random()*faces.length)]; // ランダムに1面
     f.classList.remove('kira'); f.getBoundingClientRect(); f.classList.add('kira'); // reflowで再生し直す
   };
+  window.rubyGlint=glint; // 外(ビルダーの下位置到達など)から ruby を煌めかせる
   const placeDot=(r,dist,t)=>{ // dist=距離, t=0(尾)〜1(頭)
     const [x,y]=pointAt(dist);
     const sz=Math.round(TAIL_SZ+(HEAD_SZ-TAIL_SZ)*t); // 頭ほど大きい(整数=ドット絵感)
@@ -352,7 +360,7 @@ function bbSnapPos(part, left, top, W, H, stageH){
     // モーター → 内側フィールド → 動力でビルダーが動き出しキューブを組み立て
     scene && { part:'motor',   anchor:scene, w:44, h:57,
                place:(a,sr)=>({sx:a.right-sr.left-72, sy:a.bottom-sr.top-78}), // ルビーの右下に寄せる
-               apply:on=>body.classList.toggle('fx-decor-off', !on) },
+               apply:on=>{ body.classList.toggle('fx-decor-off', !on); motorReveal(on); } },
   ].filter(Boolean);
   SOCKETS.forEach(s=>{ s.el=document.createElement('div'); s.el.className='circuit-slot'; stage.appendChild(s.el); s.was=false; s.wasTouch=false; s.apply(false); });
   function frame(){
