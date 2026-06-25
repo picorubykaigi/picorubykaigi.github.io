@@ -855,8 +855,8 @@ body.dark .title .prk {
   text-shadow: 0 0 6px rgba(110,240,160,.40), 0 0 16px rgba(110,240,160,.22);
 }
 body.dark .title .prk .picoruby {
-  color: #f64b5b;                                  /* PicoRuby = ライトと同じピンク(リン光発光で光らせる) */
-  text-shadow: 0 0 6px rgba(246,75,91,.45), 0 0 16px rgba(246,75,91,.25);
+  color: #fb5479;                                  /* PicoRuby = 原色とキャンディピンクの中間(ダークだけパーティ感) */
+  text-shadow: 0 0 7px rgba(251,84,121,.55), 0 0 20px rgba(251,84,121,.35);
 }
 
 /* 消灯時フレーム: それぞれの色のくすんだリン光に(濃紺でも沈まない) */
