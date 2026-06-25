@@ -278,10 +278,11 @@ function bbApplyGridShift(){
     {            part:'battery', anchor:stage, w:27, h:46,
                place:(a,sr)=>({ sx:a.width-180, sy:24 }), // レール・右寄り(中心<96でレール中央へスナップ)
                apply:on=>body.classList.toggle('dark', on) },
-    // モーター → 内側フィールド(挿すと lit-src でモーターが小刻みに振動するだけ。演出なし)
+    // モーター → 内側フィールド(動力)。挿した瞬間にプラレールが右→左へ一度走り抜ける(通過音つき)。
+    // 挿入前の待機/チラ見せ・発進・帰還はプラレールコントローラ(window.prarailMotor)が担う。
     scene && { part:'motor',   anchor:scene, w:44, h:57,
                place:(a,sr)=>({sx:a.right-sr.left-72, sy:a.bottom-sr.top-78}), // ルビーの右下に寄せる
-               apply:()=>{} },
+               apply:on=>{ if(window.prarailMotor) window.prarailMotor(on); } },
   ].filter(Boolean);
   SOCKETS.forEach(s=>{ s.el=document.createElement('div'); s.el.className='circuit-slot'; stage.appendChild(s.el); s.was=false; s.wasTouch=false; s.wasWrong=false; s.apply(false); });
   function frame(){
@@ -412,4 +413,71 @@ function bbApplyGridShift(){
   bbApplyGridShift();
   if(document.fonts&&document.fonts.ready) document.fonts.ready.then(bbApplyGridShift);
   let t; window.addEventListener('resize',()=>{ clearTimeout(t); t=setTimeout(bbApplyGridShift,200); });
+})();
+
+// ---- プラレール: motor未挿入のあいだは右画面外で待機し、たまにヘッドだけチラ見せ。
+//      motorを動力に挿した瞬間、一拍ガコンの溜め→右→左へ一度だけ走り抜ける(通過音つき)。
+//      走り終えたら右外へ帰還。motorを抜くと、また「チラ見せ」に戻る。 ----
+(function(){
+  const stage=document.querySelector('.stage'); if(!stage) return;
+  const train=document.querySelector('.prarail'); if(!train) return;
+  const W=()=>train.offsetWidth;
+  const stageW=()=>stage.getBoundingClientRect().width;
+  const offRight=()=>stageW()+12;     // 右画面外(完全に隠れる)
+  const offLeft =()=>-(W()+12);       // 左画面外
+  const peekX   =()=>stageW()-46;     // ヘッドだけ 46px 顔を出す
+  const setX=(x,dur,ease)=>{          // top:62% を保つため translateY(-50%) は固定
+    train.style.transition = dur ? `transform ${dur}ms ${ease||'linear'}` : 'none';
+    train.style.transform  = `translate(${x}px, -50%)`;
+  };
+  const wait=ms=>new Promise(r=>setTimeout(r,ms));
+  setX(offRight(), 0);                // 初期=右外
+
+  let token=0;        // 進行中シーケンスの世代(状態が変わると無効化して打ち切る)
+  let inserted=false; // motor が挿さっているか
+
+  // チラ見せ: motor が挿さるまで、不定間隔でヘッドを出し入れ
+  async function idleLoop(my){
+    while(my===token && !inserted){
+      await wait(2600+Math.random()*3200);          // 次の顔出しまで(2.6〜5.8s)
+      if(my!==token || inserted) break;
+      setX(peekX(), 520, 'ease-out'); await wait(560);  // ニュッ
+      if(my!==token || inserted) break;
+      await wait(420+Math.random()*520);                // ちょい保持
+      if(my!==token || inserted) break;
+      setX(offRight(), 420, 'ease-in'); await wait(440); // 引っ込む
+    }
+  }
+
+  const motor=document.querySelector('.bb-motor'); // 走行中だけブルブルさせる対象
+  // 単発走行: 溜め無しで即発進 → 右→左へ等速で走り抜ける(通過音) → 右外へ帰還
+  async function runOnce(my){
+    if(motor) motor.classList.add('driving');               // 走り出すと同時にモーターが回り始める
+    try{
+      setX(offRight(), 0); await wait(30);                   // 右外スタート位置を確定(これが無いと左へワープ)
+      if(my!==token) return;
+      const TRAVEL=1400;                                     // 走行(速め・[仮]の速さ感を踏襲)
+      if(window.trainPass) window.trainPass(3.2, 0.32, 0.13);// 通過音(余韻長め・立ち上がり速め)
+      setX(offLeft(), TRAVEL, 'linear');                     // 置いた瞬間にスッと発進
+      await wait(TRAVEL+20);
+      if(my!==token) return;
+      setX(offRight(), 0);                                   // 左で消えて右外へワープ(待機位置)
+    } finally {
+      if(motor) motor.classList.remove('driving');          // 走り終え(or 中断)でブルブル停止
+    }
+  }
+
+  // motor ソケットからの ON/OFF(状態変化時のみ反応)
+  window.prarailMotor=function(on){
+    on=!!on;
+    if(on===inserted) return; inserted=on;
+    token++;                                                 // 進行中シーケンスを無効化
+    if(on){ runOnce(token); }                                // 挿した瞬間に一度だけ走る
+    else  { setX(offRight(), 320, 'ease-in'); idleLoop(token); } // 抜いたら チラ見せへ戻す
+  };
+
+  idleLoop(token);                                           // 起動時(motor未挿入)はチラ見せから
+  let rt; window.addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(()=>{
+    if(!inserted) setX(offRight(), 0);                       // 待機中はリサイズで右外位置を補正
+  }, 200); });
 })();

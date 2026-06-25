@@ -83,7 +83,66 @@
     render(notes,0.2);
   };
 
+  // 電車の通過音(プラレール): ①転がり音「ごー」(なめらかなノイズの唸り) + ②車輪の刻み「ガタン・ゴトン」
+  //   (金属的クラックを2連で規則的に=電車の正体) + ③トイモーターの唸り。音量スウェル(素早く立ち上げ→保持
+  //   →長い余韻) + 穏やかなドップラー。小型スピーカーのEQ+ソフトクリップで安っぽい「チープ」な質感に。
+  // dur=全体の長さ(秒) / master=音量 / peakFrac=ピーク(=通過)の位置(0..1)。
+  // チープ感の調整パラメータ(必要なら window.trainTune={...} で個別に上書き可):
+  //   drive=ジャリ歪み / lp=高域の蓋 / honk=中域の箱鳴り / motGain=モーター唸りの量 / motQ=唸りのピッチ感
+  const TRAIN_DEFAULT={drive:5.5, lp:4400, honk:4.5, motGain:0.16, motQ:5.5};
+  const trainPass=(dur=3.2,master=0.3,peakFrac=0.13,opts)=>{
+    const o=Object.assign({},TRAIN_DEFAULT,window.trainTune||{},opts||{});
+    const c=ac(), t0=c.currentTime+0.02, pk=t0+dur*peakFrac, end=t0+dur, hold=pk+(end-pk)*0.28;
+    // 音量スウェル: 素早く立ち上げ→通過中は保持→長く減衰(余韻)
+    const g=c.createGain();
+    g.gain.setValueAtTime(0.0001,t0); g.gain.exponentialRampToValueAtTime(master,pk);
+    g.gain.setValueAtTime(master,hold); g.gain.exponentialRampToValueAtTime(0.0001,end);
+    // 小さなスピーカー感(チープ): 低域を削り、中域の箱鳴りを少し足す。高域は削りすぎない(こもらせない)。
+    // さらに「安物スピーカーが歪んでジャリつく」=ソフトクリップ(アナログ的な歪み)を薄くかけて安っぽさを出す。
+    // ※ビットクラッシュ(デジタル/ゲーム感)は使わない。
+    const spk1=c.createBiquadFilter(); spk1.type='highpass'; spk1.frequency.value=400; spk1.Q.value=0.7; // 低域を削る=細い
+    const spk2=c.createBiquadFilter(); spk2.type='lowpass';  spk2.frequency.value=o.lp; spk2.Q.value=0.7; // 高域は軽く(こもらせない)
+    const spk3=c.createBiquadFilter(); spk3.type='peaking';  spk3.frequency.value=1300; spk3.Q.value=1.1; spk3.gain.value=o.honk; // 中域の箱鳴り
+    const drv=c.createWaveShaper(); drv.oversample='2x';     // ソフトクリップ=安物が軽く歪むジャリ感
+    const dc=new Float32Array(1024), k=o.drive; for(let i=0;i<1024;i++){ const x=i*2/1024-1; dc[i]=Math.tanh(k*x); } drv.curve=dc;
+    const post=c.createGain(); post.gain.value=0.7;          // 歪みで上がった分のメイクアップ
+    g.connect(spk1); spk1.connect(spk2); spk2.connect(spk3); spk3.connect(drv); drv.connect(post); post.connect(c.destination);
+    // ① 転がり音「ごー」: 軽いlo-fiノイズ → 低めbandpass(穏やかドップラー) → 蓋。
+    //   ※ビットクラッシュ(8bitグリット)は外した(=ゲーム音っぽさの主因)。ノイズは素直なまま機械的な唸りに。
+    const n=Math.floor(c.sampleRate*dur), buf=c.createBuffer(1,n,c.sampleRate), d=buf.getChannelData(0);
+    const step=Math.max(1,Math.floor(c.sampleRate/16000)); let hn=0;   // ごく軽いlo-fi
+    for(let i=0;i<n;i++){ if(i%step===0) hn=Math.random()*2-1; d[i]=hn; }
+    const src=c.createBufferSource(); src.buffer=buf;
+    const bp=c.createBiquadFilter(); bp.type='bandpass'; bp.Q.value=0.7;
+    bp.frequency.setValueAtTime(200,t0); bp.frequency.linearRampToValueAtTime(240,pk); bp.frequency.linearRampToValueAtTime(150,end);
+    const cap=c.createBiquadFilter(); cap.type='lowpass'; cap.frequency.value=900; cap.Q.value=0.4;
+    const nG=c.createGain(); nG.gain.value=0.4;
+    src.connect(bp); bp.connect(cap); cap.connect(nG); nG.connect(g);
+    src.start(t0); src.stop(end+0.02);
+    // ①.5 トイモーターの唸り(機械的): ノイズを共鳴bandpass(高Q)に通して「ピッチのある唸り」にする。
+    //      クリーンな合成オシレーター(=ゲーム機の楽器音)を避け、ノイズ由来のザラついた実機モーター感に。
+    const msrc=c.createBufferSource(); msrc.buffer=buf;                              // 転がりと同じノイズを流用
+    const mbp=c.createBiquadFilter(); mbp.type='bandpass'; mbp.Q.value=o.motQ;        // 共鳴で唸りのピッチ感(でもノイズ質感)
+    mbp.frequency.setValueAtTime(300,t0); mbp.frequency.linearRampToValueAtTime(340,pk); mbp.frequency.linearRampToValueAtTime(250,end);
+    const vib=c.createOscillator(); vib.type='sine'; vib.frequency.value=7;          // モーターのフラッター(共鳴周波数を揺らす)
+    const vibG=c.createGain(); vibG.gain.value=22; vib.connect(vibG).connect(mbp.frequency);
+    const motG=c.createGain(); motG.gain.value=o.motGain;
+    msrc.connect(mbp); mbp.connect(motG); motG.connect(g);
+    msrc.start(t0); msrc.stop(end+0.02); vib.start(t0); vib.stop(end+0.02);
+    // ② 車輪の刻み「ガタン・ゴトン」: 金属的な短いクラックを2連(da-dum)で規則的に。g経由なので距離で増減
+    const clack=(at)=>{
+      const nb=Math.floor(c.sampleRate*0.04), b=c.createBuffer(1,nb,c.sampleRate), dd=b.getChannelData(0);
+      for(let i=0;i<nb;i++) dd[i]=(Math.random()*2-1)*Math.pow(1-i/nb,4); // 速い減衰=コツッ
+      const s=c.createBufferSource(); s.buffer=b;
+      const bpf=c.createBiquadFilter(); bpf.type='bandpass'; bpf.frequency.value=1600; bpf.Q.value=3; // 金属的
+      const cg=c.createGain(); cg.gain.value=0.5;
+      s.connect(bpf); bpf.connect(cg); cg.connect(g); s.start(at);
+    };
+    for(let cyc=t0; cyc<end-0.05; cyc+=0.34){ clack(cyc); clack(cyc+0.09); } // ガタン・ゴトン の繰り返し
+  };
+
   global.playPico=playPico;
+  global.trainPass=trainPass;   // 電車の通過音(プラレール演出から呼ぶ)
   global.audioCtx=ac;   // ページ共通の AudioContext を公開(全効果音で共有)
 
   // 初回のユーザー操作で AudioContext を解錠する(autoplay制限で suspended のままを防ぐ)

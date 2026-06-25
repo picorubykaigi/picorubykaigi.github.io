@@ -763,14 +763,50 @@ body.dark .circuit-slot.hint {
   cursor: grabbing;
   z-index: 30;
 }
-/* 動力ON時: モーターが小刻みに振動して「回っている」感じ */
-.bb-motor.lit-src {
+/* 走行中だけ: モーターが小刻みに振動して「回っている」感じ(プラレールが走り終えたら止まる) */
+.bb-motor.driving {
   animation: motor-buzz .12s steps(2) infinite;
 }
 @keyframes motor-buzz {
   0%   { transform: translate(0, 0); }
   50%  { transform: translate(.6px, -.6px); }
   100% { transform: translate(-.6px, .6px); }
+}
+
+/* プラレール: 普段は画面右の外で待機(たまにヘッドだけチラ見せ)。motorを挿すと右→左へ一度走り抜ける。
+   位置(translateX)は JS が制御。待機=右外 / チラ見せ=ヘッドだけ顔出し / 走行=右→左。 */
+.prarail {
+  position: absolute;
+  left: 0;
+  top: 62%;                         /* 画面中ほど(通過が映える高さ) */
+  height: 80px;
+  aspect-ratio: 2150 / 310;         /* prarail.png の比(高さから幅を決定) */
+  z-index: 50;                      /* 手前を横切る */
+  background: url('images/prarail.png') center/contain no-repeat;
+  image-rendering: pixelated;
+  transform: translate(110vw, -50%);  /* 初期は右画面外(JSが即補正) */
+  pointer-events: none;
+  will-change: transform;
+}
+/* ダークモードでは少しだけ落ち着かせる(夜の電車) */
+body.dark .prarail { filter: brightness(.92); }
+/* ダークモード: 窓だけを暖色で点灯させる(夜行電車の灯り) */
+.prarail::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url('images/prarail-windows.png') center/contain no-repeat;
+  image-rendering: pixelated;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .4s ease;
+}
+body.dark .prarail::after {
+  opacity: 1;
+  filter: blur(.6px)
+          drop-shadow(0 0 4px rgba(255, 224, 170, .85))
+          drop-shadow(0 0 9px rgba(255, 190, 120, .6))
+          drop-shadow(0 0 18px rgba(255, 165, 90, .35));
 }
 
 /* イントロ誘導: 一定時間どの部品も操作されなければ、チップの真上に矢印をうっすら点滅 */
