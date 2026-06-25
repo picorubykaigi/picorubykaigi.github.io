@@ -699,6 +699,8 @@ body.dark .title .prk .l-chika::after {
 .circuit-slot--battery { --slot-img: url('images/battery-slot.svg'); }
 .circuit-slot--motor   { --slot-img: url('images/motor-slot.svg'); }
 .circuit-slot--speaker { --slot-img: url('images/speaker-slot.svg'); }
+.circuit-slot--seg7    { --slot-img: url('images/seg7-slot.svg'); }
+body.seg7-2 .circuit-slot--seg7 { --slot-img: url('images/seg7-slot-2.svg'); }  /* 2桁モードは2桁スロット枠 */
 
 /* hint: 輪郭に沿って明滅(drop-shadow は破線の形に追従) */
 .circuit-slot.hint {
@@ -739,7 +741,8 @@ body.dark .circuit-slot.hint {
 .bb-chip,
 .bb-battery,
 .bb-motor,
-.bb-speaker {
+.bb-speaker,
+.bb-seg7 {
   position: absolute;
   z-index: 8;
   cursor: grab;
@@ -748,6 +751,11 @@ body.dark .circuit-slot.hint {
   background-position: center;
   background-size: contain;
   image-rendering: pixelated;
+}
+/* 7セグ(カウントダウン表示)。中身(画像+点灯セグメント+ラベル)は script.js が生成。サイズはここで確定 */
+.bb-seg7 {
+  width: 108px;
+  height: 53px;   /* 7seg-2.png 330x163 の比 */
 }
 /* サイズ＝印象バランス。比はそれぞれ元画像を維持 */
 .bb-chip {

@@ -84,8 +84,9 @@ const BB_PIN={
   battery:[[0.4805,0.005],[0.4805,0.984]],
   motor:[[0.206,0.9785],[0.769,0.9785]],
   speaker:[[0.17,0.17],[0.83,0.17],[0.83,0.83],[0.17,0.83]],
+  seg7:[[0.12,0.95],[0.88,0.95]],                  // 下辺の左右2点(ピンヘッダ想定)
 };
-const BB_SNAPOFF={ chip:[0,12], motor:[0,12], speaker:[0,12] };   // 12=穴上(12+24n) / 0=穴間(24n) / [x,y]=軸別
+const BB_SNAPOFF={ chip:[0,12], motor:[0,12], speaker:[0,12], seg7:[0,12] };   // 12=穴上(12+24n) / 0=穴間(24n) / [x,y]=軸別
 const BB_NUDGE={ motor:[1,2] };                    // スナップ後の見た目微調整[x,y]px
 const bbSnapP=(v,part,ax)=>{ const o=BB_SNAPOFF[part];
   // x軸(ax=0)は背景シフト量 BB_BGX ぶん原点をずらして、見た目の穴列に合わせる
@@ -763,4 +764,76 @@ function bbApplyGridShift(){
   };
   // トリガ(スイッチ/傾きセンサー部品)は未実装。付ける時は window.boardReset() を呼ぶ。
   // 動作確認したいときは DevTools コンソールで boardReset() を実行する。
+})();
+
+// ---- 7セグ カウントダウン表示部品: 会期(2026.10.31)までの残り日数 ----
+//   .bb-seg7(HTML)に中身を流し込む。普段は消灯(=画像のまま)、専用ソケットに挿すと .lit が付いて点灯。
+//   7seg-2.png(3桁・全消灯)を地に、残り日数の点灯セグメントを重ね、左上にCOUNTDOWNラベル(透明)を置く。
+(function(){
+  const el=document.querySelector('.bb-seg7'); if(!el) return;
+  const TARGET=new Date('2026-10-31T00:00:00+09:00');
+  // 数字→点灯セグメント(a=上,b=右上,c=右下,d=下,e=左下,f=左上,g=中)
+  const SEG={'0':'abcdef','1':'bc','2':'abged','3':'abgcd','4':'fgbc','5':'afgcd','6':'afgecd','7':'abc','8':'abcdefg','9':'abcdfg',' ':''};
+  // 各セグメントの実形状: 画像から連結成分で抽出した凸包。点灯を印刷セグメントへ正確に重ねる(近似でなく実測)。
+  // 各値は [dx(桁中心cx基準), y(絶対px)]。100日以上=3桁(7seg-2) / 100日未満=2桁(7seg-1)で別実測。
+  const GEO={
+    3:{ img:'images/7seg-2.png', W:330, H:163, dw:108, cells:[60,166,270],
+      mask:[[-37,56],[-36,31],[-27,21],[27,21],[36,31],[36,128],[26,139],[-27,139],[-36,129],[-37,117]], segs:{
+      a:[[-27,28],[-24,24],[24,24],[26,27],[26,29],[21,34],[-22,34]],
+      b:[[23,44],[24,38],[25,36],[29,32],[30,32],[33,34],[33,72],[30,75],[28,75],[23,70]],
+      c:[[23,89],[26,86],[29,84],[30,84],[33,86],[33,125],[30,128],[28,127],[23,122]],
+      d:[[-26,130],[-24,128],[-21,126],[21,126],[25,130],[25,133],[23,136],[-24,136],[-26,133]],
+      e:[[-33,87],[-31,85],[-29,85],[-24,90],[-24,118],[-25,122],[-27,125],[-30,128],[-31,128],[-33,126]],
+      f:[[-33,34],[-31,32],[-29,32],[-25,37],[-24,51],[-24,69],[-25,71],[-29,75],[-31,75],[-33,73]],
+      g:[[-26,79],[-23,76],[-21,75],[2,74],[12,74],[21,75],[25,79],[25,81],[21,85],[-16,85],[-22,84],[-25,82],[-26,81]] } },
+    2:{ img:'images/7seg-1.png', W:211, H:165, dw:68, cells:[56.5,154],
+      mask:[[-35,32],[-28,24],[-25,21],[26,21],[29,24],[35,31],[35,131],[26,141],[-25,141],[-35,131]], segs:{
+      a:[[-25,28],[-22,24],[23,24],[26,27],[26,30],[21,35],[-18,35],[-21,34],[-23,32],[-25,29]],
+      b:[[23,39],[29,33],[30,33],[32,34],[32,75],[29,77],[23,71]],
+      c:[[23,91],[29,85],[30,85],[32,87],[32,128],[30,130],[29,130],[25,127],[23,124]],
+      d:[[-24,133],[-20,128],[21,128],[23,130],[25,133],[25,135],[23,138],[-22,138],[-24,135]],
+      e:[[-32,88],[-31,87],[-29,86],[-28,86],[-26,87],[-23,90],[-23,125],[-28,130],[-29,130],[-32,128]],
+      f:[[-32,35],[-29,33],[-27,33],[-25,35],[-23,38],[-23,72],[-28,77],[-29,77],[-32,74]],
+      g:[[-25,81],[-22,77],[-18,75],[21,75],[25,80],[25,81],[24,83],[22,86],[-21,86],[-25,82]] } },
+  };
+  const css=`
+  .bb-seg7{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;}  /* ドラッグ時の青い選択ハイライトを抑止 */
+  .bb-seg7 .mod{position:relative;width:100%;height:100%;line-height:0;}
+  .bb-seg7 .mod>img{display:block;width:100%;height:100%;image-rendering:pixelated;-webkit-user-drag:none;user-drag:none;}
+  .bb-seg7 svg.segs{position:absolute;inset:0;width:100%;height:100%;}
+  .bb-seg7 .m{fill:#403c35;opacity:0;}                                   /* 点灯時、桁の外形を地色で覆ってOFFセグを隠す(実物の暗いOFF感) */
+  .bb-seg7.lit .m{opacity:1;}
+  .bb-seg7 .s{fill:#ff5a4d;opacity:0;}                                   /* 消灯時は非表示=画像の地のまま。点灯色=明るめの赤 */
+  .bb-seg7.lit .s.on{opacity:1;filter:drop-shadow(0 0 .7px #ff8579) drop-shadow(0 0 1.8px rgba(255,90,70,.34));}  /* 点いた赤だけ薄く発光 */
+  /* COUNTDOWNラベル */
+  .bb-seg7 .cd-lab{position:absolute;left:-2px;top:-11px;font-family:'Jersey 10','Micro 5',monospace;
+    font-size:10px;letter-spacing:2px;line-height:1;color:var(--ink);opacity:.8;white-space:nowrap;pointer-events:none;}
+  `;
+  const st=document.createElement('style'); st.textContent=css; document.head.appendChild(st);
+  let rects=[], curN=0;
+  function build(n){                       // n桁ぶんのモジュール(画像+点灯セグメント)を組み立てる
+    const G=GEO[n]; let mhtml='', shtml='';
+    G.cells.forEach((cx,i)=>{
+      mhtml+=`<polygon class="m" points="${G.mask.map(([dx,y])=>(cx+dx)+','+y).join(' ')}"/>`;  // 桁の外形を地色で覆うマスク(印刷OFFセグ＋AA縁を消す。下層)
+      'abcdefg'.split('').forEach(s=>{
+        const pts=G.segs[s].map(([dx,y])=>(cx+dx)+','+y).join(' ');
+        shtml+=`<polygon class="s" data-i="${i}" data-s="${s}" points="${pts}"/>`; }); });     // 点灯赤(上層)
+    const oldW=el.offsetWidth;             // 幅変更の前に現在幅を控える
+    el.style.width=G.dw+'px';              // モジュール幅は桁数で変わる(高さはCSS固定=桁サイズ一定)
+    const lf=parseFloat(el.style.left);    // 幅が変わったら left を半分補正して「中心」を保つ(ソケットと揃う)
+    if(!isNaN(lf) && oldW && oldW!==G.dw) el.style.left=(lf+(oldW-G.dw)/2)+'px';
+    el.innerHTML='<div class="mod"><span class="cd-lab">COUNTDOWN</span><img src="'+G.img+'" alt="">'
+      +'<svg class="segs" viewBox="0 0 '+G.W+' '+G.H+'">'+mhtml+shtml+'</svg></div>';
+    rects=[...el.querySelectorAll('.s')]; curN=n;
+    document.body.classList.toggle('seg7-2', n===2);   // ソケット枠も2桁/3桁を切替
+  }
+  function render(){
+    const days=Math.max(0,Math.ceil((TARGET-new Date())/86400000));
+    const n=days>=100?3:2;                 // 100日未満で2桁モジュールへ
+    if(n!==curN) build(n);
+    const str=String(days).padStart(n,' ');
+    rects.forEach(r=>{ const ch=str[+r.dataset.i]||' ';
+      r.classList.toggle('on', (SEG[ch]||'').includes(r.dataset.s)); });
+  }
+  render(); setInterval(render, 60000);
 })();
