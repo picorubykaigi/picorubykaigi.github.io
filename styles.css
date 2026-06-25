@@ -369,8 +369,10 @@ body.dark .led-glint.kira {
   /* 点灯時はベース枠を太め薄ピンクにして、::before のピンク内枠の外にはみ出させる(=二重枠) */
   /* --chase0: チェイスの先頭文字オフセット(既定0)。ダンス(JS駆動)終了時に「次の文字」を入れて
      CSS チェイスを頭(文字0)からでなく続きから再開させる。非ダンス時は 0=従来どおり。 */
-  animation: frame-lit 11.5s linear infinite;
-  animation-delay: calc((var(--i) - var(--chase0, 0)) * .82s);
+  /* チェイスはパーティ(JS)と同じ拍で回す: STEP=beat*2≒.83333s(DANCE_BPM 144)、周期=13文字×STEP=10.8333s。
+     周期を文字数×STEPに合わせる=末尾の余白(間)が消え、最後の文字→先頭が1ステップで繋がる(連続チェイス)。 */
+  animation: frame-lit 10.8333s linear infinite;
+  animation-delay: calc((var(--i) - var(--chase0, 0)) * .83333s);
 }
 
 /* 消灯時は --frame(茶/グレー)。点灯の瞬間だけ枠を点灯色にして、にじみ(発光)で光らせる。
@@ -378,10 +380,10 @@ body.dark .led-glint.kira {
    =モード切替で再スタートせず、::before/::after とズレない(=二重に光らない)。 */
 @keyframes frame-lit {
   0%, 0.19% { -webkit-text-stroke: 6px var(--frame); filter: none; text-shadow: var(--rest-bleed, none); }
-  0.2%, 2.5% { -webkit-text-stroke: 6px var(--lit-stroke);
+  0.2%, 2.88% { -webkit-text-stroke: 6px var(--lit-stroke);     /* 点灯保持 0.2%→2.88% = 0.29s(パーティの LIT と一致) */
                filter: drop-shadow(0 0 5px var(--lit-glow-a)) drop-shadow(0 0 13px var(--lit-glow-b));
                text-shadow: var(--lit-bleed, var(--rest-bleed, none)); }  /* 点灯中は地のにじみを点灯色に差し替える(ピンクの上に緑が乗らない) */
-  2.55%, 100% { -webkit-text-stroke: 6px var(--frame); filter: none; text-shadow: var(--rest-bleed, none); }
+  2.93%, 100% { -webkit-text-stroke: 6px var(--frame); filter: none; text-shadow: var(--rest-bleed, none); }
 }
 
 /* 点灯時の見た目: ピンク枠 → 白い面 → ピンク芯
@@ -396,8 +398,8 @@ body.dark .led-glint.kira {
   top: 0;
   text-shadow: none;
   opacity: 0;
-  animation: l-chika 11.5s linear infinite;
-  animation-delay: calc((var(--i) - var(--chase0, 0)) * .82s);   /* --chase0=チェイス先頭オフセット(ベースと一致させる) */
+  animation: l-chika 10.8333s linear infinite;
+  animation-delay: calc((var(--i) - var(--chase0, 0)) * .83333s);   /* --chase0=チェイス先頭オフセット(ベースと一致させる) */
 }
 .title .prk .l-chika::before {
   font-variation-settings: 'wght' 330, 'ELSH' 50; /* デフォルトと同じ四角 */
@@ -419,11 +421,11 @@ body.dark .led-glint.kira {
   0.2% {     /* ほぼ瞬時に点灯 */
     opacity: 1;
   }
-  2.6% {     /* 点灯を保持。frame-lit が枠を暗色へ戻す(2.55%)を“越えて”面を残し、
+  2.93% {    /* 点灯を保持。frame-lit が枠を暗色へ戻す(2.93%)を“越えて”面を残し、
                 戻る一瞬に地の文字色(PicoRubyのピンク)が覗くのを白い面で隠す */
     opacity: 1;
   }
-  2.65% {    /* 枠が暗色に戻りきってから面を落とす=瞬間的に消灯(地色の覗きなし) */
+  2.98% {    /* 枠が暗色に戻りきってから面を落とす=瞬間的に消灯(地色の覗きなし) */
     opacity: 0;
   }
 }

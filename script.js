@@ -33,19 +33,22 @@ document.querySelectorAll('.title .prk').forEach(prk=>{
   if(!spans.length) return;
   const N=spans.length;
   const beat=60/DANCE_BPM;
-  const STEP=beat*2;             // 2拍ごとに次の文字(従来の ~0.82s/文字を踏襲)
-  const LIT=0.29;                // 点灯保持(秒)。従来のフラッシュ幅に合わせる
+  const STEP=beat*2;             // 2拍ごとに次の文字
+  const LIT=0.29;                // 点灯保持(秒)
   const LEAD=0.06;               // 視覚スナップを音より少し先行(ダンサーの LEAD と揃える)
+  // CSS チェイス(styles.css の frame-lit/l-chika)も同じ STEP・周期=N×STEP で回す。
+  // ここを一致させることで、非ダンス時のチェイスとパーティの拍刻みが同じテンポになり、乗っ取りも段差なく繋がる。
+  const STEP_MS=STEP*1000, CYC_MS=N*STEP_MS;
   // ダンス中(スピーカー挿入=dance-on)なら同期。チップ未挿入(fx-lchika-off)時は L-chika 自体が消灯。
   const isSync=()=>{ const b=document.body.classList;
     return b.contains('dance-on') && !b.contains('fx-lchika-off'); };
   // CSS チェイスの現在位置(最後に光った文字)を WAAPI の currentTime から推定。
-  // 全文字は同じ開始時刻で回るので先頭の経過時間(ms)から: 11.5s 周期内の位相 / 0.82s。
+  // 全文字は同じ開始時刻で回るので先頭の経過時間(ms)から: 周期(N×STEP)内の位相 / STEP。
   const cssLetter=()=>{
     try{ const a=spans[0].getAnimations(); if(!a.length||a[0].currentTime==null) return 0;
-      const p=((a[0].currentTime%11500)+11500)%11500;
+      const p=((a[0].currentTime%CYC_MS)+CYC_MS)%CYC_MS;
       const c=parseFloat(spans[0].style.getPropertyValue('--chase0'))||0;   // 前回の続き再開ぶんを足し戻す
-      return ((Math.min(N-1, Math.floor(p/820))+c)%N+N)%N;
+      return ((Math.min(N-1, Math.floor(p/STEP_MS))+c)%N+N)%N;
     }catch(e){ return 0; }
   };
   let active=false, pending=false, base=0, litIdx=-1, cur=0, myT=0, lastTs=0;
@@ -54,9 +57,8 @@ document.querySelectorAll('.title .prk').forEach(prk=>{
   // その文字のフラッシュを切って飛んで見えるので、合間になるまで待ってから引き継ぐ。
   const cssInGap=()=>{
     try{ const a=spans[0].getAnimations(); if(!a.length||a[0].currentTime==null) return true;
-      const p=((a[0].currentTime%11500)+11500)%11500;
-      if(Math.floor(p/820)>=N) return true;              // 全文字を流し終えた後の余白
-      return (p%820)>320;                                // スロット内 点灯は ~20–305ms。それ以降=合間
+      const p=((a[0].currentTime%CYC_MS)+CYC_MS)%CYC_MS;
+      return (p%STEP_MS)>340;                            // スロット内 点灯は ~20–323ms。それ以降=合間(周期=N×STEPで末尾の余白は無い)
     }catch(e){ return true; }
   };
   const doActivate=()=>{
