@@ -119,7 +119,7 @@ body {
   margin-top: .38em;
 }
 
-/* ===== SCENE: ruby + builders + cubes ===== */
+/* ===== SCENE: ruby ===== */
 .scene {
   position: relative;
   flex: 0 0 auto;
@@ -233,69 +233,6 @@ body.dark .ruby-led::after {
   100% { transform: translate(80%, -80%); }  /* 右上の外へ抜ける */
 }
 
-/* ルビーに重ねたファセット: スパークルが線を走り、終点で面がきらり */
-.ruby-facets {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 86%; /* .ruby と同じ縮小率で重ねる */
-  height: auto;
-  z-index: 6;
-  pointer-events: none;
-  mix-blend-mode: screen; /* 光が下のルビーを明るく照らすように合成 */
-  overflow: visible;
-}
-
-/* スパークルが走ることで軌跡が見える */
-.facet {
-  fill: #fff3ee; /* 芯=ごく薄いピンク(L-chika と同じ) */
-  fill-opacity: 0; /* きらり用。普段は透明 */
-  stroke: none;
-}
-
-/* きらきらが走り終えた後、右上の面が一瞬きらり(芯=白 + Ruby に寄せたピンクのにじみ) */
-.facet.kira {
-  animation: facet-kira 0.7s ease-out;
-  filter: drop-shadow(0 0 14px var(--pink)) drop-shadow(0 0 34px var(--pink));
-}
-@keyframes facet-kira {
-  0%   { fill-opacity: 0; }
-  18%  { fill-opacity: 0.5; } /* 鋭く立ち上がり(控えめ) */
-  100% { fill-opacity: 0; }    /* すっと消える */
-}
-
-/* 線の上を走る「ドット絵アスタリスク」のきらきら(位置はJSで制御、形はJSで生成) */
-.spark {
-  opacity: 0; /* JSでサイクル中だけ表示 */
-}
-.spark rect {
-  fill: #fff;
-  shape-rendering: crispEdges;
-}
-/* 2フレームを steps で切り替えてスプライト風にまたたく */
-.spark-fa { animation: spark-tw-a 0.4s steps(1) infinite; }
-.spark-fb { animation: spark-tw-b 0.4s steps(1) infinite; }
-@keyframes spark-tw-a { 0%, 49.9% { opacity: 1; } 50%, 100% { opacity: 0; } }
-@keyframes spark-tw-b { 0%, 49.9% { opacity: 0; } 50%, 100% { opacity: 1; } }
-
-.cube {
-  position: absolute;
-  image-rendering: pixelated;
-  opacity: 0;
-  z-index: 6;
-}
-/* モーター設置後、JSが1つずつ .on を付けてキューブを徐々に増やす */
-.cube.on { animation: cube var(--dur) steps(6) infinite; }
-
-@keyframes cube {
-  0% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1.4); }
-  18% { opacity: 1; transform: translate(0, 0); }
-  58% { opacity: 1; transform: translate(0, -8px); }
-  80% { opacity: 0; transform: translate(var(--ex), var(--ey)) scale(1.3); }
-  100% { opacity: 0; }
-}
-
 .sparkle {
   display: none; /* きらきらはいったん非表示 */
   position: absolute;
@@ -310,30 +247,6 @@ body.dark .ruby-led::after {
 @keyframes sparkle {
   0%, 100% { opacity: 0; transform: scale(.4); }
   45% { opacity: 1; transform: scale(1); }
-}
-
-.builder {
-  position: absolute;
-  z-index: 7;
-  opacity: 0;
-}
-/* モーター設置後、JSが順番に .on を付ける(まず右ひとり→下位置到達後に他が続く) */
-.builder.on { animation: builder-flow var(--dd) steps(13) infinite; }
-
-.builder img {
-  width: 54px;
-}
-
-.builder img.flip {
-  transform: scaleX(-1);
-}
-
-@keyframes builder-flow {
-  0% { opacity: 0; transform: translate(var(--sx, 0), -34px); }
-  12% { opacity: 1; }
-  66% { opacity: 1; transform: translate(0, var(--ty)); }
-  82% { opacity: 0; transform: translate(0, var(--ty)); }
-  100% { opacity: 0; transform: translate(var(--sx, 0), -34px); }
 }
 
 /* ===== LOGO ===== */
@@ -455,20 +368,6 @@ body.dark .ruby-led::after {
   margin-top: -.25em;
   position: relative;
   left: .02em;
-}
-
-.title .logo-cube {
-  position: absolute;
-  image-rendering: pixelated;
-  opacity: 0;
-}
-/* キューブと同様、モーター設置後に1つずつ .on を付けて点灯 */
-.title .logo-cube.on { animation: logo-cube var(--d) steps(5) infinite; }
-
-@keyframes logo-cube {
-  0% { opacity: 0; transform: translate(var(--fx), var(--fy)) scale(1.4); }
-  22% { opacity: 1; transform: none; }
-  100% { opacity: 1; transform: none; }
 }
 
 /* ===== MENU: board images with labels ===== */
@@ -710,10 +609,6 @@ body.dark .ticker { --tk-led: 92, 191, 100; }
 }
 
 /* 機能ON/OFF(配置で通電=回路側が body にクラス付与) */
-/* DECOR = キューブ + ビルダー をまとめて表示/非表示 */
-body.fx-decor-off .cube,
-body.fx-decor-off .logo-cube,
-body.fx-decor-off .builder { display: none !important; }
 body.fx-lchika-off .title .prk .l-chika { animation: none; }
 body.fx-lchika-off .title .prk .l-chika::before,
 body.fx-lchika-off .title .prk .l-chika::after { animation: none; }
@@ -841,7 +736,7 @@ body.dark .circuit-slot.hint {
   z-index: 30;
 }
 /* 動力ON時: モーターが小刻みに振動して「回っている」感じ */
-body:not(.fx-decor-off) .bb-motor.lit-src {
+.bb-motor.lit-src {
   animation: motor-buzz .12s steps(2) infinite;
 }
 @keyframes motor-buzz {

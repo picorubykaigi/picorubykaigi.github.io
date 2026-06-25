@@ -1,16 +1,4 @@
-const cubes=['images/cube1.png','images/cube2.png','images/cube3.png','images/cube4.png'];
 const rnd=(a,b)=>a+Math.random()*(b-a);
-
-// floating cubes around the logo
-document.querySelectorAll('.title').forEach(title=>{
-  const spots=[[-4,20],[-8,64],[101,16],[106,58],[44,-16],[70,-12]];
-  spots.forEach((s,i)=>{
-    const c=document.createElement('img'); c.className='logo-cube'; c.src=cubes[i%4]; c.alt='';
-    c.style.cssText=`left:${s[0]}%;top:${s[1]}%;width:${(14+Math.random()*12)|0}px;`+
-      `--fx:${rnd(-60,60)|0}px;--fy:${rnd(-60,60)|0}px;--d:${rnd(3,4.5).toFixed(2)}s;--dl:${(-rnd(0,3)).toFixed(2)}s`;
-    title.appendChild(c);
-  });
-});
 
 // split the logo into per-character LEDs (keeps color boundaries like .picoruby)
 document.querySelectorAll('.title .prk').forEach(prk=>{
@@ -33,72 +21,14 @@ document.querySelectorAll('.title .prk').forEach(prk=>{
   chikaify(prk);
 });
 
-// assembling cubes + sparkles around the ruby
+// sparkles around the ruby
 document.querySelectorAll('.scene').forEach(scene=>{
-  for(let i=0;i<12;i++){
-    const img=document.createElement('img'); img.className='cube'; img.alt=''; img.src=cubes[i%4];
-    img.style.cssText=`left:${rnd(30,68)}%;top:${rnd(4,40)}%;width:${rnd(14,28)|0}px;`+
-      `--dx:${rnd(-90,90)|0}px;--dy:${rnd(-150,-45)|0}px;--ex:${rnd(-70,70)|0}px;--ey:${rnd(-120,-35)|0}px;`+
-      `--dur:${rnd(3.6,5).toFixed(2)}s;--delay:${(-rnd(0,5)).toFixed(2)}s`;
-    scene.appendChild(img);
-  }
   for(let i=0;i<4;i++){
     const s=document.createElement('span'); s.className='sparkle';
     s.style.cssText=`left:${rnd(30,68)}%;top:${rnd(4,38)}%;--sd:${rnd(1.6,3).toFixed(2)}s;animation-delay:${(-rnd(0,3)).toFixed(2)}s`;
     scene.appendChild(s);
   }
 });
-
-// motor演出のステージ制御: 設置するとまずビルダーが現れて運び入れ、少し遅れてキューブが1つずつ増えていく。
-// 抜くと全キューブを消灯。apply は毎フレーム呼ばれるので状態変化時のみ作動。
-const motorReveal=(function(){
-  const shuffle=a=>{ for(let i=a.length-1;i>0;i--){ const j=(Math.random()*(i+1))|0; [a[i],a[j]]=[a[j],a[i]]; } return a; };
-  // scene のキューブを先に、ロゴ周りのキューブを後に。各群はシャッフルで順不同に出す。
-  // ただし最初の1つは cube4。2番目くらいに大きく、動きはややゆっくりめにする
-  const sceneCubes=[...document.querySelectorAll('.scene .cube')];
-  const first=sceneCubes.find(c=>/cube4\.png(\?|$)/.test(c.src))||sceneCubes[0];
-  first.style.width='30px';                // 2番目くらいに大きいキューブ
-  first.style.setProperty('--dur','6.2s'); // 動きはややゆっくりめ
-  first.style.setProperty('--dx','0px');   // 斜めでなく真上から下に降りてくる
-  first.style.setProperty('--ex','0px');
-  // ルビー周りとロゴ周りを交互に混ぜ、ロゴ周りも早い段階から現れるようにする
-  const restScene=shuffle(sceneCubes.filter(c=>c!==first));
-  const logoCubes=shuffle([...document.querySelectorAll('.logo-cube')]);
-  const tail=[];
-  for(let i=0;i<Math.max(restScene.length,logoCubes.length);i++){
-    if(restScene[i]) tail.push(restScene[i]);
-    if(logoCubes[i]) tail.push(logoCubes[i]);
-  }
-  const cubeOrder=[first, ...tail];
-  // ビルダー: まず右がひとりで登場。右が下位置に着くまでは増やさない
-  const builders=[...document.querySelectorAll('.scene .builder')];
-  const rightB=builders.find(b=>b.style.right)||builders[builders.length-1];
-  const restB=builders.filter(b=>b!==rightB);
-  // builder-flow が下位置(--ty)に到達するのは 66% 地点。--dd[s] から所要msを計算
-  const toBottom=el=>(parseFloat(getComputedStyle(el).getPropertyValue('--dd'))||3.6)*660;
-  const ddMs=el=>(parseFloat(getComputedStyle(el).getPropertyValue('--dd'))||3.6)*1000;
-  let timers=[], intervals=[], on=false;
-  const clear=()=>{ timers.forEach(clearTimeout); intervals.forEach(clearInterval); timers=[]; intervals=[]; };
-  const at=(el,t)=>timers.push(setTimeout(()=>el.classList.add('on'), t));
-  // ビルダーが下位置に到達するたびに ruby を光らせる(到達=登場開始+toBottom、以降 --dd ごと)。
-  const glint=()=>{ window.rubyGlint && window.rubyGlint(); };
-  const glintWith=(el,startAt)=>{ timers.push(setTimeout(()=>{
-    glint(); intervals.push(setInterval(glint, ddMs(el)));
-  }, startAt+toBottom(el))); };
-  return function(state){
-    if(state===on) return; on=state; clear();
-    if(!state){ [...builders,...cubeOrder].forEach(c=>c.classList.remove('on')); return; }
-    rightB.classList.add('on');           // 右ビルダーがひとりで登場
-    const t0=toBottom(rightB);            // 右が下位置に着くまでは増やさない
-    glintWith(rightB, 0);                 // 右が下位置に着くたびに ruby が光る
-    at(cubeOrder[0], t0);                 // 下に着くと、まずキューブが1つ現れる
-    // 2人目は、右が一旦消えてから2巡目に再登場する前の「谷間」に出す(=もう一呼吸、かつ被らない)
-    let bt=t0+1000;                       // 右がexit(≈82%)〜再登場(≈ --dd)の間に収まる
-    restB.forEach((b,i)=>{ at(b, bt+i*350); glintWith(b, bt+i*350); });
-    let t=bt+450;                         // それからキューブが1つずつおだやかに増える
-    cubeOrder.slice(1).forEach(c=>{ at(c,t); t+=440+Math.random()*260; });
-  };
-})();
 
 // ruby: 丸い LED をひと粒ずつ「きらっ」と一瞬光らせる。
 // 1粒ずつ順にあちこちを閃かせて渡り歩く。
@@ -138,112 +68,6 @@ const motorReveal=(function(){
     kira(pick());
     if(Math.random()<0.4) setTimeout(()=>kira(pick()), 90+Math.random()*120);
   };
-})();
-
-// (旧)ファセット演出: .ruby-facets SVG があった頃の線が走るきらめき。現行HTMLには無いので no-op。
-(function(){
-  const svg=document.querySelector('.ruby-facets');
-  if(!svg) return;
-  const SVGNS='http://www.w3.org/2000/svg';
-  const spark=svg.querySelector('.spark');
-  const faces=[...svg.querySelectorAll('.facet')]; // サイクルごとにこの中から1面をランダムに光らせる
-  // comet trail: a pool of small square dots. head=大きく濃い, tail=小さく薄い
-  spark.removeAttribute('transform'); // 各ドットを viewBox 絶対座標で配置する
-  spark.style.opacity='1';            // 表示は trailG / flashG 側の opacity で制御
-  const N=18;            // 尾を構成するドット数
-  const HEAD_SZ=16, TAIL_SZ=3; // 頭/尾のドットの大きさ(viewBox単位)
-  const TRAIL_LEN=260;   // 尾の最大長(距離)。頭の位置-この長さ が尾の末端
-  const trailG=document.createElementNS(SVGNS,'g'); // 尾(ドット列)
-  trailG.style.opacity='0';
-  spark.appendChild(trailG);
-  const dots=[];
-  for(let i=0;i<N;i++){
-    const r=document.createElementNS(SVGNS,'rect');
-    trailG.appendChild(r); dots.push(r);
-  }
-  // 終点の「チカッ」= ドット絵のきらり(中心 + 上下左右に長い光条 + 斜めに短い光条)
-  const AST=[[0,0],                                                  // 中心
-            [0,-1],[0,-2],[0,-3],[0,-4],[0,-5],                      // 上(長)
-            [0,1],[0,2],[0,3],[0,4],[0,5],                           // 下(長)
-            [-1,0],[-2,0],[-3,0],[-4,0],[-5,0],                      // 左(長)
-            [1,0],[2,0],[3,0],[4,0],[5,0],                           // 右(長)
-            [1,1],[2,2],[-1,1],[-2,2],[1,-1],[2,-2],[-1,-1],[-2,-2]]; // 斜め(短)
-  const AU=7; // アスタリスクのセルサイズ(ドット絵)
-  const flashG=document.createElementNS(SVGNS,'g');
-  flashG.style.opacity='0';
-  AST.forEach(([cx,cy])=>{
-    const r=document.createElementNS(SVGNS,'rect');
-    r.setAttribute('x',cx*AU-AU/2); r.setAttribute('y',cy*AU-AU/2);
-    r.setAttribute('width',AU); r.setAttribute('height',AU);
-    flashG.appendChild(r);
-  });
-  spark.appendChild(flashG);
-  // path along the lower-middle edges: left shoulder -> girdle -> right shoulder
-  const P={SL:[20,357],M1:[293,478],M2:[792,478],SR:[1066,352]};
-  const route=['SL','M1','M2','SR'];
-  const cum=[0];
-  for(let i=0;i<route.length-1;i++){const a=P[route[i]],b=P[route[i+1]];cum.push(cum[i]+Math.hypot(b[0]-a[0],b[1]-a[1]));}
-  const total=cum[cum.length-1];
-  const SEG3_D=cum[2]; // 3本目の線(GR→SR)に入る距離
-  const pointAt=d=>{ // distance (clamped) -> [x,y] along the open path
-    d=Math.max(0,Math.min(total,d));
-    let i=0; while(i<route.length-2 && cum[i+1]<=d) i++;
-    const a=P[route[i]],b=P[route[i+1]],f=(d-cum[i])/(cum[i+1]-cum[i]);
-    return [a[0]+(b[0]-a[0])*f, a[1]+(b[1]-a[1])*f];
-  };
-  // 2段階の速度: 前半はゆっくり、後半は「はやい」スピード。止まらずに終点まで進む
-  const SLOW_FRAC=0.50;            // ゆっくり進む距離の割合(前半)
-  const T_SLOW=SLOW_FRAC*640;      // その区間の所要時間(遅い=以前の640相当)
-  const T_FAST=(1-SLOW_FRAC)*360;  // 残り区間(はやい=以前の360相当)
-  const SWEEP=T_SLOW+T_FAST;       // 0→終点まで動く総時間(とどまらない)
-  const CYCLE=3400;                // 1サイクルの長さ(走り→ひと呼吸)
-  const FLASH=220;                 // 終点で出す「チカッ」(アスタリスク)の長さ(ms)
-  let T=0, last=null, flashedCyc=-1, flashT=-1, glintedCyc=-1;
-  const glint=()=>{
-    if(!faces.length) return;
-    const f=faces[Math.floor(Math.random()*faces.length)]; // ランダムに1面
-    f.classList.remove('kira'); f.getBoundingClientRect(); f.classList.add('kira'); // reflowで再生し直す
-  };
-  window.rubyGlint=glint; // 外(ビルダーの下位置到達など)から ruby を煌めかせる
-  const placeDot=(r,dist,t)=>{ // dist=距離, t=0(尾)〜1(頭)
-    const [x,y]=pointAt(dist);
-    const sz=Math.round(TAIL_SZ+(HEAD_SZ-TAIL_SZ)*t); // 頭ほど大きい(整数=ドット絵感)
-    r.setAttribute('x',Math.round(x-sz/2));
-    r.setAttribute('y',Math.round(y-sz/2));
-    r.setAttribute('width',sz);
-    r.setAttribute('height',sz);
-    // 尾は薄くしない: 全ドット同じ濃さの白いソリッド(濃さはサイズ・間隔だけで表現)
-  };
-  const [endX,endY]=pointAt(total); // 終点(SR)の座標。チカッはここで出す
-  function frame(ts){
-    if(last===null)last=ts; T+=ts-last; last=ts;
-    const cyc=Math.floor(T/CYCLE), ph=T%CYCLE;
-    if(ph<SWEEP){ // 線が走っている間: 尾を描く
-      let head;
-      if(ph<T_SLOW) head=SLOW_FRAC*total*(ph/T_SLOW);                          // ゆっくり
-      else          head=total*(SLOW_FRAC+(1-SLOW_FRAC)*((ph-T_SLOW)/T_FAST)); // はやい
-      const tail=Math.max(0, head-TRAIL_LEN); // 尾の末端(最初は0=点、頭が進むと一定長まで伸びる)
-      for(let i=0;i<N;i++){
-        const t=N>1?i/(N-1):1;                // 0=尾, 1=頭
-        placeDot(dots[i], tail+(head-tail)*t, t);
-      }
-      trailG.style.opacity=(ph<60?ph/60:1).toFixed(3); // すっと現れる
-    }else{ // 終点に達した: 尾は消し、その瞬間にチカッ(アスタリスク)を開始
-      trailG.style.opacity='0';
-      if(flashedCyc!==cyc){ flashT=T; flashedCyc=cyc; }
-    }
-    // 終点のチカッ(縦長アスタリスク): 終点到達から FLASH ms だけ表示
-    let hf=0;
-    if(flashT>=0){ const e=T-flashT; if(e>=0 && e<FLASH) hf=1-e/FLASH; } // 瞬時に立ち上がり減衰
-    if(hf>0){
-      flashG.setAttribute('transform',`translate(${endX.toFixed(1)},${endY.toFixed(1)}) scale(${(0.7+0.5*hf).toFixed(2)})`);
-      flashG.style.opacity=hf.toFixed(3);
-    }else{
-      flashG.style.opacity='0';
-    }
-    requestAnimationFrame(frame);
-  }
-  requestAnimationFrame(frame);
 })();
 
 // ===== 部品スナップ共有定義(ドラッグ／回路の両方で使用) =====
@@ -429,10 +253,10 @@ function bbApplyGridShift(){
     {            part:'battery', anchor:stage, w:27, h:46,
                place:(a,sr)=>({ sx:a.width-180, sy:24 }), // レール・右寄り(中心<96でレール中央へスナップ)
                apply:on=>body.classList.toggle('dark', on) },
-    // モーター → 内側フィールド → 動力でビルダーが動き出しキューブを組み立て
+    // モーター → 内側フィールド(挿すと lit-src でモーターが小刻みに振動するだけ。演出なし)
     scene && { part:'motor',   anchor:scene, w:44, h:57,
                place:(a,sr)=>({sx:a.right-sr.left-72, sy:a.bottom-sr.top-78}), // ルビーの右下に寄せる
-               apply:on=>{ body.classList.toggle('fx-decor-off', !on); motorReveal(on); } },
+               apply:()=>{} },
   ].filter(Boolean);
   SOCKETS.forEach(s=>{ s.el=document.createElement('div'); s.el.className='circuit-slot'; stage.appendChild(s.el); s.was=false; s.wasTouch=false; s.apply(false); });
   function frame(){
