@@ -334,13 +334,23 @@ function bbSnapPos(part, left, top, W, H, stageH){
   const proposalBtn=document.querySelector('.button-icon.proposal');
   if(!parts.length) return;
   const SW=54, SH=54;
+  // 通電音: 他の効果音と同じくオシレーター1個の素朴なポップ。D6→G6 の2音グライドで、
+  // 到達音を少しオーバーシュートさせて弾ませる。高域をひかえめに持ち上げて空気感(ヌケ)を足す。
   const connectSnd=()=>{ try{ const c=window.audioCtx&&window.audioCtx(); if(!c) return;
     const t=c.currentTime;
-    const o=c.createOscillator(),g=c.createGain(); o.type='triangle';
-    o.frequency.setValueAtTime(660,t); o.frequency.exponentialRampToValueAtTime(1320,t+0.12);
-    g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.2,t+0.02);
-    g.gain.exponentialRampToValueAtTime(0.0001,t+0.2);
-    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.22);
+    const o=c.createOscillator(),g=c.createGain(); o.type='triangle'; // 輪郭は他の音と揃え、丸さはローパスで作る
+    // 弾むグライド(前)とコインの跳んでホールドの中間: 素早く上に跳ねて軽くオーバーシュート→
+    // 高い音を少しだけホールドしてから切れる。コインの歯切れを残しつつ寄りすぎない。
+    o.frequency.setValueAtTime(1480,t);        // ぴ(F#6)を短く
+    o.frequency.setValueAtTime(1480,t+0.04);
+    o.frequency.exponentialRampToValueAtTime(2093,t+0.09);  // すっと上へ跳ねる(C7まで)
+    o.frequency.exponentialRampToValueAtTime(1976,t+0.15);  // B6に着地してホールド
+    g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.2,t+0.04); // 立ち上がりをゆるめて角を取る
+    g.gain.exponentialRampToValueAtTime(0.09,t+0.15);  // すっと力が抜けて
+    g.gain.exponentialRampToValueAtTime(0.0001,t+0.52); // 高音がきれいに鳴り残る(コインの気持ちよさ。音量は上げない)
+    // triangleの輪郭(くっきり感)は残しつつ、上の角だけローパスで丸めて間の抜けたかわいさを出す
+    const lp=c.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=2800; lp.Q.value=1;
+    o.connect(g); g.connect(lp); lp.connect(c.destination); o.start(t); o.stop(t+0.54);
   }catch(e){} };
   const body=document.body;
   // 各ソケット: 所定の部品(part)が所定の位置(place)に挿さる演出ON。
