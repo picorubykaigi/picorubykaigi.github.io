@@ -936,6 +936,65 @@ body.dark .circuit-slot.hint {
 }
 .bb-battery::before { inset: -9px; }   /* 26.5×45 → 約 44×63px の当たり判定 */
 .bb-speaker::before { inset: -4px; }   /* 44×44 → 約 52×52px */
+
+/* スピーカー上の吹き出しヒント(子要素なので部品位置に追従)。挿入/ドラッグ中は引っ込む。 */
+.spk-hint {
+  --spk-fill: #fff8ec;               /* 中の地色(でっぱりの白塗りで参照) */
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  margin-bottom: 5px;                /* 尾の高さぶん部品の上に浮かせる */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px;
+  background: none;                  /* 中の塗りは border-image(fill)が担う。background だと角の透明部分から四角が覗く */
+  /* KEYNOTE ラベルと同じドット絵の段差角丸。中を塗りたいので fill キーワード＋中央を地色で塗ったSVGにする */
+  border: 5px solid var(--ink);      /* フォールバック色 & 枠の太さ */
+  border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect x='4' y='2' width='8' height='12' fill='%23fff8ec'/%3E%3Crect x='2' y='4' width='12' height='8' fill='%23fff8ec'/%3E%3Cg fill='%2326242f'%3E%3Crect x='4' y='0' width='8' height='2'/%3E%3Crect x='4' y='14' width='8' height='2'/%3E%3Crect x='0' y='4' width='2' height='8'/%3E%3Crect x='14' y='4' width='2' height='8'/%3E%3Crect x='2' y='2' width='2' height='2'/%3E%3Crect x='12' y='2' width='2' height='2'/%3E%3Crect x='2' y='12' width='2' height='2'/%3E%3Crect x='12' y='12' width='2' height='2'/%3E%3C/g%3E%3C/svg%3E") 6 fill / 5px stretch;
+  pointer-events: none;
+  z-index: 20;
+  transition: opacity .08s linear;   /* 持ち上げた瞬間にぱっと消す(短いフェード) */
+  animation: spk-bob 1.8s ease-in-out infinite;
+}
+/* ダークモード: 枠を白・中を暗色に(border-imageのSVGは色をハードコードするため別SVGで上書き) */
+body.dark .spk-hint {
+  --spk-fill: #1b2030;
+  border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect x='4' y='2' width='8' height='12' fill='%231b2030'/%3E%3Crect x='2' y='4' width='12' height='8' fill='%231b2030'/%3E%3Cg fill='%23ffffff'%3E%3Crect x='4' y='0' width='8' height='2'/%3E%3Crect x='4' y='14' width='8' height='2'/%3E%3Crect x='0' y='4' width='2' height='8'/%3E%3Crect x='14' y='4' width='2' height='8'/%3E%3Crect x='2' y='2' width='2' height='2'/%3E%3Crect x='12' y='2' width='2' height='2'/%3E%3Crect x='2' y='12' width='2' height='2'/%3E%3Crect x='12' y='12' width='2' height='2'/%3E%3C/g%3E%3C/svg%3E") 6 fill / 5px stretch;
+}
+.spk-hint .spk-ico { width: auto; height: 10px; fill: var(--ink); flex: none; shape-rendering: crispEdges; }
+/* 下向きの尾(2段): 2段目は中=地色/左右=ink で吹き出しと地続きに(接合部が白)。先端は ink の点。
+   top の 100% はパディング境界(=枠の内側)基準なので、枠ぶん足して下辺の線から外へ出す。 */
+.spk-hint::before,
+.spk-hint::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.spk-hint::before {                  /* 2段目: 線(外側2px)に重ねて始め、中を白で通す */
+  top: calc(100% + 3px);
+  width: 6px; height: 4px;
+  box-sizing: border-box;
+  background: var(--spk-fill);
+  border-left: 2px solid var(--ink);
+  border-right: 2px solid var(--ink);
+}
+.spk-hint::after {                   /* 1段目(先端)の点 */
+  top: calc(100% + 7px);
+  width: 2px; height: 2px;
+  background: var(--ink);
+}
+@keyframes spk-bob {
+  0%, 100% { transform: translate(-50%, 0); }
+  50%      { transform: translate(-50%, -3px); }
+}
+/* 挿さったら(音が鳴っている)/掴んでいる間は役目を終えて引っ込む */
+.bb-speaker.lit-src .spk-hint,
+.bb-speaker.dragging .spk-hint {
+  opacity: 0;
+  animation: none;
+}
 .bb-chip.dragging,
 .bb-battery.dragging,
 .bb-motor.dragging,

@@ -345,6 +345,33 @@ function bbApplyGridShift(){
   });
 })();
 
+// ---- スピーカーに「音が鳴る」ヒントの吹き出しを出す ----
+// ソケット未装着のときだけ表示。持ち上げ(.dragging)/装着(.lit-src)したら撤去して再表示しない。
+(function(){
+  const spk=document.querySelector('.bb-speaker'); if(!spk) return;
+  const tip=document.createElement('span');
+  tip.className='spk-hint'; tip.setAttribute('aria-hidden','true');
+  tip.style.opacity='0';                         // 装着判定が出るまで隠す(装着済みなら出さない)
+  // ドット絵の8分音符
+  tip.innerHTML='<svg class="spk-ico" viewBox="0 0 7 7">'
+    +'<path d="M3 0h1v6h-1z M4 0h3v1h-3z M6 1h1v2h-1z M0 5h3v2h-3z M1 4h2v1h-2z"/></svg>';
+  spk.appendChild(tip);
+  const done=()=>{                               // 持ち上げ/装着で撤去
+    obs.disconnect();
+    tip.addEventListener('transitionend',()=>tip.remove(),{once:true});
+    tip.style.opacity='0';
+    setTimeout(()=>tip.remove(),150);            // transitionend が来ない時の保険
+  };
+  const obs=new MutationObserver(()=>{
+    if(spk.classList.contains('dragging')||spk.classList.contains('lit-src')) done();
+  });
+  obs.observe(spk,{attributes:true,attributeFilter:['class']});
+  // 通電ループが装着状態(.lit-src)を確定するのを待ち、未装着なら表示する。
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    if(!spk.classList.contains('lit-src')) tip.style.opacity='';
+  }));
+})();
+
 // ---- 配置で通電: 部品をソケットに挿す → その回路の演出がON(抜くとOFF) ----
 (function(){
   const stage=document.querySelector('.stage'); if(!stage) return;
@@ -492,6 +519,8 @@ function bbApplyGridShift(){
   const START=3000;   // ページ表示から3秒経ってから誘導開始
   const seated=p=>p.classList.contains('lit-src');                                  // ソケットにぴったり挿さっている
   const busy=p=>p.classList.contains('dragging')||p.classList.contains('ejecting'); // 操作中/弾き演出中は触らない
+  // 吹き出し(spk-hint)が出ている部品は震えさせない(回転で吹き出しが左右に振られて見えるため)。
+  const hinted=p=>!!p.querySelector('.spk-hint');
   const shiver=p=>{
     if(busy(p)||p.classList.contains('shiver')) return;
     p.classList.add('shiver');
@@ -501,11 +530,11 @@ function bbApplyGridShift(){
   let queue=[];
   const tick=()=>{
     if(!queue.length){                                     // 1巡し終えたら、その時点で外れているパーツで作り直す
-      queue=parts.filter(p=>!seated(p)&&!busy(p));
+      queue=parts.filter(p=>!seated(p)&&!busy(p)&&!hinted(p));
       for(let i=queue.length-1;i>0;i--){ const j=(Math.random()*(i+1))|0; const t=queue[i]; queue[i]=queue[j]; queue[j]=t; } // シャッフル
     }
     const p=queue.shift();
-    if(p && !seated(p) && !busy(p)) shiver(p);              // キュー作成後に挿された/掴まれたパーツは飛ばす
+    if(p && !seated(p) && !busy(p) && !hinted(p)) shiver(p); // キュー作成後に挿された/掴まれた/吹き出し中のパーツは飛ばす
     setTimeout(tick, 2400+Math.random()*2600);             // 次の誘導まで(約2.4〜5.0s間隔)
   };
   setTimeout(tick, START);
