@@ -136,6 +136,63 @@ body {
   z-index: 5;
 }
 
+/* ===== LEDマトリクスの Ruby(画像) =====
+   原画(くっきり)を上に、同じ画像をぼかしたコピーを下に敷いて、
+   フチからじんわり柔らかくにじませる。 */
+.ruby-led {
+  --ruby-img: url('images/ruby-1.png');
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, calc(-50% + clamp(26px, 5vh, 52px)));
+  z-index: 5;
+  height: 102px;            /* レール4行(96px)からひとまわり大きく */
+  aspect-ratio: 1072 / 873; /* 高さから幅を決める(ruby-1.png の比率) */
+}
+
+/* 2枚を同じ位置に重ねる(::before=下のぼかし / ::after=上のくっきり) */
+.ruby-led::before,
+.ruby-led::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--ruby-img) center / contain no-repeat;
+  image-rendering: auto;
+}
+
+/* 下に敷いたコピーだけをじんわりぼかす(上の原画はくっきりのまま) */
+.ruby-led::before {
+  filter: blur(.6px);
+  animation: ruby-soften 3.4s ease-in-out infinite;
+}
+
+@keyframes ruby-soften {
+  0%, 100% { filter: blur(.2px); }
+  50%      { filter: blur(.6px); }
+}
+
+/* ダークモード */
+body.dark .ruby-led {
+  --ruby-img: url('images/ruby-2.png');
+  aspect-ratio: 984 / 802;
+}
+
+/* ダークモードはライトの「下のぼかしレイヤー」によるにじみは消す */
+body.dark .ruby-led::before {
+  display: none;
+}
+
+/* ダークモード: 原画のドットに沿って、オレンジにわずかに滲む(アニメなし・静的) */
+body.dark .ruby-led::after {
+  filter: drop-shadow(0 0 .5px rgba(255, 165, 80, .3))
+          drop-shadow(0 0 1.5px rgba(255, 165, 80, .14));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* アニメは止めるが、じんわりした柔らかさは静的に残す */
+  .ruby-led::before { animation: none; filter: blur(.4px); }
+}
+
 /* ルビーに重ねたファセット: スパークルが線を走り、終点で面がきらり */
 .ruby-facets {
   position: absolute;

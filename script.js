@@ -209,6 +209,9 @@ const motorReveal=(function(){
 
 // ===== 部品スナップ共有定義(ドラッグ／回路の両方で使用) =====
 const BB_GRID=24;
+// 背景レールの水平シフト量(px)。ルビー先端に穴列を合わせるため背景をずらした量を
+// ここに一元化し、部品/ソケット/電光掲示板の脚など全スナップの x がこれに追従する。
+let BB_BGX=0;
 const BB_PIN={
   // chip=上下4ピンのみ穴基準(左右は飾り) / battery=±端子 / motor=2リード
   chip:[[0.2925,0.003],[0.687,0.003],[0.687,0.979],[0.2925,0.979]],
@@ -217,7 +220,9 @@ const BB_PIN={
 };
 const BB_SNAPOFF={ chip:[0,12], motor:[0,12] };   // 12=穴上(12+24n) / 0=穴間(24n) / [x,y]=軸別
 const BB_NUDGE={ motor:[1,2] };                    // スナップ後の見た目微調整[x,y]px
-const bbSnapP=(v,part,ax)=>{ const o=BB_SNAPOFF[part]; const off=Array.isArray(o)?o[ax]:(o!=null?o:12);
+const bbSnapP=(v,part,ax)=>{ const o=BB_SNAPOFF[part];
+  // x軸(ax=0)は背景シフト量 BB_BGX ぶん原点をずらして、見た目の穴列に合わせる
+  const off=(Array.isArray(o)?o[ax]:(o!=null?o:12)) + (ax===0?BB_BGX:0);
   return Math.round((v-off)/BB_GRID)*BB_GRID+off; };
 const bbAnchor=part=>{ const p=BB_PIN[part]; if(!p) return [0.5,0.5];
   let ax=0,ay=0; p.forEach(q=>{ax+=q[0];ay+=q[1];}); return [ax/p.length, ay/p.length]; };
@@ -234,9 +239,31 @@ function bbSnapPos(part, left, top, W, H, stageH){
   return [x+nd[0], y+nd[1]];
 }
 
+// ===== ルビー整列 + 背景シフト(BB_BGX)の一元処理 =====
+// 縦: ルビーを最寄りの穴行へ寄せる。横: ルビー先端(=画像の水平中央)のXに穴列が来るよう
+// 背景を水平シフトし、その量を BB_BGX に保存(部品/ソケット/脚の x スナップが追従)。
+function bbApplyGridShift(){
+  const stage=document.querySelector('.stage');
+  const ruby=document.querySelector('.ruby-led');
+  if(!stage||!ruby) return;
+  const HOLE0=12.5, PITCH=24;
+  const snap=v=>HOLE0+PITCH*Math.round((v-HOLE0)/PITCH);
+  const BASE='translate(-50%, calc(-50% + clamp(26px, 5vh, 52px)))'; // CSS と同じ中央配置
+  ruby.style.transform=BASE;                          // まず素の中央配置に戻して測る
+  const sr=stage.getBoundingClientRect();
+  const r=ruby.getBoundingClientRect();
+  const top=r.top-sr.top;
+  const RAISE=3; // 穴行スナップ後、ほんのわずかだけ上げる(px)
+  ruby.style.transform=BASE+' translate(0px, '+(snap(top)-top-RAISE).toFixed(2)+'px)'; // 縦だけ穴行へ＋微上げ
+  const tipX=(r.left+r.right)/2-sr.left;              // 先端(水平中央)のX
+  BB_BGX=tipX-snap(tipX);                             // 最寄り穴までのズレ=背景シフト量
+  stage.style.backgroundPositionX=BB_BGX.toFixed(2)+'px';
+}
+
 // ---- 部品をドラッグ→穴にスナップ→配置をCookie保存 ----
 (function(){
   const stage=document.querySelector('.stage'); if(!stage) return;
+  bbApplyGridShift();   // 部品を並べる前に背景シフト量(BB_BGX)を確定させる
   const setC=(k,v)=>{document.cookie=k+'='+v+';path=/;max-age=31536000';};
   const getC=k=>{const m=document.cookie.match('(?:^|; )'+k+'=([^;]*)');return m?m[1]:null;};
   // ドラッグの効果音(WebAudio)。actxはユーザー操作時に生成
@@ -465,12 +492,14 @@ function bbSnapPos(part, left, top, W, H, stageH){
   const pins=[];
   for(let i=0;i<4;i++){ const p=document.createElement('i'); p.className='pin'; legs.appendChild(p); pins.push(p); }
   const snap=v=>HOLE0 + PITCH*Math.round((v-HOLE0)/PITCH); // 最寄りの穴(中心)へ
+  // X は背景シフト量 BB_BGX に追従(穴列は 12.5 + BB_BGX + 24n に見える)
+  const snapX=v=>BB_BGX + HOLE0 + PITCH*Math.round((v-BB_BGX-HOLE0)/PITCH);
   const layout=()=>{
     const sr=stage.getBoundingClientRect();
     const lr=legs.getBoundingClientRect();
     const w=lr.width; if(!w) return;
-    // X: 目標位置(左ペア/右ペア)を最寄りの穴列へ
-    [0.12, 0.24, 0.76, 0.88].forEach((f,i)=>{ pins[i].style.left=(snap(f*w)-PINW/2)+'px'; });
+    // X: 目標位置(左ペア/右ペア)を最寄りの穴列へ(背景シフトに追従)
+    [0.12, 0.24, 0.76, 0.88].forEach((f,i)=>{ pins[i].style.left=(snapX(f*w)-PINW/2)+'px'; });
     // Y: 下端(=LED上辺)は固定のまま、先端を最寄りの穴の行に合わせて脚の高さを可変に
     const bottomY=lr.bottom-sr.top;            // 脚の下端の y(LED上辺。CSS bottom 固定で安定)
     let h=bottomY-snap(bottomY-14);            // 目標長≈14px に近い穴行までの高さ
@@ -479,4 +508,13 @@ function bbSnapPos(part, left, top, W, H, stageH){
   };
   layout();
   let t; window.addEventListener('resize',()=>{ clearTimeout(t); t=setTimeout(layout,200); });
+})();
+
+// ---- ルビー先端のXに背景の穴列を合わせる(共有の bbApplyGridShift を使用) ----
+// 実処理は bbApplyGridShift() に集約(BB_BGX を更新し、部品/ソケット/脚の x が追従)。
+// ここでは初回・フォント確定後・リサイズで再適用するだけ。
+(function(){
+  bbApplyGridShift();
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(bbApplyGridShift);
+  let t; window.addEventListener('resize',()=>{ clearTimeout(t); t=setTimeout(bbApplyGridShift,200); });
 })();
