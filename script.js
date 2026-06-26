@@ -174,11 +174,11 @@ document.querySelectorAll('.scene').forEach(scene=>{
 // モバイル(縦)判定。768px 以上=デスクトップ型(横一列ソケット)、以下=モバイル型(ソケットをRuby直下へ再構成)。
 const BB_MOBILE=()=>window.matchMedia('(max-width: 767px)').matches;
 // モバイル: 4部品(seg7/speaker/motor/chip)のソケットをRuby直下に横一列で並べる。バッテリーのソケットは
-// 電源レール右上に別置き。部品本体の初期位置はソケットに連動せずランダムに散らす(下の defaultPos)。
+// 電源レール上に別置き(配置の詳細は下の battery ソケット)。部品本体の初期位置はソケットに連動せず
+// ランダムに散らす(下の defaultPos)。
 const M_DX={ seg7:-102, speaker:-6, motor:58, chip:128 };  // Ruby中心からの各ソケット中心オフセット(隙間20px)
 const M_SOCKET_GAP=24;   // ソケット行: Ruby下端から1レール(穴ピッチ)あけて配置
-const M_BAT_RIGHT=50;    // バッテリーソケット: ステージ右端から中心までの距離(右上レール)
-const M_BAT_PARTGAP=42;  // バッテリー部品はソケットの左隣(中心間距離)
+const M_BAT_RIGHT=50;    // バッテリーソケット(モバイル): ステージ右端から中心までの距離(右上レール)
 
 // ===== 部品スナップ共有定義(ドラッグ／回路の両方で使用) =====
 const BB_GRID=24;
@@ -544,6 +544,19 @@ function bbApplyGridShift(){
   // モバイルのソケット左上座標: Ruby下端から1レールあけ、4ソケットの「上端」を揃える。
   const mPlace=(a,sr,part,w,h)=>
     ({ sx:cx(a,sr)+M_DX[part]-w/2, sy:rubyBottom(a,sr)+M_SOCKET_GAP });
+  // 「PicoRubyKaigi」が1行に収まっているか(<wbr>で PicoRuby/Kaigi が折り返すと2行になる)。
+  const logoPico=document.querySelector('.title .picoruby');
+  const logoKaigi=document.querySelector('.title .kaigi');
+  const logoOneLine=()=> !!logoPico && !!logoKaigi &&
+    Math.abs(logoPico.getBoundingClientRect().top - logoKaigi.getBoundingClientRect().top) < 4;
+  // バッテリーソケットの水平中心: ロゴ1行目の末尾文字の真上。1行なら Kaigi の "i"、折り返し時は PicoRuby の "y"。
+  const lastKaigiLed=document.querySelector('.title .kaigi .l-chika:last-child');
+  const lastPicoLed =document.querySelector('.title .picoruby .l-chika:last-child');
+  const batCenterX=sr=>{
+    const el=logoOneLine()?lastKaigiLed:lastPicoLed;
+    if(el){ const r=el.getBoundingClientRect(); return r.left-sr.left+r.width/2; }
+    return sr.width-166.5;   // フォールバック: 従来の右端-180 + 幅27/2
+  };
   const SOCKETS=[
     // 7セグ → スピーカーのさらに左 → 会期カウントダウンが点灯(抜くと消灯)。
     scene && { part:'seg7', anchor:scene, h:53,
@@ -573,10 +586,12 @@ function bbApplyGridShift(){
                place:(a,sr)=> BB_MOBILE() ? mPlace(a,sr,'chip',56,56)
                                           : ({ sx:cx(a,sr)+204, sy:rowTop(a,sr,56) }),
                apply:on=>body.classList.toggle('fx-lchika-off', !on) },
-    // バッテリー → 電源レール(赤+/青-)をまたぐ → ダークモード(暗闇でボードが光る)。位置は据え置き。
+    // バッテリー → 電源レール(赤+/青-)をまたぐ → ダークモード(暗闇でボードが光る)。
+    // 電光掲示板が出るデスクトップ(≥768px): ロゴ1行目末尾文字(1行=Kaigiの"i"/折り返し=PicoRubyの"y")の真上
+    // (部品のスナップ格子に丸める)。電光掲示板の無いモバイル(<768px): 右上レール。y は両方とも電源レール据え置き。
     {            part:'battery', anchor:stage, w:27, h:46,
-               place:(a,sr)=> BB_MOBILE() ? ({ sx:a.width-M_BAT_RIGHT-13.5, sy:24 })  // モバイル: 右上の電源レール
-                                          : ({ sx:a.width-180, sy:24 }), // レール・右寄り(中心<96でレール中央へスナップ)
+               place(a,sr){ return BB_MOBILE() ? ({ sx:a.width-M_BAT_RIGHT-13.5, sy:24 })
+                                               : ({ sx:bbSnapP(batCenterX(sr),'battery',0)-this.w/2, sy:24 }); },
                apply:on=>{ body.classList.toggle('dark', on);
                  // ダンス中にダーク切替されたらパーティモードのベース増強も追従
                  if(window.danceParty) window.danceParty(on && body.classList.contains('dance-on')); } },
