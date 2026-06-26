@@ -951,16 +951,19 @@ body.dark .title .prk .l-chika::after {
 .title .prk .l-chika.beat-lit::after { opacity: 1; }
 
 /* 回路スロット(部品をソケットに挿すと通電→モード切替) */
-/* ソケット = 「破線の枠 + ドット地」。枠の形は各パーツのシルエットを輪郭追跡し、
-   stroke-dasharray で“まっすぐ輪郭に沿った破線”にした SVG
-   (images/<part>-slot.svg, tools/gen_slot_outlines.rb で生成)を background-image で表示。
-   強さ(通常/誘導/ダーク)は opacity で切り替える。ドット地はボード背景が透けて見える。 */
+/* ソケット = 各パーツのシルエットを輪郭追跡した破線SVG(images/<part>-slot.svg)。
+   形はそのまま、opacity + drop-shadow で強調する(通常は明滅、ダークは静止)。
+   この強調は電光掲示板の出るデスクトップ(≥768px)向け。ソケットが画面に対して十分大きいモバイル(<768px)では
+   下の @media で元の控えめな発光に戻す。 */
 .circuit-slot {
   position: absolute;
   z-index: 6;
   pointer-events: none;
   background: var(--slot-img) center / contain no-repeat;
-  opacity: .72;
+  opacity: .9;
+  /* 枠の形に沿った発光。淡色ボードでも埋もれないよう drop-shadow を重ねがけしてハローを濃く */
+  filter: drop-shadow(0 0 3px rgba(255, 193, 46, .95))
+          drop-shadow(0 0 8px rgba(255, 176, 0, .6));
   transition: opacity .3s ease, filter .4s ease;
 }
 .circuit-slot--chip    { --slot-img: url('images/chip-slot.svg'); }
@@ -975,8 +978,10 @@ body.seg7-2 .circuit-slot--seg7 { --slot-img: url('images/seg7-slot-2.svg'); }  
   animation: slot-hint-soft 1.4s steps(2) infinite;
 }
 @keyframes slot-hint-soft {
-  0%, 100% { filter: drop-shadow(0 0 2px rgba(255, 193, 46, .28)); }
-  50%      { filter: drop-shadow(0 0 6px rgba(255, 193, 46, .55)); }
+  0%, 100% { filter: drop-shadow(0 0 3px rgba(255, 193, 46, .95))
+                     drop-shadow(0 0 8px rgba(255, 176, 0, .6)); }
+  50%      { filter: drop-shadow(0 0 6px rgba(255, 193, 46, 1))
+                     drop-shadow(0 0 16px rgba(255, 176, 0, .85)); }
 }
 /* 部品が挿さったら枠は消す(スロット非表示)。opacity を使うモードより優先 */
 .circuit-slot.filled {
@@ -984,14 +989,37 @@ body.seg7-2 .circuit-slot--seg7 { --slot-img: url('images/seg7-slot-2.svg'); }  
 }
 /* ダークモード時は主張を弱める(暗闇でボードが生きている状態) */
 body.dark .circuit-slot {
-  opacity: .42;
+  opacity: .55;
+  filter: drop-shadow(0 0 2px rgba(255, 193, 46, .25));
 }
 body.dark .circuit-slot.hint {
-  animation: slot-hint-dark 1.5s steps(2) infinite;
+  animation: none;
 }
-@keyframes slot-hint-dark {
-  0%, 100% { filter: drop-shadow(0 0 2px rgba(255, 193, 46, .18)); }
-  50%      { filter: drop-shadow(0 0 6px rgba(255, 193, 46, .4)); }
+/* 電光掲示板の出ないモバイル(<768px): ソケットが画面に対して十分大きく目立つので、
+   発光は元の控えめな状態に戻す(基本の重ね drop-shadow を打ち消し、明滅も淡く)。 */
+@media (max-width: 767px) {
+  .circuit-slot {
+    opacity: .72;
+    filter: none;
+  }
+  .circuit-slot.hint {
+    animation-name: slot-hint-soft-sub;
+  }
+  @keyframes slot-hint-soft-sub {
+    0%, 100% { filter: drop-shadow(0 0 2px rgba(255, 193, 46, .28)); }
+    50%      { filter: drop-shadow(0 0 6px rgba(255, 193, 46, .55)); }
+  }
+  body.dark .circuit-slot {
+    opacity: .42;
+    filter: none;
+  }
+  body.dark .circuit-slot.hint {
+    animation: slot-hint-dark 1.5s steps(2) infinite;
+  }
+  @keyframes slot-hint-dark {
+    0%, 100% { filter: drop-shadow(0 0 2px rgba(255, 193, 46, .18)); }
+    50%      { filter: drop-shadow(0 0 6px rgba(255, 193, 46, .4)); }
+  }
 }
 
 /* 挿す部品(画像)。ドラッグして所定のソケット/レールに挿すと回路が成立 */
