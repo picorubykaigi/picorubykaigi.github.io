@@ -12,6 +12,7 @@ class BlogBuilder
   SITE = 'https://picorubykaigi.org'
   TEMPLATES = File.join(__dir__, 'templates')
   HEADER = File.read(File.join(TEMPLATES, 'header.html'))
+  TWEET_URL = %r{https?://(?:twitter\.com|x\.com)/\w+/status/\d+(?:\?\S*)?}
 
   def initialize(out_dir)
     @out_dir = out_dir
@@ -26,7 +27,7 @@ class BlogBuilder
     posts = filenames.map do |filename|
       meta, body = parse_frontmatter(File.read(File.join(posts_src, filename)))
       slug = slug_of(filename)
-      content_html = markdown_to_html(body)
+      content_html = markdown_to_html(expand_tweet_urls(body))
       description = meta['description']
       description = excerpt(content_html) if description.to_s.empty?
       {
@@ -35,7 +36,8 @@ class BlogBuilder
         date: meta['date'] || '',
         description: description,
         content_html: content_html,
-        og_image: og_image_for(content_html, slug)
+        og_image: og_image_for(content_html, slug),
+        has_tweet: content_html.include?('twitter-tweet')
       }
     end
 
@@ -85,6 +87,18 @@ class BlogBuilder
       URI.join("#{SITE}/blog/#{slug}.html", m[1]).to_s
     else
       "#{SITE}/images/ogp.png"
+    end
+  end
+
+  # Wrap a run of standalone tweet URLs (blank lines allowed between them) in one
+  # .tweet-embed block, so consecutive tweets read as a single group.
+  def expand_tweet_urls(body)
+    run = /^[ \t]*#{TWEET_URL}[ \t]*(?:\n+[ \t]*#{TWEET_URL}[ \t]*)*$/
+    body.gsub(run) do |match|
+      embeds = match.scan(TWEET_URL).map do |url|
+        %(<blockquote class="twitter-tweet" data-dnt="true"><a href="#{url}">#{url}</a></blockquote>)
+      end.join
+      %(<div class="tweet-embed">#{embeds}</div>)
     end
   end
 
