@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="/content.js"></script>
+  <title>Blog | PicoRubyKaigi 2026 Assemble</title>
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
+  <meta name="description" content="PicoRubyKaigi 2026 Assemble のブログ">
+  <meta property="og:title" content="Blog | PicoRubyKaigi 2026 Assemble">
+  <meta property="og:description" content="PicoRubyKaigi 2026 Assemble のブログ">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="<%= SITE %>/blog/">
+  <meta property="og:site_name" content="PicoRubyKaigi 2026 Assemble">
+  <meta property="og:locale" content="ja_JP">
+  <meta property="og:image" content="<%= SITE %>/images/ogp.png">
+  <link rel="stylesheet" href="/content.css">
+</head>
+<body>
+<%= header %>
+  <main class="container">
+    <div class="panel">
+      <h1 class="blog-title">Blog</h1>
+      <ul class="blog-list">
+<% posts.each do |post| -%>
+        <li>
+          <a class="blog-card" href="<%= post[:slug] %>.html">
+            <time datetime="<%= escape(post[:date]) %>"><%= display_date(post[:date]) %></time>
+            <h2><%= escape(post[:title]) %></h2>
+            <p><%= escape(post[:description]) %></p>
+          </a>
+        </li>
+<% end -%>
+      </ul>
+    </div>
+  </main>
+</body>
+</html>

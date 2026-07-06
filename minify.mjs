@@ -14,7 +14,7 @@ if (!OUT) {
 }
 
 // CSS / JS: drop comments and collapse whitespace, but keep names and syntax.
-for (const file of ['styles.css', 'script.js', 'sound.js']) {
+for (const file of ['styles.css', 'script.js', 'sound.js', 'content.css', 'content.js']) {
   const path = join(OUT, file);
   if (!existsSync(path)) continue;
   const { code } = await esbuild.transform(readFileSync(path, 'utf8'), {
