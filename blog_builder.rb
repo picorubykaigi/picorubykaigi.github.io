@@ -13,6 +13,9 @@ class BlogBuilder
   TEMPLATES = File.join(__dir__, 'templates')
   HEADER = File.read(File.join(TEMPLATES, 'header.html'))
   TWEET_URL = %r{https?://(?:twitter\.com|x\.com)/\w+/status/\d+(?:\?\S*)?}
+  DANCERS = '<div class="blog-dancers" aria-hidden="true">' +
+            ('<div class="blog-dancer"><span class="blog-dancer-led"></span></div>' * 4) +
+            '</div>'
 
   def initialize(out_dir)
     @out_dir = out_dir
@@ -28,6 +31,7 @@ class BlogBuilder
       meta, body = parse_frontmatter(File.read(File.join(posts_src, filename)))
       slug = slug_of(filename)
       content_html = markdown_to_html(expand_tweet_urls(body))
+      content_html = content_html.gsub(/<hr\s*\/?>/, DANCERS)   # 水平線は dancers
       description = meta['description']
       description = excerpt(content_html) if description.to_s.empty?
       {
