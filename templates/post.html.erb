@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="/content.js"></script>
+  <title><%= escape(post[:title]) %> | PicoRubyKaigi 2026 Assemble</title>
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
+  <meta name="description" content="<%= escape(post[:description]) %>">
+  <meta property="og:title" content="<%= escape(post[:title]) %> | PicoRubyKaigi 2026 Assemble">
+  <meta property="og:description" content="<%= escape(post[:description]) %>">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="<%= SITE %>/blog/<%= post[:slug] %>.html">
+  <meta property="og:site_name" content="PicoRubyKaigi 2026 Assemble">
+  <meta property="og:locale" content="ja_JP">
+  <meta property="og:image" content="<%= post[:og_image] %>">
+  <link rel="stylesheet" href="/content.css">
+</head>
+<body>
+<%= header %>
+  <main class="container">
+    <div class="panel">
+      <article>
+        <header class="content-header">
+          <h1><%= escape(post[:title]) %></h1>
+          <time datetime="<%= escape(post[:date]) %>"><%= display_date(post[:date]) %></time>
+        </header>
+        <div class="content-body">
+<%= post[:content_html].chomp %>
+        </div>
+<% if show_back_link -%>
+        <footer class="blog-footer">
+          <a class="blog-back-link" href="./">&larr; Blog 一覧へ</a>
+        </footer>
+<% end -%>
+        <%= DANCERS %>
+      </article>
+    </div>
+  </main>
+<% if post[:has_tweet] -%>
+  <script async src="https://platform.twitter.com/widgets.js"></script>
+<% end -%>
+</body>
+</html>

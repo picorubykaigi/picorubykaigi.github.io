@@ -1,0 +1,363 @@
+@import url('https://fonts.googleapis.com/css2?family=Bitcount+Single:ELSH,wght@0..100,100..900&family=DotGothic16&family=Jersey+10&family=Micro+5&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap');
+
+@font-face {
+  font-family: 'Conti Neue 2P';
+  src: url('../fonts/ContiNeue2P-1.0.1.woff2') format('woff2');
+  font-display: swap;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #eceade;
+  --ink: #26242f;
+  --muted: #6c675a;
+  --red: #e8404b;
+  --redd: #c0223a;
+  --blue: #5f7cb8;
+  --card: #f6f4ea;
+  --line: #d8d4c4;
+  --maxw: 800px;
+}
+
+body {
+  color: var(--ink);
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  line-height: 1.9;
+  background:
+    url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2796%27%3E%3Crect%20x=%270%27%20y=%270%27%20width=%2724%27%20height=%2796%27%20fill=%27%23eceade%27/%3E%3Crect%20x=%270%27%20y=%2712%27%20width=%2724%27%20height=%274%27%20fill=%27%23e8404b%27/%3E%3Crect%20x=%279.5%27%20y=%2731.5%27%20width=%275%27%20height=%275%27%20fill=%27%2339352b%27%20fill-opacity=%27.11%27/%3E%3Crect%20x=%2711%27%20y=%2733%27%20width=%275%27%20height=%275%27%20fill=%27%231c180e%27%20fill-opacity=%27.14%27/%3E%3Crect%20x=%279.5%27%20y=%2755.5%27%20width=%275%27%20height=%275%27%20fill=%27%2339352b%27%20fill-opacity=%27.11%27/%3E%3Crect%20x=%2711%27%20y=%2757%27%20width=%275%27%20height=%275%27%20fill=%27%231c180e%27%20fill-opacity=%27.14%27/%3E%3Crect%20x=%270%27%20y=%2776%27%20width=%2724%27%20height=%274%27%20fill=%27%235f7cb8%27/%3E%3C/svg%3E") left top/24px 96px repeat-x,
+    url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2724%27%3E%3Crect%20x=%279.5%27%20y=%279.5%27%20width=%275%27%20height=%275%27%20fill=%27%2339352b%27%20fill-opacity=%27.11%27/%3E%3Crect%20x=%2711%27%20y=%2711%27%20width=%275%27%20height=%275%27%20fill=%27%231c180e%27%20fill-opacity=%27.14%27/%3E%3C/svg%3E") 0 0/24px 24px,
+    var(--bg);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.content-body a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+.site-header .inner {
+  height: 96px;
+  padding: 0 clamp(20px, 4vw, 44px);
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+}
+
+.logo:hover { text-decoration: none; }
+
+.logo-name {
+  font-family: 'Bitcount Single', 'Jersey 10', sans-serif;
+  font-size: clamp(30px, 6.4vw, 48px);
+  line-height: .9;
+  letter-spacing: .06em;
+  font-variation-settings: 'wght' 330, 'ELSH' 50;
+}
+
+.logo .pico {
+  color: #f64b5b;
+  -webkit-text-stroke: 2.5px #da1d3c;
+  paint-order: stroke fill;
+}
+
+.logo .kaigi {
+  color: #fff;
+  -webkit-text-stroke: 4px #454747;
+  paint-order: stroke fill;
+}
+
+.logo .pico .kern-pi { margin-left: -.03em; }
+.logo .pico .kern-ic { margin-left: -.055em; }
+.logo .kaigi .kern-yk { margin-left: .04em; }
+.logo .kaigi .kern-ig { margin-left: -.08em; }
+
+.logo-meta {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+  margin-left: 6px;
+  transform: translateY(-4px);
+}
+
+.logo-meta .year {
+  font-family: 'Micro 5', sans-serif;
+  font-size: clamp(16px, 3.4vw, 28px);
+  color: var(--ink);
+}
+
+.logo-meta .assemble {
+  font-family: 'Jersey 10', sans-serif;
+  font-size: clamp(14px, 2.9vw, 24px);
+  color: var(--ink);
+  letter-spacing: .06em;
+  margin-top: -5px;
+}
+
+.container {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 24px 20px 64px;
+}
+
+.panel {
+  background: var(--card);
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  padding: 40px 40px 48px;
+}
+
+.content-header {
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--line);
+}
+
+.content-header h1 {
+  font-family: 'DotGothic16', sans-serif;
+  font-size: 28px;
+  line-height: 1.35;
+  letter-spacing: .04em;
+}
+
+.content-header time {
+  display: block;
+  font-family: 'Jersey 10', sans-serif;
+  font-size: 17px;
+  line-height: 1;
+  color: var(--muted);
+  margin-top: 8px;
+}
+
+.content-body h2 {
+  font-family: 'DotGothic16', sans-serif;
+  font-size: 24px;
+  margin: 40px 0 14px;
+  padding-left: 12px;
+  border-left: 5px solid var(--red);
+  letter-spacing: .04em;
+}
+
+.content-body h3 {
+  font-family: 'DotGothic16', sans-serif;
+  font-size: 19px;
+  margin: 28px 0 10px;
+  letter-spacing: .04em;
+}
+
+.content-body {
+  font-size: 18px;
+  line-height: 2.05;
+  letter-spacing: .02em;
+}
+
+.content-body p { margin: 16px 0; }
+
+.content-body ul,
+.content-body ol {
+  margin: 16px 0;
+  padding-left: 26px;
+}
+
+.content-body li { margin: 6px 0; }
+
+.content-body hr {
+  width: 80%;
+  margin: 46px auto 50px;
+  border: 0;
+  border-top: 2px solid var(--blue);
+}
+
+.content-body blockquote:not(.twitter-tweet) {
+  margin: 20px 0;
+  padding: 6px 18px;
+  border-left: 4px solid var(--line);
+  color: var(--muted);
+}
+
+/* Wrap the tweet in our own element for spacing: widgets.js replaces the inner
+   blockquote (and sets its own inline margin), but leaves this wrapper alone. */
+.content-body .tweet-embed {
+  margin: 32px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.content-body pre {
+  background: #2b2836;
+  color: #f0ede2;
+  border-radius: 8px;
+  padding: 16px 18px;
+  overflow-x: auto;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 20px 0;
+}
+
+.content-body code {
+  font-family: 'DotGothic16', monospace;
+}
+
+.content-body :not(pre) > code {
+  background: #e2dfd0;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: .92em;
+}
+
+.blog-title {
+  font-family: 'Micro 5', 'DotGothic16', sans-serif;
+  font-size: 44px;
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+
+.blog-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.blog-card {
+  display: block;
+  background: #fff;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  padding: 18px 20px;
+  color: inherit;
+  transition: border-color .15s ease, transform .15s ease;
+}
+
+.blog-card:hover {
+  border-color: var(--red);
+  text-decoration: none;
+  transform: translateY(-2px);
+}
+
+.blog-card time {
+  font-family: 'Jersey 10', sans-serif;
+  font-size: 16px;
+  color: var(--muted);
+}
+
+.blog-card h2 {
+  font-family: 'DotGothic16', sans-serif;
+  font-size: 22px;
+  margin: 4px 0 8px;
+  line-height: 1.4;
+  letter-spacing: .04em;
+}
+
+.blog-card p {
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.blog-footer {
+  margin-top: 48px;
+  padding-top: 20px;
+  border-top: 2px solid var(--line);
+}
+
+.blog-back-link {
+  font-family: 'Jersey 10', sans-serif;
+  font-size: 18px;
+}
+
+.blog-dancers {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 64px;
+  margin: 42px 0 50px;
+}
+
+.blog-dancers:last-child {
+  margin-bottom: 12px;
+}
+
+.blog-dancer {
+  position: relative;
+  width: 30px;
+  aspect-ratio: 30 / 14;
+  background: center/contain no-repeat;
+  image-rendering: pixelated;
+  transform: rotate(-45deg);
+}
+
+.blog-dancer:nth-child(1) { background-image: url('/images/dancer1.png'); }
+.blog-dancer:nth-child(2) { background-image: url('/images/dancer2.png'); }
+.blog-dancer:nth-child(3) { background-image: url('/images/dancer3.png'); }
+.blog-dancer:nth-child(4) { background-image: url('/images/dancer4.png'); }
+
+/* dark mode: an inline <head> script sets html.dark from the cookie before first paint */
+html.dark {
+  --bg: #10131c;
+  --ink: #ece9df;
+  --muted: #8b93a5;
+  --card: #191d28;
+  --line: #333a49;
+}
+
+html.dark body {
+  background:
+    url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2796%27%3E%3Crect%20x=%270%27%20y=%270%27%20width=%2724%27%20height=%2796%27%20fill=%27%2310131c%27/%3E%3Crect%20x=%270%27%20y=%2712%27%20width=%2724%27%20height=%274%27%20fill=%27%23e8404b%27/%3E%3Crect%20x=%279.5%27%20y=%2731.5%27%20width=%275%27%20height=%275%27%20fill=%27%232e5247%27/%3E%3Crect%20x=%2711%27%20y=%2733%27%20width=%274%27%20height=%274%27%20fill=%27%2316302a%27/%3E%3Crect%20x=%279.5%27%20y=%2755.5%27%20width=%275%27%20height=%275%27%20fill=%27%232e5247%27/%3E%3Crect%20x=%2711%27%20y=%2757%27%20width=%274%27%20height=%274%27%20fill=%27%2316302a%27/%3E%3Crect%20x=%270%27%20y=%2776%27%20width=%2724%27%20height=%274%27%20fill=%27%234a7bd6%27/%3E%3C/svg%3E") left top/24px 96px repeat-x,
+    url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2724%27%3E%3Crect%20x=%279.5%27%20y=%279.5%27%20width=%275%27%20height=%275%27%20fill=%27%232e5247%27/%3E%3Crect%20x=%2711%27%20y=%2711%27%20width=%274%27%20height=%274%27%20fill=%27%2316302a%27/%3E%3C/svg%3E") 0 0/24px 24px,
+    var(--bg);
+}
+
+html.dark .blog-card { background: #212838; }
+
+html.dark .content-body :not(pre) > code { background: #2b3242; }
+
+html.dark .blog-dancer-led {
+  position: absolute;
+  right: 5px;
+  top: 4px;
+  width: 2px;
+  height: 2px;
+  border-radius: 1px;
+  background: #ffe7a0;
+  box-shadow: 0 0 3px 1px #ffd47a, 0 0 7px 2px rgba(255, 212, 122, .6);
+}
+
+html.dark .logo .pico {
+  color: #fb5479;
+  -webkit-text-stroke-color: #97233a;
+  text-shadow: 0 0 7px rgba(251, 84, 121, .55), 0 0 20px rgba(251, 84, 121, .35);
+}
+
+html.dark .logo .kaigi {
+  color: #6ef0a0;
+  -webkit-text-stroke-color: #2c6b4a;
+  text-shadow: 0 0 6px rgba(110, 240, 160, .40), 0 0 16px rgba(110, 240, 160, .22);
+}
+
+@media (max-width: 560px) {
+  .panel { padding: 24px 20px 32px; border-radius: 12px; }
+  .blog-title { font-size: 36px; }
+  .content-header h1 { font-size: 24px; }
+  .content-header { margin-bottom: 20px; }
+  .content-body { font-size: 17px; }
+  .logo-name { letter-spacing: .01em; }
+  .logo .kaigi .kern-yk { margin-left: .01em; }
+  .logo-meta { margin-left: 4px; transform: translateY(-2px); }
+}
