@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "ruby build.rb"
+    "build": "bundle exec ruby build.rb"
   },
   "devDependencies": {
     "esbuild": "^0.24.2",
