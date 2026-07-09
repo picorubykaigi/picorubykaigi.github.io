@@ -566,6 +566,19 @@ body.dark .cross { --tint: #56f096; } /* ダーク=緑 */
   display: none;
 }
 
+.blog-link {
+  position: absolute;
+  top: 16px;
+  right: 96px;
+  height: 60px;
+  display: inline-flex;
+  align-items: center;
+  z-index: 6;
+  font-family: 'Jersey 10', sans-serif;
+  font-size: clamp(20px, 2.4vw, 21px);
+  letter-spacing: .14em;
+  color: var(--ink);
+}
 /* ===== 電光掲示板ティッカー: 日付+会場が右→左へ流れる ===== */
 .ticker {
   position: absolute;
