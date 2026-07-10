@@ -814,16 +814,19 @@ body.dark .ticker { --tk-led: 92, 191, 100; }
     gap: clamp(10px, 3vw, 20px);   /* ラベルと名前の間隔をやや詰める */
   }
 
-  /* CTA: 参加登録(ticket)は非表示、プロポーザル/スポンサーは横並び。 */
-  .button-icon.ticket {
-    display: none;
-  }
   .button {
-    flex-direction: row;
-    flex-wrap: nowrap;
-    gap: clamp(12px, 3.5vw, 24px);
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    justify-content: center;
+    justify-items: center;
+    align-items: start;
+    column-gap: clamp(12px, 3.5vw, 24px);
+    row-gap: clamp(8px, 1.6svh, 16px);
     margin-top: clamp(12px, 3svh, 30px);   /* KEYNOTE↔ボタンの間隔 */
     margin-bottom: auto;                   /* 細長い端末では余りをボタン下にも分配(ロゴ上/Ruby上/ボタン下の3者) */
+  }
+  .button-icon.ticket {
+    grid-column: 1 / -1;   /* 2列ぶん占有 = 上段に単独で中央 */
   }
   .button-icon {
     height: clamp(56px, 14.5vw, 86px);
