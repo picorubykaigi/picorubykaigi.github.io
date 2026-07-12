@@ -598,6 +598,7 @@ function bbApplyGridShift(){
   ].filter(Boolean);
   SOCKETS.forEach(s=>{ s.el=document.createElement('div'); s.el.className='circuit-slot circuit-slot--'+s.part; stage.appendChild(s.el); s.was=false; s.wasTouch=false; s.wasWrong=false; s.apply(false); });
   let endlessDance=false, speakerWasIn=false, speakerEverDragged=false;   // スピーカーを「最後の1個」としてはめて完成させたか
+  const blogLink=document.querySelector('.blog-link');
   function frame(){
     const sr=stage.getBoundingClientRect();
     SOCKETS.forEach(s=>{
@@ -606,6 +607,8 @@ function bbApplyGridShift(){
       // ソケット枠を「部品が実際に収まる格子位置」に合わせる
       const [sx,sy]=bbSnapPos(s.part, p0.sx, p0.sy, W, H, sr.height);
       s.el.style.left=sx+'px'; s.el.style.top=sy+'px'; s.el.style.width=W+'px'; s.el.style.height=H+'px';
+      // Keep the blog link right-aligned just left of the battery socket (its x moves with the logo width)
+      if(s.part==='battery' && blogLink) blogLink.style.right=(sr.width-sx+18)+'px';
       const ccx=sx+W/2, ccy=sy+H/2; // ソケット中心
       let inSlot=false, hit=null, touching=false, wrong=false;
       parts.forEach(p=>{
