@@ -1182,3 +1182,18 @@ function bbApplyGridShift(){
     btn.addEventListener('pointerenter', e=>{ if(e.pointerType==='touch') return; pico(); }); // タップでは鳴らさない
   });
 })();
+
+// ---- くみたて完成のごほうび: ruby-full 中は Ruby がゲーム機になる(タップで /game/ へ) ----
+(function(){
+  const ruby=document.querySelector('.ruby-led');
+  if(ruby) ruby.addEventListener('click',()=>{
+    if(document.body.classList.contains('ruby-full')) location.href='/game/';
+  });
+  // コナミコマンドでも直行(隠し)
+  const SEQ=['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','KeyB','KeyA'];
+  let ki=0;
+  addEventListener('keydown',e=>{
+    ki=(e.code===SEQ[ki])?ki+1:(e.code===SEQ[0]?1:0);
+    if(ki===SEQ.length){ ki=0; location.href='/game/'; }
+  });
+})();
