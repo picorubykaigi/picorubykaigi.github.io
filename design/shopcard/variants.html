@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ショップカード 大胆別案(表2・裏2)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bitcount+Single:ELSH,wght@0..100,100..900&family=Micro+5&family=Jersey+10&family=DotGothic16&display=swap');
+
+@font-face {
+  font-family: 'Conti Neue 2P';
+  src: url('../../fonts/ContiNeue2P-1.0.1.woff2') format('woff2');
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #666;
+  font-family: 'DotGothic16', monospace;
+  padding: 6mm;
+  display: flex;
+  flex-direction: column;
+  gap: 3mm;
+  align-items: center;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.label { width: 92mm; color: #ddd; font-size: 3mm; letter-spacing: .06em; }
+
+.card {
+  position: relative;
+  width: 92mm;
+  height: 60mm;
+  overflow: hidden;
+}
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 3mm;
+  border: 1px dashed rgba(140, 140, 140, .5);
+  pointer-events: none;
+  z-index: 99;
+}
+
+/* ============================================================
+   表A: 組み立て説明書(キットのマニュアル)風
+   ============================================================ */
+.front-a {
+  --ink: #26242f;
+  color: var(--ink);
+  background:
+    url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2724%27%3E%3Crect%20x=%279.5%27%20y=%279.5%27%20width=%275%27%20height=%275%27%20fill=%27%2339352b%27%20fill-opacity=%27.08%27/%3E%3C/svg%3E") left 1.9mm top 1.9mm / 2.6mm 2.6mm repeat,
+    #eceade;
+}
+.front-a .manual-head {
+  position: absolute;
+  left: 6mm;
+  top: 5.5mm;
+  right: 6mm;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  border-bottom: .55mm solid var(--ink);
+  padding-bottom: 1.2mm;
+}
+.front-a .prk {
+  font-family: 'Bitcount Single', sans-serif;
+  font-size: 6.4mm;
+  line-height: .9;
+  letter-spacing: .04em;
+  font-variation-settings: 'wght' 330, 'ELSH' 50;
+  white-space: nowrap;
+}
+.front-a .prk .picoruby { color: #f64b5b; -webkit-text-stroke: .4mm #da1d3c; paint-order: stroke fill; }
+.front-a .prk .kaigi    { color: #fff;    -webkit-text-stroke: .4mm #454747; paint-order: stroke fill; }
+.front-a .manual-no {
+  font-family: 'Jersey 10', sans-serif;
+  font-size: 3.2mm;
+  letter-spacing: .1em;
+}
+.front-a .manual-title {
+  position: absolute;
+  left: 6mm;
+  top: 15mm;
+  font-family: 'Conti Neue 2P', 'DotGothic16', monospace;
+  font-size: 2.6mm;
+  letter-spacing: .18em;
+}
+.front-a .steps {
+  position: absolute;
+  left: 6mm;
+  right: 6mm;
+  top: 21mm;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.front-a .step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.4mm;
+  width: 17mm;
+}
+.front-a .step .num {
+  font-family: 'Jersey 10', sans-serif;
+  font-size: 3mm;
+  letter-spacing: .08em;
+}
+.front-a .step .fig {
+  height: 8.5mm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.front-a .step .fig img { height: 100%; width: auto; image-rendering: pixelated; }
+.front-a .step .fig img.battery { height: 8mm; }
+.front-a .step .cap {
+  font-family: 'Conti Neue 2P', 'DotGothic16', monospace;
+  font-size: 2mm;
+  letter-spacing: .1em;
+  white-space: nowrap;
+}
+/* ピクセル矢印(→) */
+.front-a .arrow {
+  width: 4.5mm;
+  height: 4.5mm;
+  flex: none;
+  margin-top: 1mm;
+}
+.front-a .arrow svg { width: 100%; height: 100%; fill: var(--ink); shape-rendering: crispEdges; }
+/* STEP3 のルビー(完成=点灯) */
+.front-a .step .fig .ruby-fig {
+  height: 9.5mm;
+  aspect-ratio: 990 / 809;
+  background: url('../../images/ruby-1.png') center / contain no-repeat;
+  filter: drop-shadow(0 0 .5mm rgba(232, 64, 75, .55));
+}
+.front-a .kit-note {
+  position: absolute;
+  left: 6mm;
+  bottom: 10.5mm;
+  font-family: 'Conti Neue 2P', 'DotGothic16', monospace;
+  font-size: 2mm;
+  letter-spacing: .08em;
+  color: #75726a;
+}
+/* 検印スタンプ風の日付・会場 */
+.front-a .stamp {
+  position: absolute;
+  right: 6mm;
+  bottom: 6.5mm;
+  padding: 1.2mm 2mm;
+  border: .5mm solid #c0223a;
+  color: #c0223a;
+  text-align: center;
+  transform: rotate(-3deg);
+}
+.front-a .stamp .d {
+  font-family: 'Micro 5', sans-serif;
+  font-size: 4.4mm;
+  line-height: .7;
+  letter-spacing: .06em;
+}
+.front-a .stamp .v {
+  font-family: 'Conti Neue 2P', 'DotGothic16', monospace;
+  font-size: 1.7mm;
+  letter-spacing: .06em;
+  margin-top: .8mm;
+}
+.front-a .url {
+  position: absolute;
+  left: 6mm;
+  bottom: 6.5mm;
+  font-family: 'Jersey 10', sans-serif;
+  font-size: 2.4mm;
+  color: #75726a;
+}
+
+/* ============================================================
+   表B: プラレール切符(きっぷ)風
+   ============================================================ */
+.front-b {
+  --ink: #26242f;
+  color: var(--ink);
+  background: #f4f1e4;
+}
+/* 切符の二重枠 */
+.front-b .frame {
+  position: absolute;
+  inset: 4.5mm;
+  border: .55mm solid #c0223a;
+}
+.front-b .frame::after {
+  content: "";
+  position: absolute;
+  inset: .7mm;
+  border: .25mm solid #c0223a;
+}
+.front-b .ticket-head {
+  position: absolute;
+  left: 8mm;
+  top: 7.5mm;
+  right: 8mm;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-family: 'Conti Neue 2P', 'DotGothic16', monospace;
+  font-size: 2.2mm;
+  letter-spacing: .3em;
+  color: #c0223a;
+}
+.front-b .prk {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 13mm;
+  text-align: center;
+  font-family: 'Bitcount Single', sans-serif;
+  font-size: 8mm;
+  line-height: .9;
+  letter-spacing: .04em;
+  font-variation-settings: 'wght' 330, 'ELSH' 50;
+  white-space: nowrap;
+}
+.front-b .prk .picoruby { color: #f64b5b; -webkit-text-stroke: .5mm #da1d3c; paint-order: stroke fill; }
+.front-b .prk .kaigi    { color: #fff;    -webkit-text-stroke: .5mm #454747; paint-order: stroke fill; }
+.front-b .dest {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 22.5mm;
+  text-align: center;
+  font-family: 'Conti Neue 2P', 'DotGothic16', monospace;
+  font-size: 2.8mm;
+  letter-spacing: .2em;
+}
+.front-b .dest .em { color: #c0223a; }
+.front-b .fare {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 28.5mm;
+  text-align: center;
+  font-family: 'Micro 5', sans-serif;
+  font-size: 7mm;
+  line-height: .7;
+  letter-spacing: .08em;
+}
+.front-b .fare .dow { font-size: .6em; color: #c0223a; }
+.front-b .valid {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 36.5mm;
+  text-align: center;
+  font-family: 'Conti Neue 2P', 'DotGothic16', monospace;
+  font-size: 2mm;
+  letter-spacing: .14em;
+  color: #75726a;
+}
+/* 下端をプラレールが走る */
+.front-b .rail {
+  position: absolute;
+  left: 5.5mm;
+  right: 5.5mm;
+  bottom: 9.5mm;
+  border-bottom: .45mm dashed #26242f;
+}
+.front-b .train {
+  position: absolute;
+  right: 9mm;
+  bottom: 10mm;
+  height: 5.5mm;
+  aspect-ratio: 2150 / 310;
+  background: url('../../images/prarail.png') center / contain no-repeat;
+  image-rendering: pixelated;
+}
+.front-b .punch {
+  position: absolute;
+  left: 9mm;
+  bottom: 6mm;
+  font-family: 'Jersey 10', sans-serif;
+  font-size: 2.4mm;
+  color: #75726a;
+}
+
+/* ============================================================
+   裏A: アーケード・タイトル画面風
+   ============================================================ */
+.back-a {
+  background: #0b0d14;
+  color: #ece9df;
+}
+.back-a .hud {
+  position: absolute;
+  left: 6mm;
+  right: 6mm;
+  top: 5.5mm;
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Micro 5', sans-serif;
+  font-size: 3.6mm;
+  line-height: .7;
+  letter-spacing: .1em;
+}
+.back-a .hud .p1 { color: #ff5566; }
+.back-a .hud .hi { color: #ffc12e; }
+.back-a .hud .p2 { color: #55d6f2; }
+.back-a .title-l {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 12.5mm;
+  text-align: center;
+  font-family: 'Bitcount Single', sans-serif;
+  font-size: 8.8mm;
+  line-height: .9;
+  letter-spacing: .04em;
+  font-variation-settings: 'wght' 330, 'ELSH' 50;
+  white-space: nowrap;
+}
+.back-a .title-l .picoruby {
+  color: #fb5479;
+  -webkit-text-stroke: .5mm #97233a;
+  paint-order: stroke fill;
+  text-shadow: 0 0 .6mm rgba(251, 84, 121, .55), 0 0 1.8mm rgba(251, 84, 121, .35);
+}
+.back-a .title-l .kaigi {
+  color: #6ef0a0;
+  -webkit-text-stroke: .5mm #2c6b4a;
+  paint-order: stroke fill;
+  text-shadow: 0 0 .5mm rgba(110, 240, 160, .4), 0 0 1.4mm rgba(110, 240, 160, .22);
+}
+.back-a .subtitle {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 21.5mm;
+  text-align: center;
+  font-family: 'Micro 5', sans-serif;
+  font-size: 4.6mm;
+  line-height: .7;
+  letter-spacing: .12em;
+  color: #fff;
+  text-shadow: 0 0 .5mm rgba(255, 255, 255, .5);
+}
+/* QR=STARTボタン */
+.back-a .qr {
+  position: absolute;
+  left: 50%;
+  top: 27mm;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1mm;
+}
+.back-a .qr img { width: 14.5mm; height: 14.5mm; }
+.back-a .qr .cap {
+  font-family: 'Micro 5', sans-serif;
+  font-size: 3.8mm;
+  line-height: .7;
+  letter-spacing: .1em;
+  color: #6ef0a0;
+  text-shadow: 0 0 .5mm rgba(110, 240, 160, .5);
+  display: inline-flex;
+  align-items: center;
+  gap: .9mm;
+}
+.back-a .qr .cap svg { height: .75em; width: auto; fill: currentColor; shape-rendering: crispEdges; }
+/* スコアテーブル(ダンサー=敵キャラ) */
+.back-a .scores {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 6.5mm;
+  display: flex;
+  justify-content: center;
+  gap: 7mm;
+}
+.back-a .scores .row {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.6mm;
+  font-family: 'Micro 5', sans-serif;
+  font-size: 3.4mm;
+  line-height: .7;
+  letter-spacing: .08em;
+}
+.back-a .scores .row .sp {
+  width: 4.6mm;
+  height: 2.15mm;
+  background: center / contain no-repeat;
+  image-rendering: pixelated;
+}
+.back-a .scores .r1 { color: #ff5566; }
+.back-a .scores .r2 { color: #44e58a; }
+.back-a .scores .r3 { color: #ffb733; }
+.back-a .scores .r4 { color: #55d6f2; }
+.back-a .credit {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 12mm;
+  text-align: center;
+  font-family: 'Conti Neue 2P', 'DotGothic16', monospace;
+  font-size: 2mm;
+  letter-spacing: .16em;
+  color: #7a8291;
+}
+
+/* ============================================================
+   裏B: REPL(ターミナル)風
+   ============================================================ */
+.back-b {
+  background: #0d1117;
+  color: #6ef0a0;
+}
+/* 走査線 */
+.back-b::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(rgba(0, 0, 0, .22) 0, rgba(0, 0, 0, .22) .28mm, transparent .28mm, transparent .84mm);
+  pointer-events: none;
+  z-index: 2;
+}
+.back-b .term {
+  position: absolute;
+  left: 7mm;
+  top: 7.5mm;
+  font-family: 'Conti Neue 2P', 'DotGothic16', monospace;
+  font-size: 2.2mm;
+  line-height: 2.2;
+  letter-spacing: .06em;
+  text-shadow: 0 0 .4mm rgba(110, 240, 160, .45);
+  white-space: pre;
+}
+.back-b .term .prompt { color: #4a8f66; }
+.back-b .term .pink { color: #fb5479; text-shadow: 0 0 .4mm rgba(251, 84, 121, .45); }
+.back-b .term .white { color: #d8e6dc; }
+.back-b .term .dim { color: #4a8f66; }
+.back-b .cursor {
+  display: inline-block;
+  width: 1.6mm;
+  height: 3mm;
+  background: #6ef0a0;
+  vertical-align: -.4mm;
+  box-shadow: 0 0 .5mm rgba(110, 240, 160, .6);
+}
+.back-b .qr {
+  position: absolute;
+  right: 7mm;
+  bottom: 8mm;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1mm;
+}
+.back-b .qr img { width: 15mm; height: 15mm; }
+.back-b .qr .cap {
+  font-family: 'Jersey 10', sans-serif;
+  font-size: 2.6mm;
+  letter-spacing: .08em;
+  color: #4a8f66;
+}
+
+/* ============================================================
+   表C: Lチカ案(ロゴの1文字が点灯・LED部品が主役)
+   ============================================================ */
+.front-c {
+  --ink: #26242f;
+  color: var(--ink);
+  background:
+    url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2724%27%3E%3Crect%20x=%279.5%27%20y=%279.5%27%20width=%275%27%20height=%275%27%20fill=%27%2339352b%27%20fill-opacity=%27.11%27/%3E%3Crect%20x=%2711%27%20y=%2711%27%20width=%275%27%20height=%275%27%20fill=%27%231c180e%27%20fill-opacity=%27.14%27/%3E%3C/svg%3E") left 1.9mm top 1.9mm / 2.6mm 2.6mm repeat,
+    #eceade;
+}
+.front-c .title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 9.5mm;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1mm;
+  text-align: center;
+}
+.front-c .prk {
+  font-family: 'Bitcount Single', sans-serif;
+  font-size: 9.2mm;
+  line-height: .86;
+  letter-spacing: .04em;
+  font-variation-settings: 'wght' 330, 'ELSH' 50;
+  white-space: nowrap;
+}
+.front-c .prk .picoruby { color: #f64b5b; -webkit-text-stroke: .55mm #da1d3c; paint-order: stroke fill; }
+.front-c .prk .kaigi    { color: #fff;    -webkit-text-stroke: .55mm #454747; paint-order: stroke fill; }
+/* 点灯している1文字(サイトのL-chika点灯フレームを静止画で再現: 白い面+コーラル枠+にじみ) */
+.front-c .prk .lit {
+  color: #fff;
+  -webkit-text-stroke: .55mm #ff9e73;
+  paint-order: stroke fill;
+  filter: drop-shadow(0 0 .45mm #ffd9c2) drop-shadow(0 0 1.2mm rgba(255, 158, 115, .7));
+}
+.front-c .year {
+  font-family: 'Micro 5', sans-serif;
+  font-size: 6.6mm;
+  line-height: .8;
+  letter-spacing: .12em;
+  text-indent: .12em;
+}
+.front-c .assemble {
+  font-family: 'Jersey 10', sans-serif;
+  font-size: 3.6mm;
+  letter-spacing: .18em;
+  text-indent: .18em;
+  margin-top: -.6mm;
+}
+/* LED部品(ドット絵)と誘い文句 */
+.front-c .lchika {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 33mm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3.5mm;
+}
+.front-c .lchika svg { height: 8.5mm; width: auto; shape-rendering: crispEdges; }
+.front-c .lchika svg.on { filter: drop-shadow(0 0 .5mm rgba(232, 64, 75, .6)) drop-shadow(0 0 1.4mm rgba(255, 158, 115, .45)); }
+.front-c .lchika svg.off { opacity: .75; }
+.front-c .lchika .invite {
+  font-family: 'Conti Neue 2P', 'DotGothic16', monospace;
+  font-size: 3mm;
+  letter-spacing: .16em;
+}
+.front-c .lchika .invite .em { color: #c0223a; }
+.front-c .url {
+  position: absolute;
+  right: 6mm;
+  bottom: 12mm;
+  font-family: 'Jersey 10', sans-serif;
+  font-size: 2.4mm;
+  letter-spacing: .06em;
+  color: #75726a;
+}
+
+/* 電光掲示板(表C/裏C共用。本体カードと同じ) */
+.v-ticker {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 10mm;
+  padding-bottom: 3mm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.3mm;
+  background: #16141c;
+  --tk-led: 249, 205, 208;
+}
+.v-ticker::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(var(--tk-led), .14) .12mm, transparent .2mm);
+  background-size: .6mm .6mm;
+  pointer-events: none;
+}
+.v-ticker .when {
+  font-family: 'Micro 5', sans-serif;
+  font-size: 4.6mm;
+  line-height: .58;
+  letter-spacing: .06em;
+  color: rgb(var(--tk-led));
+  text-shadow: 0 0 .3mm rgba(var(--tk-led), .55), 0 0 .9mm rgba(var(--tk-led), .32);
+  transform: translateY(.1em);
+}
+.v-ticker .dow { font-size: .8em; }
+.v-ticker .where {
+  font-family: 'Conti Neue 2P', 'DotGothic16', monospace;
+  font-size: 2.2mm;
+  letter-spacing: .1em;
+  color: rgb(var(--tk-led));
+  text-shadow: 0 0 .3mm rgba(var(--tk-led), .55), 0 0 .9mm rgba(var(--tk-led), .32);
+}
+.v-ticker.green { --tk-led: 92, 191, 100; }
+.v-ticker .tease-ja {
+  font-family: 'Conti Neue 2P', 'DotGothic16', monospace;
+  font-size: 2.2mm;
+  letter-spacing: .14em;
+  color: rgb(var(--tk-led));
+  text-shadow: 0 0 .3mm rgba(var(--tk-led), .55), 0 0 .9mm rgba(var(--tk-led), .32);
+}
+
+/* ============================================================
+   裏C: パーティ案(ミラーボール+紙吹雪+密集ダンサー)
+   ============================================================ */
+.pback {
+  background: #10131c;
+  color: #ece9df;
+}
+/* フロア全体の色まわり(強め) */
+.pback .fx {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background:
+    radial-gradient(52mm 40mm at 50% 12mm, rgba(255, 236, 200, .34) 0%, rgba(255, 200, 150, .12) 40%, transparent 75%),
+    radial-gradient(70mm 52mm at 0% 100%, rgba(255, 128, 150, .42) 0%, transparent 70%),
+    radial-gradient(70mm 52mm at 100% 100%, rgba(110, 200, 255, .38) 0%, transparent 70%),
+    radial-gradient(50mm 38mm at 0% 0%, rgba(190, 140, 255, .22) 0%, transparent 65%),
+    radial-gradient(50mm 38mm at 100% 0%, rgba(255, 200, 110, .2) 0%, transparent 65%);
+}
+/* ミラーボール(ドット絵)。天井から吊り下げ */
+.pback .mirrorball {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.pback .mirrorball .wire { width: .5mm; height: 3.5mm; background: #7a8291; }
+.pback .mirrorball svg {
+  width: 9mm;
+  height: 9mm;
+  shape-rendering: crispEdges;
+  filter: drop-shadow(0 0 .6mm rgba(230, 240, 255, .5)) drop-shadow(0 0 1.8mm rgba(180, 210, 255, .3));
+}
+.pback .party-title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 15.5mm;
+  text-align: center;
+  font-family: 'Micro 5', sans-serif;
+  font-size: 9.5mm;
+  line-height: .7;
+  letter-spacing: .1em;
+  white-space: nowrap;
+}
+.pback .party-title span { text-shadow: 0 0 .5mm currentColor, 0 0 1.6mm currentColor; }
+.pback .party-title .c1 { color: #fb5479; }
+.pback .party-title .c2 { color: #6ef0a0; }
+.pback .party-title .c3 { color: #ffc12e; }
+.pback .party-title .c4 { color: #55d6f2; }
+.pback .party-sub {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 24mm;
+  text-align: center;
+  font-family: 'Conti Neue 2P', 'DotGothic16', monospace;
+  font-size: 2.4mm;
+  letter-spacing: .3em;
+  text-indent: .3em;
+  color: #ece9df;
+  text-shadow: 0 0 .4mm rgba(236, 233, 223, .4);
+}
+/* QR=入場券(top は各案がインラインで指定) */
+.pback .qr {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .8mm;
+}
+.pback .qr img { width: 15mm; height: 15mm; }
+.pback .qr .cap {
+  font-family: 'Micro 5', sans-serif;
+  font-size: 3.6mm;
+  line-height: .7;
+  letter-spacing: .1em;
+  color: #6ef0a0;
+  text-shadow: 0 0 .5mm rgba(110, 240, 160, .5);
+  display: inline-flex;
+  align-items: center;
+  gap: .9mm;
+}
+.pback .qr .cap svg { height: .75em; width: auto; fill: currentColor; shape-rendering: crispEdges; }
+/* 紙吹雪(ピクセル) */
+.pback .confetti {
+  position: absolute;
+  width: .8mm;
+  height: .8mm;
+}
+.pback .confetti.r45 { transform: rotate(45deg); }
+/* 密集ダンサー(フロア前方の群衆。2列で重なる) */
+.pback .dancer {
+  position: absolute;
+  width: 4.4mm;
+  height: 2.05mm;
+  background: center / contain no-repeat;
+  image-rendering: pixelated;
+  transform: rotate(-45deg);
+}
+.pback .dancer.alt { transform: rotate(45deg); }
+.pback .dancer.d1 { background-image: url('../../images/dancer1.png'); filter: brightness(1.4) saturate(1.3) drop-shadow(0 0 .2mm #fff) drop-shadow(0 0 .65mm #ff5566); }
+.pback .dancer.d2 { background-image: url('../../images/dancer2.png'); filter: brightness(1.4) saturate(1.3) drop-shadow(0 0 .2mm #fff) drop-shadow(0 0 .65mm #44e58a); }
+.pback .dancer.d3 { background-image: url('../../images/dancer3.png'); filter: brightness(1.4) saturate(1.3) drop-shadow(0 0 .2mm #fff) drop-shadow(0 0 .65mm #ffb733); }
+.pback .dancer.d4 { background-image: url('../../images/dancer4.png'); filter: brightness(1.4) saturate(1.3) drop-shadow(0 0 .2mm #fff) drop-shadow(0 0 .65mm #55d6f2); }
+/* 奥行き(裏E): 奥の列ほど小さく・暗く */
+.pback .dancer.far  { transform: rotate(-45deg) scale(.7);  opacity: .6; }
+.pback .dancer.far.alt  { transform: rotate(45deg) scale(.7);  opacity: .6; }
+.pback .dancer.mid  { transform: rotate(-45deg) scale(.85); opacity: .82; }
+.pback .dancer.mid.alt  { transform: rotate(45deg) scale(.85); opacity: .82; }
+
+/* 裏E: ステージスクリーン(QRが発光する大型ビジョン) */
+.back-e .qr img {
+  filter: drop-shadow(0 0 .8mm rgba(110, 240, 160, .5)) drop-shadow(0 0 2.4mm rgba(110, 240, 160, .25));
+}
+/* ステージからの逆光 */
+.back-e .stagelight {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background: radial-gradient(60mm 34mm at 50% 16mm, rgba(140, 255, 190, .28) 0%, rgba(140, 255, 190, .1) 45%, transparent 75%);
+}
+
+/* 裏F: Rubyミラーボール(ルビーが吊られて光る) */
+.back-f .rubyball {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.back-f .rubyball .wire { width: .5mm; height: 4mm; background: #7a8291; }
+.back-f .rubyball .gem {
+  width: 13mm;
+  aspect-ratio: 1072 / 873;
+  background: url('../../images/ruby-2.png') center / contain no-repeat;
+  filter: drop-shadow(0 0 .3mm rgba(255, 165, 80, .5))
+          drop-shadow(0 0 1mm rgba(255, 140, 90, .35))
+          drop-shadow(0 0 3mm rgba(255, 90, 70, .25));
+}
+</style>
+</head>
+<body>
+
+  <div class="label">表A: 組み立て説明書風</div>
+  <div class="card front-a">
+    <div class="manual-head">
+      <span class="prk"><span class="picoruby">PicoRuby</span><span class="kaigi">Kaigi</span></span>
+      <span class="manual-no">MANUAL No.2026</span>
+    </div>
+    <div class="manual-title">くみたてかた 〜 Assemble 〜</div>
+    <div class="steps">
+      <div class="step">
+        <span class="num">STEP 1</span>
+        <span class="fig"><img src="../../images/chip.png" alt="チップ"></span>
+        <span class="cap">チップをさす</span>
+      </div>
+      <span class="arrow"><svg viewBox="0 0 7 7" xmlns="http://www.w3.org/2000/svg"><path d="M0 3h4v1h-4z M4 1h1v5h-1z M5 2h1v3h-1z M6 3h1v1h-1z"/></svg></span>
+      <div class="step">
+        <span class="num">STEP 2</span>
+        <span class="fig"><img src="../../images/motor.png" alt="モーター"></span>
+        <span class="cap">モーターをつなぐ</span>
+      </div>
+      <span class="arrow"><svg viewBox="0 0 7 7" xmlns="http://www.w3.org/2000/svg"><path d="M0 3h4v1h-4z M4 1h1v5h-1z M5 2h1v3h-1z M6 3h1v1h-1z"/></svg></span>
+      <div class="step">
+        <span class="num">STEP 3</span>
+        <span class="fig"><img class="battery" src="../../images/battery.png" alt="バッテリー"></span>
+        <span class="cap">でんげんON</span>
+      </div>
+      <span class="arrow"><svg viewBox="0 0 7 7" xmlns="http://www.w3.org/2000/svg"><path d="M0 3h4v1h-4z M4 1h1v5h-1z M5 2h1v3h-1z M6 3h1v1h-1z"/></svg></span>
+      <div class="step">
+        <span class="num">かんせい</span>
+        <span class="fig"><span class="ruby-fig"></span></span>
+        <span class="cap">ひかる！</span>
+      </div>
+    </div>
+    <div class="kit-note">※くみたてには Ruby がひつようです</div>
+    <div class="url">https://picorubykaigi.org</div>
+    <div class="stamp">
+      <div class="d">2026.10.31. SAT</div>
+      <div class="v">浅草橋ヒューリックホール＆カンファレンス</div>
+    </div>
+  </div>
+
+  <div class="label">表B: プラレール切符風</div>
+  <div class="card front-b">
+    <div class="frame"></div>
+    <div class="ticket-head"><span>じょうしゃけん</span><span>No.2026</span></div>
+    <div class="prk"><span class="picoruby">PicoRuby</span><span class="kaigi">Kaigi</span></div>
+    <div class="dest">マイコンのくに <span class="em">ゆき</span></div>
+    <div class="fare">2026.10.31. <span class="dow">SAT</span></div>
+    <div class="valid">浅草橋ヒューリックホール＆カンファレンス でゆうこう</div>
+    <div class="rail"></div>
+    <div class="train"></div>
+    <div class="punch">https://picorubykaigi.org</div>
+  </div>
+
+  <div class="label">裏A: アーケード・タイトル画面風</div>
+  <div class="card back-a">
+    <div class="hud"><span class="p1">1UP 00100</span><span class="hi">HI-SCORE 20261031</span><span class="p2">2UP 00000</span></div>
+    <div class="title-l"><span class="picoruby">PicoRuby</span><span class="kaigi">Kaigi</span></div>
+    <div class="subtitle">READY PLAYER RUBY?</div>
+    <div class="qr">
+      <img src="qr-ruby-dark-game.svg" alt="ゲームへのQRコード">
+      <span class="cap"><svg viewBox="0 0 4 7" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h1v7h-1z M1 1h1v5h-1z M2 2h1v3h-1z M3 3h1v1h-1z"/></svg>PRESS START</span>
+    </div>
+    <div class="credit">よみこんだら、ゲームがはじまる。</div>
+    <div class="scores">
+      <span class="row r1"><span class="sp" style="background-image:url('../../images/dancer1.png')"></span>= 100</span>
+      <span class="row r2"><span class="sp" style="background-image:url('../../images/dancer2.png')"></span>= 300</span>
+      <span class="row r3"><span class="sp" style="background-image:url('../../images/dancer3.png')"></span>= 500</span>
+      <span class="row r4"><span class="sp" style="background-image:url('../../images/dancer4.png')"></span>= ???</span>
+    </div>
+  </div>
+
+  <div class="label">裏B: REPL(ターミナル)風</div>
+  <div class="card back-b">
+    <div class="term"><span class="prompt">picoruby&gt;</span> <span class="white">require</span> <span class="pink">'kaigi'</span>
+<span class="dim">=&gt; true</span>
+<span class="prompt">picoruby&gt;</span> <span class="white">Kaigi.assemble</span><span class="pink">(2026)</span>
+<span class="dim">=&gt; :party_mode</span>
+<span class="prompt">picoruby&gt;</span> <span class="white">press_start</span>
+<span class="dim">Loading game...</span> <span class="cursor"></span></div>
+    <div class="qr">
+      <img src="qr-ruby-dark-game.svg" alt="ゲームへのQRコード">
+      <span class="cap">press_start</span>
+    </div>
+  </div>
+
+  <div class="label">表C: Lチカ案</div>
+  <div class="card front-c">
+    <div class="title">
+      <div class="prk"><span class="picoruby">PicoRuby</span><span class="kaigi">K<span class="lit">a</span>igi</span></div>
+      <div class="year">2026</div>
+      <div class="assemble">- Assemble -</div>
+    </div>
+    <div class="lchika">
+      <!-- LED部品(ドット絵): 点灯 -->
+      <svg class="on" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><g fill="#e8404b"><rect x="4" y="0" width="4" height="1"/><rect x="3" y="1" width="6" height="1"/><rect x="3" y="2" width="6" height="4"/></g><g fill="#ff9e73"><rect x="4" y="1" width="2" height="1"/><rect x="4" y="2" width="1" height="2"/></g><rect x="2" y="6" width="8" height="1" fill="#c0223a"/><g fill="#c79a31"><rect x="4" y="7" width="1" height="5"/><rect x="7" y="7" width="1" height="4"/></g></svg>
+      <span class="invite"><span class="em">Lチカ</span>から、はじめよう。</span>
+      <!-- LED部品(ドット絵): 消灯 -->
+      <svg class="off" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><g fill="#b3565f"><rect x="4" y="0" width="4" height="1"/><rect x="3" y="1" width="6" height="1"/><rect x="3" y="2" width="6" height="4"/></g><rect x="2" y="6" width="8" height="1" fill="#8f3a45"/><g fill="#c79a31"><rect x="4" y="7" width="1" height="5"/><rect x="7" y="7" width="1" height="4"/></g></svg>
+    </div>
+    <div class="url">https://picorubykaigi.org</div>
+    <div class="v-ticker">
+      <span class="when">2026.10.31. <span class="dow">SAT</span></span>
+      <span class="where">浅草橋ヒューリックホール＆カンファレンス</span>
+    </div>
+  </div>
+
+  <div class="label">裏C: パーティ案(テキストあり)</div>
+  <div class="card pback">
+    <div class="fx"></div>
+
+    <div class="mirrorball">
+      <span class="wire"></span>
+      <svg viewBox="0 0 11 11" xmlns="http://www.w3.org/2000/svg"><g fill="#9aa4b8"><rect x="3" y="0" width="5" height="1"/><rect x="1" y="1" width="9" height="2"/><rect x="0" y="3" width="11" height="5"/><rect x="1" y="8" width="9" height="2"/><rect x="3" y="10" width="5" height="1"/></g><g fill="#e8edf6"><rect x="2" y="1" width="2" height="2"/><rect x="6" y="2" width="2" height="1"/><rect x="1" y="4" width="2" height="2"/><rect x="5" y="3" width="1" height="2"/><rect x="8" y="4" width="2" height="1"/><rect x="4" y="6" width="2" height="2"/><rect x="7" y="7" width="2" height="1"/><rect x="2" y="8" width="2" height="1"/><rect x="6" y="9" width="2" height="1"/></g><g fill="#5d6779"><rect x="8" y="1" width="1" height="1"/><rect x="9" y="3" width="2" height="1"/><rect x="0" y="6" width="1" height="2"/><rect x="3" y="4" width="1" height="1"/><rect x="6" y="5" width="2" height="1"/><rect x="9" y="8" width="1" height="1"/><rect x="4" y="9" width="1" height="1"/></g></svg>
+    </div>
+
+    <div class="party-title"><span class="c1">PA</span><span class="c2">RT</span><span class="c3">Y </span><span class="c1">MO</span><span class="c4">DE</span></div>
+    <div class="party-sub">ぜんいん、おどる。</div>
+
+    <div class="qr" style="top: 28.5mm;">
+      <img src="qr-ruby-dark-game.svg" alt="ゲームへのQRコード" style="width: 13.5mm; height: 13.5mm;">
+      <span class="cap"><svg viewBox="0 0 4 7" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h1v7h-1z M1 1h1v5h-1z M2 2h1v3h-1z M3 3h1v1h-1z"/></svg>PRESS START</span>
+    </div>
+
+    <!-- 紙吹雪 -->
+    <div class="confetti"     style="left: 14mm; top: 8mm;  background: #fb5479;"></div>
+    <div class="confetti r45" style="left: 22mm; top: 14mm; background: #ffc12e;"></div>
+    <div class="confetti"     style="left: 9mm;  top: 21mm; background: #55d6f2;"></div>
+    <div class="confetti r45" style="left: 30mm; top: 6mm;  background: #6ef0a0;"></div>
+    <div class="confetti"     style="left: 36mm; top: 11mm; background: #fb5479;"></div>
+    <div class="confetti r45" style="left: 55mm; top: 7mm;  background: #55d6f2;"></div>
+    <div class="confetti"     style="left: 62mm; top: 13mm; background: #ffc12e;"></div>
+    <div class="confetti r45" style="left: 70mm; top: 8mm;  background: #6ef0a0;"></div>
+    <div class="confetti"     style="left: 78mm; top: 16mm; background: #fb5479;"></div>
+    <div class="confetti r45" style="left: 83mm; top: 9mm;  background: #ffc12e;"></div>
+    <div class="confetti"     style="left: 18mm; top: 28mm; background: #6ef0a0;"></div>
+    <div class="confetti r45" style="left: 12mm; top: 35mm; background: #ffc12e;"></div>
+    <div class="confetti"     style="left: 73mm; top: 27mm; background: #55d6f2;"></div>
+    <div class="confetti r45" style="left: 80mm; top: 34mm; background: #fb5479;"></div>
+
+    <!-- 群衆(中央はSTARTサインのために捌けている) -->
+    <div class="dancer d1"     style="left: 6mm;    top: 40.5mm;"></div>
+    <div class="dancer d2 alt" style="left: 12.5mm; top: 42mm;"></div>
+    <div class="dancer d3"     style="left: 19mm;   top: 40.2mm;"></div>
+    <div class="dancer d4 alt" style="left: 25.5mm; top: 41.8mm;"></div>
+    <div class="dancer d1"     style="left: 32mm;   top: 40.5mm;"></div>
+    <div class="dancer d2 alt" style="left: 64.5mm; top: 42mm;"></div>
+    <div class="dancer d3"     style="left: 71mm;   top: 40.2mm;"></div>
+    <div class="dancer d4 alt" style="left: 77.5mm; top: 41.8mm;"></div>
+    <div class="dancer d1"     style="left: 84mm;   top: 40.5mm;"></div>
+
+    <div class="dancer d4 alt" style="left: 9mm;    top: 45.4mm;"></div>
+    <div class="dancer d3"     style="left: 15.5mm; top: 46.6mm;"></div>
+    <div class="dancer d2 alt" style="left: 22mm;   top: 45.2mm;"></div>
+    <div class="dancer d1"     style="left: 28.5mm; top: 46.6mm;"></div>
+    <div class="dancer d4 alt" style="left: 35mm;   top: 45.4mm;"></div>
+    <div class="dancer d3"     style="left: 40mm;   top: 47.2mm;"></div>
+    <div class="dancer d2 alt" style="left: 46.5mm; top: 48mm;"></div>
+    <div class="dancer d1"     style="left: 53mm;   top: 47.4mm;"></div>
+    <div class="dancer d4 alt" style="left: 61mm;   top: 45.4mm;"></div>
+    <div class="dancer d3"     style="left: 67.5mm; top: 46.8mm;"></div>
+    <div class="dancer d2 alt" style="left: 74mm;   top: 45.2mm;"></div>
+    <div class="dancer d1"     style="left: 80.5mm; top: 46.6mm;"></div>
+
+    <div class="v-ticker green">
+      <span class="tease-ja">※おどりだしても、こしょうではありません。</span>
+    </div>
+  </div>
+
+  <div class="label">裏C: パーティ案(テキストなし)</div>
+  <div class="card pback">
+    <div class="fx"></div>
+
+    <div class="mirrorball">
+      <span class="wire"></span>
+      <svg viewBox="0 0 11 11" xmlns="http://www.w3.org/2000/svg"><g fill="#9aa4b8"><rect x="3" y="0" width="5" height="1"/><rect x="1" y="1" width="9" height="2"/><rect x="0" y="3" width="11" height="5"/><rect x="1" y="8" width="9" height="2"/><rect x="3" y="10" width="5" height="1"/></g><g fill="#e8edf6"><rect x="2" y="1" width="2" height="2"/><rect x="6" y="2" width="2" height="1"/><rect x="1" y="4" width="2" height="2"/><rect x="5" y="3" width="1" height="2"/><rect x="8" y="4" width="2" height="1"/><rect x="4" y="6" width="2" height="2"/><rect x="7" y="7" width="2" height="1"/><rect x="2" y="8" width="2" height="1"/><rect x="6" y="9" width="2" height="1"/></g><g fill="#5d6779"><rect x="8" y="1" width="1" height="1"/><rect x="9" y="3" width="2" height="1"/><rect x="0" y="6" width="1" height="2"/><rect x="3" y="4" width="1" height="1"/><rect x="6" y="5" width="2" height="1"/><rect x="9" y="8" width="1" height="1"/><rect x="4" y="9" width="1" height="1"/></g></svg>
+    </div>
+
+    <div class="qr" style="top: 19mm;">
+      <img src="qr-ruby-dark-game.svg" alt="ゲームへのQRコード">
+    </div>
+
+    <!-- 紙吹雪 -->
+    <div class="confetti"     style="left: 14mm; top: 8mm;  background: #fb5479;"></div>
+    <div class="confetti r45" style="left: 22mm; top: 14mm; background: #ffc12e;"></div>
+    <div class="confetti"     style="left: 9mm;  top: 21mm; background: #55d6f2;"></div>
+    <div class="confetti r45" style="left: 30mm; top: 6mm;  background: #6ef0a0;"></div>
+    <div class="confetti"     style="left: 36mm; top: 11mm; background: #fb5479;"></div>
+    <div class="confetti r45" style="left: 55mm; top: 7mm;  background: #55d6f2;"></div>
+    <div class="confetti"     style="left: 62mm; top: 13mm; background: #ffc12e;"></div>
+    <div class="confetti r45" style="left: 70mm; top: 8mm;  background: #6ef0a0;"></div>
+    <div class="confetti"     style="left: 78mm; top: 16mm; background: #fb5479;"></div>
+    <div class="confetti r45" style="left: 83mm; top: 9mm;  background: #ffc12e;"></div>
+    <div class="confetti"     style="left: 18mm; top: 28mm; background: #6ef0a0;"></div>
+    <div class="confetti r45" style="left: 12mm; top: 35mm; background: #ffc12e;"></div>
+    <div class="confetti"     style="left: 73mm; top: 27mm; background: #55d6f2;"></div>
+    <div class="confetti r45" style="left: 80mm; top: 34mm; background: #fb5479;"></div>
+
+    <!-- 群衆(フロア前方に密集2列) -->
+    <div class="dancer d1"     style="left: 6mm;    top: 40.5mm;"></div>
+    <div class="dancer d2 alt" style="left: 12.5mm; top: 42mm;"></div>
+    <div class="dancer d3"     style="left: 19mm;   top: 40.2mm;"></div>
+    <div class="dancer d4 alt" style="left: 25.5mm; top: 41.8mm;"></div>
+    <div class="dancer d1"     style="left: 32mm;   top: 40.5mm;"></div>
+    <div class="dancer d2 alt" style="left: 64.5mm; top: 42mm;"></div>
+    <div class="dancer d3"     style="left: 71mm;   top: 40.2mm;"></div>
+    <div class="dancer d4 alt" style="left: 77.5mm; top: 41.8mm;"></div>
+    <div class="dancer d1"     style="left: 84mm;   top: 40.5mm;"></div>
+
+    <div class="dancer d4 alt" style="left: 9mm;    top: 45.4mm;"></div>
+    <div class="dancer d3"     style="left: 15.5mm; top: 46.6mm;"></div>
+    <div class="dancer d2 alt" style="left: 22mm;   top: 45.2mm;"></div>
+    <div class="dancer d1"     style="left: 28.5mm; top: 46.6mm;"></div>
+    <div class="dancer d4 alt" style="left: 35mm;   top: 45.4mm;"></div>
+    <div class="dancer d3"     style="left: 40mm;   top: 47.2mm;"></div>
+    <div class="dancer d2 alt" style="left: 46.5mm; top: 48mm;"></div>
+    <div class="dancer d1"     style="left: 53mm;   top: 47.4mm;"></div>
+    <div class="dancer d4 alt" style="left: 61mm;   top: 45.4mm;"></div>
+    <div class="dancer d3"     style="left: 67.5mm; top: 46.8mm;"></div>
+    <div class="dancer d2 alt" style="left: 74mm;   top: 45.2mm;"></div>
+    <div class="dancer d1"     style="left: 80.5mm; top: 46.6mm;"></div>
+
+    <div class="v-ticker green">
+      <span class="tease-ja">※おどりだしても、こしょうではありません。</span>
+    </div>
+  </div>
+
+  <div class="label">裏D: サークル案(QRをかこんで踊る)</div>
+  <div class="card pback">
+    <div class="fx"></div>
+
+    <div class="qr" style="top: 19mm;">
+      <img src="qr-ruby-dark-game.svg" alt="ゲームへのQRコード">
+    </div>
+
+    <!-- QRをかこむ輪(盆踊りサークル) -->
+    <div class="dancer d1"     style="left: 70.8mm; top: 25mm;"></div>
+    <div class="dancer d2 alt" style="left: 68.1mm; top: 31.5mm;"></div>
+    <div class="dancer d3"     style="left: 60.6mm; top: 36.7mm;"></div>
+    <div class="dancer d4 alt" style="left: 49.9mm; top: 39.6mm;"></div>
+    <div class="dancer d1"     style="left: 37.7mm; top: 39.6mm;"></div>
+    <div class="dancer d2 alt" style="left: 27mm;   top: 36.7mm;"></div>
+    <div class="dancer d3"     style="left: 19.5mm; top: 31.5mm;"></div>
+    <div class="dancer d4 alt" style="left: 16.8mm; top: 25mm;"></div>
+    <div class="dancer d1"     style="left: 19.5mm; top: 18.5mm;"></div>
+    <div class="dancer d2 alt" style="left: 27mm;   top: 13.3mm;"></div>
+    <div class="dancer d3"     style="left: 37.7mm; top: 10.4mm;"></div>
+    <div class="dancer d4 alt" style="left: 49.9mm; top: 10.4mm;"></div>
+    <div class="dancer d1"     style="left: 60.6mm; top: 13.3mm;"></div>
+    <div class="dancer d2 alt" style="left: 68.1mm; top: 18.5mm;"></div>
+
+    <!-- 輪の外に紙吹雪 -->
+    <div class="confetti"     style="left: 9mm;  top: 9mm;  background: #fb5479;"></div>
+    <div class="confetti r45" style="left: 6mm;  top: 20mm; background: #ffc12e;"></div>
+    <div class="confetti"     style="left: 10mm; top: 38mm; background: #6ef0a0;"></div>
+    <div class="confetti r45" style="left: 80mm; top: 8mm;  background: #55d6f2;"></div>
+    <div class="confetti"     style="left: 84mm; top: 22mm; background: #ffc12e;"></div>
+    <div class="confetti r45" style="left: 79mm; top: 39mm; background: #fb5479;"></div>
+    <div class="confetti"     style="left: 44mm; top: 5.5mm; background: #6ef0a0;"></div>
+    <div class="confetti r45" style="left: 44mm; top: 44.5mm; background: #55d6f2;"></div>
+
+    <div class="v-ticker green">
+      <span class="tease-ja">よみこんだら、ゲームがはじまる。</span>
+    </div>
+  </div>
+
+  <div class="label">裏E: ライブフロア案(奥行きのある群衆+大型ビジョン)</div>
+  <div class="card back-e pback">
+    <div class="fx"></div>
+    <div class="stagelight"></div>
+
+    <!-- ステージの大型ビジョン=QR -->
+    <div class="qr" style="top: 8mm;">
+      <img src="qr-ruby-dark-game.svg" alt="ゲームへのQRコード">
+    </div>
+
+    <!-- 奥の列(小さく・暗く) -->
+    <div class="dancer d3 far"     style="left: 12mm; top: 30mm;"></div>
+    <div class="dancer d1 far alt" style="left: 19mm; top: 31mm;"></div>
+    <div class="dancer d4 far"     style="left: 26mm; top: 29.6mm;"></div>
+    <div class="dancer d2 far alt" style="left: 33mm; top: 30.8mm;"></div>
+    <div class="dancer d1 far"     style="left: 40mm; top: 30.2mm;"></div>
+    <div class="dancer d3 far alt" style="left: 47mm; top: 30.8mm;"></div>
+    <div class="dancer d2 far"     style="left: 54mm; top: 29.8mm;"></div>
+    <div class="dancer d4 far alt" style="left: 61mm; top: 31mm;"></div>
+    <div class="dancer d1 far"     style="left: 68mm; top: 30.2mm;"></div>
+    <div class="dancer d2 far alt" style="left: 75mm; top: 30.6mm;"></div>
+
+    <!-- 中の列 -->
+    <div class="dancer d2 mid"     style="left: 8mm;  top: 36.5mm;"></div>
+    <div class="dancer d4 mid alt" style="left: 16mm; top: 37.8mm;"></div>
+    <div class="dancer d1 mid"     style="left: 24mm; top: 36.2mm;"></div>
+    <div class="dancer d3 mid alt" style="left: 32mm; top: 37.6mm;"></div>
+    <div class="dancer d2 mid"     style="left: 40mm; top: 36.6mm;"></div>
+    <div class="dancer d1 mid alt" style="left: 48mm; top: 37.8mm;"></div>
+    <div class="dancer d4 mid"     style="left: 56mm; top: 36.2mm;"></div>
+    <div class="dancer d3 mid alt" style="left: 64mm; top: 37.4mm;"></div>
+    <div class="dancer d1 mid"     style="left: 72mm; top: 36.6mm;"></div>
+    <div class="dancer d2 mid alt" style="left: 80mm; top: 37.8mm;"></div>
+
+    <!-- 手前の列(大きく) -->
+    <div class="dancer d1"     style="left: 6mm;  top: 43.5mm;"></div>
+    <div class="dancer d3 alt" style="left: 15mm; top: 45mm;"></div>
+    <div class="dancer d2"     style="left: 24mm; top: 43.2mm;"></div>
+    <div class="dancer d4 alt" style="left: 33mm; top: 45mm;"></div>
+    <div class="dancer d1"     style="left: 42mm; top: 43.6mm;"></div>
+    <div class="dancer d2 alt" style="left: 51mm; top: 45mm;"></div>
+    <div class="dancer d3"     style="left: 60mm; top: 43.2mm;"></div>
+    <div class="dancer d1 alt" style="left: 69mm; top: 45mm;"></div>
+    <div class="dancer d4"     style="left: 78mm; top: 43.6mm;"></div>
+    <div class="dancer d2 alt" style="left: 85mm; top: 45mm;"></div>
+
+    <div class="v-ticker green">
+      <span class="tease-ja">スタートをおすと、パーティがはじまる。</span>
+    </div>
+  </div>
+
+  <div class="label">裏F: Rubyミラーボール案</div>
+  <div class="card back-f pback">
+    <div class="fx"></div>
+
+    <!-- 吊られて光るRuby=ミラーボール -->
+    <div class="rubyball">
+      <span class="wire"></span>
+      <span class="gem"></span>
+    </div>
+
+    <!-- Rubyのまわりで踊る(左右に分かれた群衆) -->
+    <div class="dancer d2"     style="left: 7mm;  top: 20mm;"></div>
+    <div class="dancer d4 alt" style="left: 15mm; top: 24mm;"></div>
+    <div class="dancer d1"     style="left: 23mm; top: 20.5mm;"></div>
+    <div class="dancer d3 alt" style="left: 10mm; top: 30mm;"></div>
+    <div class="dancer d2"     style="left: 19mm; top: 32mm;"></div>
+    <div class="dancer d1 alt" style="left: 62mm; top: 20.5mm;"></div>
+    <div class="dancer d3"     style="left: 70mm; top: 24mm;"></div>
+    <div class="dancer d2 alt" style="left: 78mm; top: 20mm;"></div>
+    <div class="dancer d4"     style="left: 66mm; top: 32mm;"></div>
+    <div class="dancer d1 alt" style="left: 75mm; top: 30mm;"></div>
+
+    <!-- 手前の列 -->
+    <div class="dancer d3"     style="left: 8mm;  top: 42mm;"></div>
+    <div class="dancer d1 alt" style="left: 17mm; top: 43.5mm;"></div>
+    <div class="dancer d4"     style="left: 26mm; top: 41.8mm;"></div>
+    <div class="dancer d2 alt" style="left: 35mm; top: 43.5mm;"></div>
+    <div class="dancer d1"     style="left: 44mm; top: 42.2mm;"></div>
+    <div class="dancer d3 alt" style="left: 53mm; top: 43.5mm;"></div>
+    <div class="dancer d2"     style="left: 62mm; top: 41.8mm;"></div>
+    <div class="dancer d4 alt" style="left: 71mm; top: 43.5mm;"></div>
+    <div class="dancer d1"     style="left: 80mm; top: 42.2mm;"></div>
+
+    <!-- QRは右下(ひかえめに置く) -->
+    <div class="qr" style="left: auto; right: 6.5mm; top: 21mm; transform: none;">
+      <img src="qr-ruby-dark-game.svg" alt="ゲームへのQRコード" style="width: 13mm; height: 13mm;">
+    </div>
+
+    <!-- 紙吹雪 -->
+    <div class="confetti"     style="left: 13mm; top: 9mm;  background: #fb5479;"></div>
+    <div class="confetti r45" style="left: 24mm; top: 13mm; background: #ffc12e;"></div>
+    <div class="confetti"     style="left: 33mm; top: 7mm;  background: #55d6f2;"></div>
+    <div class="confetti r45" style="left: 57mm; top: 8mm;  background: #6ef0a0;"></div>
+    <div class="confetti"     style="left: 67mm; top: 12mm; background: #fb5479;"></div>
+    <div class="confetti r45" style="left: 77mm; top: 7.5mm; background: #ffc12e;"></div>
+    <div class="confetti"     style="left: 30mm; top: 27mm; background: #6ef0a0;"></div>
+    <div class="confetti r45" style="left: 56mm; top: 28mm; background: #55d6f2;"></div>
+
+    <div class="v-ticker green">
+      <span class="tease-ja">くみたてると、なにかがおこる。</span>
+    </div>
+  </div>
+
+</body>
+</html>

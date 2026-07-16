@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>裏面 電光掲示板フレーズ比較</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Micro+5&family=DotGothic16&display=swap');
+
+@font-face {
+  font-family: 'Conti Neue 2P';
+  src: url('../../fonts/ContiNeue2P-1.0.1.woff2') format('woff2');
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #10131c;
+  font-family: 'DotGothic16', monospace;
+  padding: 8mm;
+  display: flex;
+  flex-direction: column;
+  gap: 4mm;
+  align-items: center;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.label {
+  width: 92mm;
+  color: #7a8291;
+  font-size: 2.6mm;
+  letter-spacing: .06em;
+}
+
+/* カード実物と同じ電光掲示板(見え高7mm) */
+.ticker {
+  position: relative;
+  width: 92mm;
+  height: 7mm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.3mm;
+  background: #16141c;
+  --tk-led: 92, 191, 100;
+}
+.ticker::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(var(--tk-led), .14) .12mm, transparent .2mm);
+  background-size: .6mm .6mm;
+  pointer-events: none;
+}
+.tease-en {
+  font-family: 'Micro 5', sans-serif;
+  font-size: 4.6mm;
+  line-height: .58;
+  letter-spacing: .08em;
+  color: rgb(var(--tk-led));
+  text-shadow: 0 0 .3mm rgba(var(--tk-led), .55), 0 0 .9mm rgba(var(--tk-led), .32);
+  transform: translateY(.1em);
+  white-space: nowrap;
+}
+.tease-ja {
+  font-family: 'Conti Neue 2P', 'DotGothic16', monospace;
+  font-size: 2.2mm;
+  letter-spacing: .14em;
+  color: rgb(var(--tk-led));
+  text-shadow: 0 0 .3mm rgba(var(--tk-led), .55), 0 0 .9mm rgba(var(--tk-led), .32);
+  white-space: nowrap;
+}
+</style>
+</head>
+<body>
+
+  <div class="label">1. 現行</div>
+  <div class="ticker"><span class="tease-en">UNLOCK PARTY MODE</span><span class="tease-ja">くみたてると、なにかがおこる。</span></div>
+
+  <div class="label">2.</div>
+  <div class="ticker"><span class="tease-en">ASSEMBLE TO UNLOCK</span><span class="tease-ja">パーティーモードは、くみたてたひとだけ。</span></div>
+
+  <div class="label">3.</div>
+  <div class="ticker"><span class="tease-en">PARTY MODE: LOCKED</span><span class="tease-ja">カギは、きばんのうえに。</span></div>
+
+  <div class="label">4.</div>
+  <div class="ticker"><span class="tease-en">SOMETHING SLEEPS ON THE BOARD</span><span class="tease-ja">このきばん、じつはおどれる。</span></div>
+
+  <div class="label">5.</div>
+  <div class="ticker"><span class="tease-en">POWER ON THE NIGHT</span><span class="tease-ja">でんげんをいれると、よるがはじまる。</span></div>
+
+  <div class="label">6.</div>
+  <div class="ticker"><span class="tease-en">PRESS START?</span><span class="tease-ja">スタートボタンは、きみがつくる。</span></div>
+
+  <div class="label">7.</div>
+  <div class="ticker"><span class="tease-en">INSERT PARTS TO CONTINUE</span><span class="tease-ja">つづきは、きみの手で。</span></div>
+
+  <div class="label">8.</div>
+  <div class="ticker"><span class="tease-en">DO NOT UNPLUG</span><span class="tease-ja">※おどりだしても、こしょうではありません。</span></div>
+
+  <div class="label" style="margin-top:6mm;">―― ゲーム絡み ――</div>
+
+  <div class="label">9.</div>
+  <div class="ticker"><span class="tease-en">PRESS START TO PARTY</span><span class="tease-ja">スタートをおすと、パーティがはじまる。</span></div>
+
+  <div class="label">10.</div>
+  <div class="ticker"><span class="tease-en">READY PLAYER RUBY?</span><span class="tease-ja">つぎのプレイヤーは、きみ。</span></div>
+
+  <div class="label">11.</div>
+  <div class="ticker"><span class="tease-en">GAME ON. PARTY ON.</span><span class="tease-ja">あそんだら、おどろう。</span></div>
+
+  <div class="label">12.</div>
+  <div class="ticker"><span class="tease-en">CONTINUE?</span><span class="tease-ja">つづきは、かいじょうで。</span></div>
+
+  <div class="label">13.</div>
+  <div class="ticker"><span class="tease-en">LEVEL 1: L-CHIKA</span><span class="tease-ja">レベル1はLチカ。ラスボスは、パーティ。</span></div>
+
+  <div class="label">14.</div>
+  <div class="ticker"><span class="tease-en">INSERT PARTS TO PARTY</span><span class="tease-ja">コインのかわりに、パーツをいれてね。</span></div>
+
+  <div class="label">15.</div>
+  <div class="ticker"><span class="tease-en">PLAYER 2 WANTED</span><span class="tease-ja">いっしょにおどるひと、ぼしゅうちゅう。</span></div>
+
+  <div class="label">16.</div>
+  <div class="ticker"><span class="tease-en">SECRET STAGE FOUND</span><span class="tease-ja">かくしステージは、よるのきばん。</span></div>
+
+</body>
+</html>
