@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>PicoRubyKaigi 2026 Assemble 名刺 縦型 (55x91mm / 塗り足し3mm込み61x97mm)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bitcount+Single:ELSH,wght@0..100,100..900&family=Micro+5&family=Jersey+10&family=DotGothic16&display=swap');
+
+@font-face {
+  font-family: 'Conti Neue 2P';
+  src: url('../../fonts/ContiNeue2P-1.0.1.woff2') format('woff2');
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #888;
+  font-family: 'DotGothic16', monospace;
+  padding: 6mm;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6mm;
+  align-items: flex-start;
+  justify-content: center;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.label { width: 100%; color: #eee; font-size: 3mm; letter-spacing: .06em; text-align: center; }
+
+/* ===== 縦型カード(仕上がり55x91 + 塗り足し3mm) ===== */
+.card {
+  position: relative;
+  width: 61mm;
+  height: 97mm;
+  overflow: hidden;
+  --ink: #26242f;
+  color: var(--ink);
+  background:
+    url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2724%27%3E%3Crect%20x=%279.5%27%20y=%279.5%27%20width=%275%27%20height=%275%27%20fill=%27%2339352b%27%20fill-opacity=%27.11%27/%3E%3Crect%20x=%2711%27%20y=%2711%27%20width=%275%27%20height=%275%27%20fill=%27%231c180e%27%20fill-opacity=%27.14%27/%3E%3C/svg%3E") left 1.9mm top 1.9mm / 2.6mm 2.6mm repeat,
+    #eceade;
+}
+/* 入稿用キャプチャモード(?capture=front|back): 対象面だけを原寸で左上に置く。
+   PDFビューア/RIPごとの描画差を避けるため入稿データはこのモードのラスタ(600dpi)から作る */
+body.capture { display: block; background: none; padding: 0; }
+body.capture .label { display: none; }
+
+/* トンボ: 仕上がり線(3mm)の延長を塗り足し帯に引く(角に.5mmのアキ)。裏は白系 */
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 99;
+  --tb: rgba(70, 70, 70, .8);
+  background-image:
+    linear-gradient(var(--tb) 0 0), linear-gradient(var(--tb) 0 0),
+    linear-gradient(var(--tb) 0 0), linear-gradient(var(--tb) 0 0),
+    linear-gradient(var(--tb) 0 0), linear-gradient(var(--tb) 0 0),
+    linear-gradient(var(--tb) 0 0), linear-gradient(var(--tb) 0 0);
+  background-repeat: no-repeat;
+  background-size:
+    2.5mm .12mm, .12mm 2.5mm,
+    2.5mm .12mm, .12mm 2.5mm,
+    2.5mm .12mm, .12mm 2.5mm,
+    2.5mm .12mm, .12mm 2.5mm;
+  background-position:
+    left 0 top 3mm,      left 3mm top 0,
+    right 0 top 3mm,     right 3mm top 0,
+    left 0 bottom 3mm,   left 3mm bottom 0,
+    right 0 bottom 3mm,  right 3mm bottom 0;
+}
+.card.party::after { --tb: rgba(255, 255, 255, .6); }
+
+/* ===== 表: ロゴ2行(モバイル表示と同じ折り) ===== */
+.title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 10mm;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2mm;
+  text-align: center;
+}
+.prk {
+  font-family: 'Bitcount Single', sans-serif;
+  font-size: 9.4mm;
+  line-height: .98;
+  letter-spacing: .05em;
+}
+.prk .picoruby { color: #f64b5b; -webkit-text-stroke: .55mm #da1d3c; paint-order: stroke fill; }
+.prk .kaigi    { color: #fff;    -webkit-text-stroke: .55mm #454747; paint-order: stroke fill; }
+.prk .picoruby, .prk .kaigi { display: block; white-space: nowrap; position: relative; }
+/* Bitcountは字面が送り幅内で左に寄るため、中央寄せでもインクが左へずれる。実測ぶん右へ補正 */
+.prk .picoruby { left: .69mm; }
+.prk .kaigi    { left: .73mm; }
+.prk { font-variation-settings: 'wght' 330, 'ELSH' 50; }
+/* 光学カーニング: iステム・cの開き等で空いて見えるペアを実測に基づき詰める(基準 .05em) */
+.prk .k2 { letter-spacing: .036em; }
+.prk .k3 { letter-spacing: .029em; }
+.prk .k4 { letter-spacing: .022em; }
+.prk .k5 { letter-spacing: .015em; }
+.prk .kP { letter-spacing: .026em; }  /* P-i をほんの少しだけ広げる */
+.year {
+  font-family: 'Micro 5', sans-serif;
+  font-size: 7mm;
+  line-height: .8;
+  letter-spacing: .12em;
+  text-indent: .12em;
+  position: relative;
+  left: .33mm;  /* letter-spacing の余りで左に寄るぶんを中央へ補正 */
+}
+.assemble {
+  font-family: 'Jersey 10', sans-serif;
+  font-size: 3.7mm;
+  letter-spacing: .18em;
+  text-indent: .18em;
+  margin-top: -.6mm;
+}
+
+/* Ruby */
+.ruby {
+  position: absolute;
+  left: 50%;
+  top: 46mm;
+  transform: translateX(-50%);
+  height: 17mm;
+  aspect-ratio: 990 / 809;
+}
+.ruby::before,
+.ruby::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url('../../images/ruby-1.png') center / contain no-repeat;
+}
+.ruby::before { filter: blur(.14mm); }
+
+.site-url {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 12.5mm;
+  text-align: center;
+  font-family: 'Jersey 10', sans-serif;
+  font-size: 2.4mm;
+  letter-spacing: .06em;
+  color: #75726a;
+}
+
+/* ===== 電光掲示板(縦型: 2段組) ===== */
+.ticker {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 11.5mm;
+  padding-bottom: 3mm;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1mm;
+  background: #16141c;
+  --tk-led: 249, 205, 208;
+}
+.ticker::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(var(--tk-led), .14) .12mm, transparent .2mm);
+  background-size: .6mm .6mm;
+  pointer-events: none;
+}
+.ticker .when {
+  font-family: 'Micro 5', sans-serif;
+  font-size: 4.4mm;
+  line-height: .58;
+  letter-spacing: .06em;
+  color: rgb(var(--tk-led));
+  text-shadow: 0 0 .3mm rgba(var(--tk-led), .55), 0 0 .9mm rgba(var(--tk-led), .32);
+  transform: translateY(.08em);
+  position: relative;
+  left: 3.36mm;  /* 2026.10.31.ブロックがカード中心に来るよう補正(SATは右のアクセント) */
+}
+.ticker .dow { font-size: .8em; }
+.ticker .where {
+  font-family: 'Conti Neue 2P', 'DotGothic16', monospace;
+  font-size: 1.9mm;
+  letter-spacing: .06em;
+  color: rgb(var(--tk-led));
+  text-shadow: 0 0 .3mm rgba(var(--tk-led), .55), 0 0 .9mm rgba(var(--tk-led), .32);
+  white-space: nowrap;
+  position: relative;
+  left: .17mm;  /* 等マージンで中央に(光学補正) */
+}
+
+/* ===================================================================
+   裏: パーティモード
+   =================================================================== */
+.card.party {
+  background:
+    url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2724%27%3E%3Crect%20x=%279.5%27%20y=%279.5%27%20width=%275%27%20height=%275%27%20fill=%27%232e5247%27/%3E%3Crect%20x=%2711%27%20y=%2711%27%20width=%274%27%20height=%274%27%20fill=%27%2316302a%27/%3E%3C/svg%3E") left 1.9mm top 1.9mm / 2.6mm 2.6mm repeat,
+    #10131c;
+}
+.party .fx {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background:
+    radial-gradient(56mm 66mm at 0% 100%, rgba(255, 128, 150, .42) 0%, transparent 70%),
+    radial-gradient(56mm 66mm at 100% 100%, rgba(110, 200, 255, .38) 0%, transparent 70%),
+    radial-gradient(41mm 47mm at 0% 0%, rgba(190, 140, 255, .22) 0%, transparent 65%),
+    radial-gradient(41mm 47mm at 100% 0%, rgba(255, 200, 110, .2) 0%, transparent 65%);
+}
+/* キットのパーツ(表) */
+.part {
+  position: absolute;
+  background: center / contain no-repeat;
+  image-rendering: pixelated;
+}
+.part.seg7    { width: 6.9mm;  aspect-ratio: 211 / 165; background-image: url('7seg-88.png'); }
+.part.speaker { width: 5.05mm; aspect-ratio: 137 / 138; background-image: url('../../images/spaeker.png'); }
+.part.motor   { width: 4.77mm; aspect-ratio: 110 / 141; background-image: url('../../images/motor.png'); }
+.part.chip    { width: 6.07mm; aspect-ratio: 137 / 137; background-image: url('../../images/chip.png'); }
+.part.battery { width: 3mm; aspect-ratio: 110 / 188; background-image: url('../../images/battery.png'); }
+
+/* QR(中央・主役サイズ=カード幅の約半分) */
+.party .qr {
+  position: absolute;
+  left: 50%;
+  top: 29.5mm;
+  transform: translateX(-50%);
+}
+.party .qr img { display: block; width: 27mm; height: 27mm; }
+/* 紙吹雪 */
+.party .confetti {
+  position: absolute;
+  width: .8mm;
+  height: .8mm;
+}
+.party .confetti.r45 { transform: rotate(45deg); }
+/* ピクセルの十字光(トップページの .cross と同じ。芯=白 / 先端=ティント色) */
+.party .spark {
+  position: absolute;
+  width: .6mm;
+  height: .6mm;
+  background: #fff;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  box-shadow:
+    0 -.6mm #fff, 0 .6mm #fff, -.6mm 0 #fff, .6mm 0 #fff,
+    0 -1.2mm var(--tint), 0 1.2mm var(--tint), -1.2mm 0 var(--tint), 1.2mm 0 var(--tint);
+}
+.party .spark.s-pink  { --tint: #ff96b9; }
+.party .spark.s-green { --tint: #56f096; }
+.party .spark.s-blue  { --tint: #8ad9ff; }
+/* ダンサー */
+.party .dancer {
+  position: absolute;
+  width: 4.2mm;
+  height: 1.96mm;
+  background: center / contain no-repeat;
+  image-rendering: pixelated;
+  transform: rotate(-45deg);
+}
+.party .dancer.alt { transform: rotate(45deg); }
+/* オンボードLED点灯(サイトの .d-led): PNGのLEDパッド(x23-24,y4-5 / 30x14)に重ねる */
+.party .dancer::after {
+  content: "";
+  position: absolute;
+  right: .55mm;
+  top: .55mm;
+  width: .28mm;
+  height: .28mm;
+  background: #fff;
+  box-shadow: 0 0 .25mm #fff, 0 0 .7mm var(--glow, #ffd152);
+}
+.party .dancer.d1 { --glow: #ff5566; background-image: url('../../images/dancer1.png'); filter: brightness(1.4) saturate(1.3) drop-shadow(0 0 .2mm #fff) drop-shadow(0 0 .65mm #ff5566); }
+.party .dancer.d2 { --glow: #44e58a; background-image: url('../../images/dancer2.png'); filter: brightness(1.4) saturate(1.3) drop-shadow(0 0 .2mm #fff) drop-shadow(0 0 .65mm #44e58a); }
+.party .dancer.d3 { --glow: #ffb733; background-image: url('../../images/dancer3.png'); filter: brightness(1.4) saturate(1.3) drop-shadow(0 0 .2mm #fff) drop-shadow(0 0 .65mm #ffb733); }
+.party .dancer.d4 { --glow: #55d6f2; background-image: url('../../images/dancer4.png'); filter: brightness(1.4) saturate(1.3) drop-shadow(0 0 .2mm #fff) drop-shadow(0 0 .65mm #55d6f2); }
+/* 裏の電光掲示板(緑・1行) */
+.party .ticker { --tk-led: 92, 191, 100; }
+.party .ticker .tease-ja {
+  font-family: 'Conti Neue 2P', 'DotGothic16', monospace;
+  font-size: 2.1mm;
+  letter-spacing: .1em;
+  color: rgb(var(--tk-led));
+  text-shadow: 0 0 .3mm rgba(var(--tk-led), .55), 0 0 .9mm rgba(var(--tk-led), .32);
+  white-space: nowrap;
+}
+.party .ticker .tease-en {
+  font-family: 'Micro 5', sans-serif;
+  font-size: 4.6mm;
+  line-height: .58;
+  letter-spacing: .08em;
+  color: rgb(var(--tk-led));
+  text-shadow: 0 0 .3mm rgba(var(--tk-led), .55), 0 0 .9mm rgba(var(--tk-led), .32);
+  transform: translateY(.1em);
+  white-space: nowrap;
+}
+/* 「PicoRuby」: Micro 5 の小文字は幅が狭いので文字間を広めにとり、少し大きくして主役にする */
+.party .ticker .tease-en .pr { font-size: 1.1em; letter-spacing: .12em; }
+/* 「i」は細くインクが薄いぶん隙間が広く見えるので、両側(P後・i後)を光学的に詰める。
+   ただし詰めすぎると Pico 全体が窮屈に見えるので控えめに */
+.party .ticker .tease-en .pr .ki { letter-spacing: .11em; }
+/* 「Ruby」はグリフが太く隙間が広く見えるので少し詰める */
+.party .ticker .tease-en .pr .kr { letter-spacing: .095em; }
+/* 小文字の「o」だけSVG: Micro 5 の o は潰れて見えるので、ひと回り大きい角丸リングに描き直す */
+.party .ticker .tease-en .po {
+  display: inline-block;
+  /* 寸法はem指定(基準: 4.6mm時の実測mm / 4.6)で、.pr のサイズ変更に追従させる */
+  width: .352em;
+  height: .374em;  /* 小文字の高さに揃える(実測) */
+  margin-left: -.013em;  /* 丸グリフは隙間が広く見えるので少しだけ詰める */
+  margin-right: .167em;  /* 右隣との字間を通常グリフ間に合わせる(実測) */
+  fill: rgb(var(--tk-led));
+  filter: drop-shadow(0 0 .3mm rgba(var(--tk-led), .55)) drop-shadow(0 0 .9mm rgba(var(--tk-led), .32));
+}
+</style>
+</head>
+<body>
+
+  <div class="label">縦型 55×91: 表 / 裏</div>
+
+  <div class="card">
+    <div class="title">
+      <div class="prk"><span class="picoruby"><span class="kP">P</span><span class="k4">ic</span>oRu<span class="k2">b</span>y</span><span class="kaigi"><span class="k4">K</span><span class="k3">a</span><span class="k5">i</span><span class="k3">g</span>i</span></div>
+      <div class="year">2026</div>
+      <div class="assemble">- Assemble -</div>
+    </div>
+
+    <div class="ruby" style="top: 46mm;"></div>
+
+    <!-- キットのパーツ(ブレッドボードの穴にフィット):
+         サイズ=サイト実寸xグリッド比(2.6mm/24px)。54x86版から縦+5.2mm(グリッド2行分)シフトして
+         穴間/穴列へのスナップを維持 -->
+    <div class="part seg7"    style="left: 10.15mm; top: 70.56mm;"></div>
+    <div class="part speaker" style="left: 20.18mm; top: 70.66mm;"></div>
+    <div class="part motor"   style="left: 28.18mm; top: 70.3mm;"></div>
+    <div class="part chip"    style="left: 35.33mm; top: 70.3mm;"></div>
+    <div class="part battery" style="left: 45.95mm; top: 70.8mm;"></div>
+
+    <div class="site-url">https://picorubykaigi.org</div>
+
+    <div class="ticker">
+      <span class="when">2026.10.31. <span class="dow">SAT</span></span>
+      <span class="where">浅草橋ヒューリックホール＆カンファレンス</span>
+    </div>
+  </div>
+
+  <div class="card party">
+    <div class="fx"></div>
+
+    <div class="qr" style="top: 29.5mm;">
+      <img src="qr-ruby-dark-game.svg" alt="ゲームへのQRコード">
+    </div>
+
+    <!-- ピクセルの十字光 -->
+    <div class="spark s-pink" style="left: 43.7mm; top: 26.2mm;"></div>
+    <div class="spark s-blue" style="left: 14mm; top: 67mm;"></div>
+
+    <!-- 紙吹雪 -->
+    <div class="confetti r45" style="left: 20mm; top: 12.5mm; background: #fb5479;"></div>
+    <div class="confetti r45" style="left: 14mm; top: 27.5mm; background: #55d6f2;"></div>
+    <div class="confetti"     style="left: 8mm;  top: 25.5mm; background: #55d6f2;"></div>
+    <div class="confetti r45" style="left: 39.5mm; top: 12.5mm; background: #6ef0a0;"></div>
+    <div class="confetti"     style="left: 45mm; top: 17mm; background: #fb5479;"></div>
+    <div class="confetti r45" style="left: 49mm; top: 27.5mm; background: #ffc12e;"></div>
+    <div class="confetti"     style="left: 12mm; top: 59mm; background: #ffc12e;"></div>
+    <div class="confetti r45" style="left: 48mm; top: 61mm; background: #fb5479;"></div>
+    <div class="confetti r45" style="left: 38.5mm; top: 66mm; background: #6ef0a0;"></div>
+    <div class="confetti r45" style="left: 30.5mm; top: 20.5mm; background: #ffc12e;"></div>
+
+    <div class="dancer d1"    style="left: 5.4mm; top: 6.2mm;"></div>
+    <div class="dancer d2 alt" style="left: 14.6mm; top: 6.2mm;"></div>
+    <div class="dancer d3"    style="left: 23.8mm; top: 6.2mm;"></div>
+    <div class="dancer d4 alt" style="left: 33mm; top: 6.2mm;"></div>
+    <div class="dancer d1"    style="left: 42.2mm; top: 6.2mm;"></div>
+    <div class="dancer d2 alt" style="left: 51.4mm; top: 6.2mm;"></div>
+    <div class="dancer d3"    style="left: 51.4mm; top: 15.5mm;"></div>
+    <div class="dancer d4 alt" style="left: 51.4mm; top: 24.8mm;"></div>
+    <div class="dancer d1"    style="left: 51.4mm; top: 34.1mm;"></div>
+    <div class="dancer d2 alt" style="left: 51.4mm; top: 43.4mm;"></div>
+    <div class="dancer d3"    style="left: 51.4mm; top: 52.7mm;"></div>
+    <div class="dancer d4 alt" style="left: 51.4mm; top: 62mm;"></div>
+    <div class="dancer d1"    style="left: 51.4mm; top: 71.3mm;"></div>
+    <div class="dancer d2 alt" style="left: 51.4mm; top: 80.6mm;"></div>
+    <div class="dancer d3"    style="left: 42.2mm; top: 80.6mm;"></div>
+    <div class="dancer d4 alt" style="left: 33mm; top: 80.6mm;"></div>
+    <div class="dancer d1"    style="left: 23.8mm; top: 80.6mm;"></div>
+    <div class="dancer d2 alt" style="left: 14.6mm; top: 80.6mm;"></div>
+    <div class="dancer d3"    style="left: 5.4mm; top: 80.6mm;"></div>
+    <div class="dancer d4 alt" style="left: 5.4mm; top: 71.3mm;"></div>
+    <div class="dancer d1"    style="left: 5.4mm; top: 62mm;"></div>
+    <div class="dancer d2 alt" style="left: 5.4mm; top: 52.7mm;"></div>
+    <div class="dancer d3"    style="left: 5.4mm; top: 43.4mm;"></div>
+    <div class="dancer d4 alt" style="left: 5.4mm; top: 34.1mm;"></div>
+    <div class="dancer d1"    style="left: 5.4mm; top: 24.8mm;"></div>
+    <div class="dancer d2 alt" style="left: 5.4mm; top: 15.5mm;"></div>
+
+    <div class="ticker">
+      <span class="tease-en">TIME TO <span class="pr"><span class="ki">Pi</span>c<svg class="po" viewBox="0 0 3.77 4" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M0 0h2.77v1h1v3h-3.77z M1 1h1.77v2h-1.77z"/></svg><span class="kr">Rub</span>y</span>?</span>
+    </div>
+  </div>
+
+<script>
+  const side = new URLSearchParams(location.search).get('capture');
+  if (side === 'front' || side === 'back') {
+    document.body.classList.add('capture');
+    document.querySelectorAll('.card').forEach(card => {
+      if ((side === 'back') !== card.classList.contains('party')) card.style.display = 'none';
+    });
+  }
+</script>
+</body>
+</html>
