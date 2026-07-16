@@ -1,0 +1,159 @@
+/* MALLOC PANIC - GC PANIC のスタイル(../game.css)に上乗せする分だけ。
+   ゴースト(置き場所プレビュー)・がまんゲージ・NEXTキューが追加要素。 */
+
+/* ===== ゴースト =====
+   まだオブジェクトになっていないので、丸いLEDではなく「角丸の輪郭」。
+   盤面のほかの要素はぜんぶ塗りつぶしドットなので、輪郭=未確定が一目でわかる */
+.cell.g1, .cell.g2, .cell.g3 {
+  border-radius: 26%;
+  background: transparent;
+  animation: ghost-pulse .8s ease-in-out infinite;
+}
+
+/* みじかい いのち(みどり) */
+.cell.g1 {
+  box-shadow: inset 0 0 0 3px var(--green), 0 0 8px rgba(86, 240, 150, .45);
+  background: rgba(86, 240, 150, .14);
+}
+
+/* ながい いのち(あお) */
+.cell.g2 {
+  box-shadow: inset 0 0 0 3px #58aef5, 0 0 8px rgba(88, 174, 245, .45);
+  background: rgba(88, 174, 245, .14);
+}
+
+/* ここには おけない */
+.cell.g3 {
+  box-shadow: inset 0 0 0 3px var(--red), 0 0 8px rgba(232, 64, 75, .5);
+  background: rgba(232, 64, 75, .12);
+  animation: ghost-blocked .3s steps(1) infinite;
+}
+
+/* はいいろの うえ: おいたら かいしゅう！(ピンク=かいしゅうの いろ) */
+.cell.g4 {
+  border-radius: 26%;
+  background: rgba(251, 84, 121, .22);
+  box-shadow: inset 0 0 0 3px var(--pink), 0 0 12px rgba(251, 84, 121, .6);
+  animation: ghost-pulse .45s ease-in-out infinite;
+}
+
+/* この ドロップで きえる ゴミ: ピンクに ひかる。
+   ひかった セルだけが きえる = 見た目とルールが 1:1 */
+.cell.g5 {
+  background: #8a5a66;
+  box-shadow: inset 0 0 0 2px var(--pink), 0 0 8px rgba(251, 84, 121, .45);
+  animation: ghost-pulse .45s ease-in-out infinite;
+}
+
+@keyframes ghost-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .55; }
+}
+
+@keyframes ghost-blocked {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .35; }
+}
+
+/* ===== がまんゲージ =====
+   malloc を待っているプログラムの しんぼう。盤面の下でLEDセグメントが
+   減っていく。切れると first-fit で勝手に置かれる */
+.pbar {
+  display: flex;
+  gap: 4px;
+  margin-top: clamp(8px, 1.6vw, 12px);
+}
+
+.pseg {
+  flex: 1 1 0;
+  height: 6px;
+  border-radius: 2px;
+  background: var(--led-off);
+}
+
+.pseg.on {
+  background: var(--green);
+  box-shadow: 0 0 4px rgba(86, 240, 150, .5);
+}
+
+/* のこりわずか: 赤くせかす */
+.pseg.on.low {
+  background: var(--red);
+  box-shadow: 0 0 5px rgba(232, 64, 75, .6);
+  animation: pseg-panic .3s steps(1) infinite;
+}
+
+@keyframes pseg-panic {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .4; }
+}
+
+/* タイトル/ゲームオーバー中はゲージはただの飾り */
+.phase-ready .pseg, .phase-over .pseg {
+  background: var(--led-off);
+  box-shadow: none;
+  animation: none;
+}
+
+/* ===== NEXT キュー ===== */
+.queue {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 26px;
+}
+
+.q-label {
+  font-family: 'Micro 5', monospace;
+  font-size: 20px;
+  color: var(--dim);
+}
+
+.mini {
+  display: grid;
+  grid-template-columns: repeat(4, 8px);
+  grid-template-rows: repeat(4, 8px);
+  gap: 2px;
+}
+
+.mcell {
+  border-radius: 3px;
+  background: var(--led-off);
+  opacity: .45;
+}
+
+.mcell.short {
+  background: var(--green);
+  opacity: 1;
+  box-shadow: 0 0 4px rgba(86, 240, 150, .5);
+}
+
+.mcell.long {
+  background: #58aef5;
+  opacity: 1;
+  box-shadow: 0 0 4px rgba(88, 174, 245, .5);
+}
+
+/* あとに並んでいるほう(2個目)は少し薄く */
+.mini + .mini { opacity: .55; }
+
+/* プレイ中以外はキューを控えめに */
+.phase-ready .queue, .phase-over .queue { opacity: .35; }
+
+/* ===== かいてんボタン ===== */
+.rotate-btn {
+  display: none;
+  font-family: 'DotGothic16', monospace;
+  font-size: 14px;
+  color: var(--bg);
+  background: var(--yellow);
+  border: none;
+  border-radius: 6px;
+  padding: 7px 16px 8px;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(255, 193, 46, .35);
+}
+
+.phase-play .rotate-btn { display: inline-block; }
+
+.rotate-btn:active { transform: translateY(1px); }
