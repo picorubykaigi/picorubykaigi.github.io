@@ -1486,3 +1486,45 @@ body.dark.dance-on .pf-hue {
   .keynotes .keynote-name.en { font-size: clamp(13px, 2.5vw, 19px); }
   .keynotes .keynote-name.ja { font-size: clamp(15px, 3.2vw, 25px); }
 }
+
+/* ===== くみたて完成 → Ruby がゲーム機になる(PLAY?) =====
+   4部品がそろう(body.ruby-full)と Ruby の上に PLAY? が点滅し、タップで /game/ へ。
+   ショップカードのQR(PLAY!)と同じ入口。 */
+.play-hint {
+  position: absolute;
+  left: 50%;
+  top: 57%;
+  transform: translate(-50%, -50%);
+  z-index: 7;
+  font-family: 'Jersey 10', monospace;
+  font-size: 21px;
+  line-height: 1;
+  letter-spacing: .5px;
+  white-space: nowrap;
+  color: #ffe7d8;
+  background: rgba(28, 22, 30, .82);
+  padding: 3px 9px 5px;
+  border-radius: 3px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+body.ruby-full .play-hint {
+  opacity: 1;
+  pointer-events: auto;
+  animation: play-blink 1.2s steps(1) infinite;
+}
+
+body.ruby-full .ruby-led {
+  cursor: pointer;
+}
+
+body.dark .play-hint {
+  color: #6ef0a0;
+  background: rgba(10, 14, 20, .8);
+}
+
+@keyframes play-blink {
+  0%, 54% { opacity: 1; }
+  55%, 100% { opacity: .35; }
+}

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<!-- OGP image (1200x630) for GC PANIC. Reuses game/game.css so the card
+     shows the real in-game look: breadboard body, LED matrix, HUD. -->
+<base href="../">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GC PANIC — OGP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitcount+Single:ELSH,wght@0..100,100..900&family=Jersey+10&family=Micro+5&family=DotGothic16&display=swap">
+<link rel="stylesheet" href="game/game.css">
+<style>
+  /* Freeze every animation so the screenshot is deterministic */
+  *, *::before, *::after { animation: none !important; }
+
+  html, body { width: 1200px; height: 630px; overflow: hidden; }
+
+  .og { width: 1200px; height: 630px; position: relative; display: flex; }
+
+  /* Same placement as the game header: logo sits inside the rail band */
+  .head { position: absolute; top: 0; left: 0; right: 0; }
+
+  /* Left: title + tagline. Right: the game board */
+  .og-left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 96px 0 30px 84px;
+  }
+
+  .og-title {
+    display: flex;
+    align-items: center;
+    gap: 26px;
+    font-family: 'Jersey 10', monospace;
+    font-size: 124px;
+    line-height: 1;
+    letter-spacing: 8px;
+    color: var(--ink);
+  }
+
+  /* Pair kerning: widen G-C, tighten the word gap (the space glyph plus
+     letter-spacing reads too wide at this size) */
+  .og-title .kern-c { margin-left: 8px; }
+  .og-title .kern-panic { margin-left: 26px; letter-spacing: 11px; }
+  .og-title .kern-anic { letter-spacing: 14px; }
+
+  .og-title .t-lamp {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--pink);
+    box-shadow: 0 0 12px rgba(251, 84, 121, .75);
+  }
+
+  .og-tagline {
+    margin-top: 26px;
+    font-size: 25px;
+    line-height: 1.75;
+    letter-spacing: .07em;
+    color: var(--ink);
+  }
+
+  .og-tagline .accent { color: var(--green); }
+
+  /* DotGothic16's half-width 'i' carries wide side bearings, so plain
+     letter-spacing leaves extra air around it; pull the i back in */
+  .og-tagline .latin { letter-spacing: .12em; margin-right: .1em; }
+  .og-tagline .latin .ki { margin-left: -.11em; margin-right: -.11em; }
+  .og-tagline .latin .kr { letter-spacing: .15em; }
+
+  /* Colophon at the bottom-left, lifted above the zone where X overlays
+     its "From <domain>" pill on timeline cards (bottom ~70px of the image) */
+  .og-powered {
+    position: absolute;
+    left: 84px;
+    bottom: 88px;
+    font-family: 'Jersey 10', monospace;
+    font-size: 20px;
+    letter-spacing: 1px;
+    color: var(--sub);
+  }
+
+  .og-right {
+    display: flex;
+    align-items: center;
+    padding: 96px 72px 22px 0;
+  }
+
+  /* Same panel as main#app in the game */
+  .og-panel {
+    background: #131828;
+    border: 2px solid #242e45;
+    border-radius: 14px;
+    padding: 16px 18px 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .hud { gap: 20px; }
+  .hud-label { font-size: 21px; }
+  .hud-value { font-size: 26px; }
+
+  .gcstart-btn { display: inline-block; }
+
+  .matrix { width: 360px; }
+
+  /* Chain pill floating over the board, near the broom */
+  .og-float {
+    position: absolute;
+    left: 80px;
+    top: 138px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'Micro 5', monospace;
+    font-size: 22px;
+    color: #ffe08a;
+    text-shadow: 0 0 6px rgba(255, 193, 46, .6);
+  }
+
+  /* Tilt right-down (game default is left-down) */
+  .og-float .fs-pill { font-size: 13px; transform: rotate(6deg); }
+
+  .og-msg { text-align: center; min-height: 0; }
+  .og-msg .msg-en { font-size: 26px; }
+  .og-msg .msg-ja { font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="og">
+  <header class="head">
+    <a class="logo" href="/"><span class="logo-name"><span class="pico">P<span class="kern-pi">i</span><span class="kern-ic">c</span>oRuby</span><span class="kaigi"><span class="kern-yk">K</span>ai<span class="kern-ig">gi</span></span></span><span class="logo-meta"><span class="year">2026</span><span class="assemble">Assemble</span></span></a>
+  </header>
+
+  <div class="og-left">
+    <div class="og-title">
+      <span class="t-lamp"></span>
+      <span>G<span class="kern-c">C</span><span class="kern-panic">P<span class="kern-anic">ANIC</span></span></span>
+    </div>
+    <div class="og-tagline">
+      <span class="latin">P<span class="ki">i</span>co<span class="kr">Ruby</span></span>のガベージコレクタになって<br>
+      <span class="accent">ちいさなヒープ</span>を掃除して生き延びろ！
+    </div>
+    <div class="og-powered">POWERED BY PicoRuby.wasm + FUNICULAR</div>
+  </div>
+
+  <div class="og-right">
+    <div class="og-panel">
+      <div class="hud">
+        <div class="hud-item">
+          <span class="hud-label">BYTES</span>
+          <span class="hud-value">1084</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">FREE</span>
+          <span class="hud-value">78%</span>
+        </div>
+        <button class="gcstart-btn">FULL GC</button>
+      </div>
+      <div class="board">
+        <div class="matrix" style="--cols:10; --rows:10;"></div>
+        <div class="og-float">+52 <span class="fs-pill hot">×4</span></div>
+      </div>
+      <div class="og-msg">
+        <div class="msg-en">TAP TO START</div>
+        <div class="msg-ja">グレーのゴミだけ掃除</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Hand-composed 10x10 scene: the pink broom (P) has swept row 4 clean from
+// the right (chain pill floats behind it), heads left, and is about to wrap;
+// the torus ghost (o) marks its landing cell on the opposite edge.
+// Legend: . off / g garbage / G expiring garbage / y expiring live /
+// a-d live LEDs / i incoming seed
+(function () {
+  var rows = [
+    '..b.....d.',
+    '.gg..a....',
+    '..g..i.c..',
+    'd...gg....',
+    '.P.......o',
+    '....g.....',
+    '.a....gg..',
+    '...c..G...',
+    '.d....y.g.',
+    '...a..c...'
+  ];
+  var cls = {
+    'g': 'c1', 'P': 'c2', 'G': 'c3', 'y': 'c4',
+    'a': 'c5', 'b': 'c6', 'c': 'c7', 'd': 'c8',
+    'o': 'ghost', 'i': 'incoming'
+  };
+  var matrix = document.querySelector('.matrix');
+  rows.join('').split('').forEach(function (ch) {
+    var cell = document.createElement('div');
+    cell.className = 'cell' + (cls[ch] ? ' ' + cls[ch] : '');
+    matrix.appendChild(cell);
+  });
+})();
+</script>
+</body>
+</html>

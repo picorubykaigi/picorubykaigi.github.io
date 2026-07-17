@@ -28,6 +28,11 @@ Dir.glob(File.join(OUT, '**', '{*.md,.DS_Store}'), File::FNM_DOTMATCH).each { |f
 
 BlogBuilder.new(OUT).build
 
+Dir.glob(File.join(OUT, 'game', '*.rb')).each do |f|
+  src = File.read(f).lines.reject { |l| l.match?(/\A\s*#/) }.join
+  File.write(f, src.gsub(/\n{3,}/, "\n\n"))
+end
+
 unless system('node', 'minify.mjs', OUT)
   abort('minify.mjs failed')
 end

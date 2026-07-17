@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>GC PANIC | PicoRubyKaigi 2026 Assemble</title>
+<link rel="icon" type="image/png" href="../images/favicon.png">
+<link rel="apple-touch-icon" href="../images/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<meta name="description" content="GC PANIC - PicoRubyのガベージコレクタになって、ちいさなヒープを掃除して生き延びろ！">
+
+<meta property="og:title" content="GC PANIC | PicoRubyKaigi 2026 Assemble">
+<meta property="og:description" content="PicoRubyのガベージコレクタになって、ちいさなヒープを掃除して生き延びろ！">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://picorubykaigi.org/game/">
+<meta property="og:site_name" content="PicoRubyKaigi 2026 Assemble">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:image" content="https://picorubykaigi.org/images/ogp.png">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@picorubykaigi">
+<meta name="twitter:title" content="GC PANIC | PicoRubyKaigi 2026 Assemble">
+<meta name="twitter:image" content="https://picorubykaigi.org/images/ogp.png">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitcount+Single:ELSH,wght@0..100,100..900&family=Jersey+10&family=Micro+5&family=DotGothic16&display=swap">
+<link rel="stylesheet" href="game.css">
+</head>
+<body>
+  <header class="head">
+    <a class="logo" href="/"><span class="logo-name"><span class="pico">P<span class="kern-pi">i</span><span class="kern-ic">c</span>oRuby</span><span class="kaigi"><span class="kern-yk">K</span>ai<span class="kern-ig">gi</span></span></span><span class="logo-meta"><span class="year">2026</span><span class="assemble">Assemble</span></span></a>
+  </header>
+  <div class="frame">
+
+    <main id="app">
+      <div class="boot" id="boot">LOADING...</div>
+    </main>
+
+    <footer class="foot">
+      <span class="powered">POWERED BY <a href="https://www.npmjs.com/package/@picoruby/wasm-wasi" target="_blank" rel="noopener">PicoRuby.wasm</a> + <a href="https://picoruby.org/funicular" target="_blank" rel="noopener">FUNICULAR</a></span>
+    </footer>
+  </div>
+
+  <script>
+  // 8bitのSFX。音はプラットフォーム側の領分(実機ボードではブザーになる)
+  // なので JS に置き、ゲームコアは純粋Rubyのままにする。
+  window.gameSfx = (function () {
+    var ctx = null;
+    function ac() {
+      if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+      if (ctx.state === 'suspended') ctx.resume();
+      return ctx;
+    }
+    function beep(freq, dur, type, gain, when) {
+      var c = ac();
+      var t = c.currentTime + (when || 0);
+      var o = c.createOscillator();
+      var g = c.createGain();
+      o.type = type;
+      o.frequency.value = freq;
+      g.gain.setValueAtTime(gain, t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g);
+      g.connect(c.destination);
+      o.start(t);
+      o.stop(t + dur + 0.02);
+    }
+    // 長音階: 回収音のピッチが連鎖に応じて1度ずつ上がる
+    var SCALE = [0, 2, 4, 5, 7, 9, 11, 12, 14, 16, 17, 19];
+    function degree(level) {
+      var i = level < 0 ? 0 : level > 11 ? 11 : level;
+      return 330 * Math.pow(2, SCALE[i] / 12);
+    }
+    return {
+      start: function () { beep(440, 0.08, 'square', 0.05); beep(660, 0.1, 'square', 0.05, 0.09); },
+      // 回収の単発ブリップ。進行に応じてピッチが変わる
+      lock: function (level) { beep(degree(level), 0.07, 'square', 0.05); },
+      // PERFECT: 連鎖に応じて駆け上がる2連チャープ
+      perfect: function (chain) {
+        var f = degree(chain);
+        beep(f, 0.05, 'square', 0.05);
+        beep(f * 1.5, 0.08, 'square', 0.05, 0.06);
+      },
+      over: function () { beep(220, 0.12, 'square', 0.06); beep(165, 0.14, 'square', 0.06, 0.13); beep(110, 0.3, 'sawtooth', 0.06, 0.28); },
+      // 方向転換が受理された: 小さなコーナリング音(ピッチグライド)
+      tick: function () {
+        var c = ac();
+        var t = c.currentTime;
+        var o = c.createOscillator();
+        var g = c.createGain();
+        o.type = 'triangle';
+        o.frequency.setValueAtTime(780, t);
+        o.frequency.exponentialRampToValueAtTime(1450, t + 0.07);
+        g.gain.setValueAtTime(0.028, t);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
+        o.connect(g);
+        g.connect(c.destination);
+        o.start(t);
+        o.stop(t + 0.11);
+      },
+      // 生きているオブジェクトを解放してしまった: 短い不協和音のクラック
+      crack: function () { beep(466, 0.06, 'sawtooth', 0.07); beep(440, 0.1, 'sawtooth', 0.07, 0.03); },
+      // 連鎖音: リンク1回につき小さなハープのグリッサンド一発
+      kyui: function (chain) {
+        // ド・ミ・ソが駆け上がる3音。単発の回収ブリップとは確実に
+        // 別レイヤーに聞こえ、アルペジオ全体が連鎖ごとに半音ずつ上がる
+        var f0 = 392 * Math.pow(2, Math.min(chain, 12) / 12);
+        [0, 4, 7].forEach(function (s, i) {
+          beep(f0 * Math.pow(2, s / 12), 0.09, 'triangle', 0.045, i * 0.045);
+        });
+      },
+      // GC.start: 素早い掃除のアルペジオ
+      win: function () {
+        [0, 4, 7, 12, 7, 12, 16, 19].forEach(function (s, i) {
+          beep(523 * Math.pow(2, s / 12), 0.12, 'square', 0.05, i * 0.11);
+        });
+      }
+    };
+  })();
+  </script>
+
+  <script>
+  // Xへのポスト。モバイルはカスタムスキーム(twitter://)でXアプリを起こす
+  // ——アプリを確実に開ける唯一の方法。Webフォールバックのタイマーは
+  // ページがフォーカスや可視性を失った瞬間にキャンセルされるので、
+  // アプリ起動や Brave の「アプリで開く?」ダイアログと競合しない。
+  // アプリなし・ダイアログなしのときだけタイマーが発火して
+  // Webのポスト画面へ遷移する。
+  window.shareResult = function (text) {
+    var payload = encodeURIComponent(text + '\n' + location.href);
+    var web = 'https://twitter.com/intent/tweet?text=' + payload;
+    if (/iPhone|iPad|Android/i.test(navigator.userAgent)) {
+      var done = false;
+      var cancel = function () { done = true; };
+      window.addEventListener('blur', cancel, { once: true });
+      window.addEventListener('pagehide', cancel, { once: true });
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) cancel();
+      }, { once: true });
+      setTimeout(function () { if (!done) location.href = web; }, 1400);
+      var app = 'twitter://post?message=' + payload;
+      if (/iPhone|iPad/i.test(navigator.userAgent)) {
+        // iOS系: location.href だとスキームへの遷移失敗がタブ復帰時に
+        // 「アドレスが無効」エラーとして表示される。隠しiframeなら
+        // アプリ起動は同じで、失敗は無音
+        var f = document.createElement('iframe');
+        f.style.display = 'none';
+        f.src = app;
+        document.body.appendChild(f);
+        setTimeout(function () { f.remove(); }, 2500);
+      } else {
+        location.href = app;
+      }
+      return;
+    }
+    window.open(web, '_blank', 'noopener');
+  };
+  </script>
+
+  <!-- ひとつのVMで順番に実行される: コアが先、コンポーネントが最後 -->
+  <script type="text/ruby" src="sweeper.rb"></script>
+  <script type="text/ruby" src="titles.rb"></script>
+  <script type="text/ruby" src="matrix_view.rb"></script>
+  <script type="text/ruby" src="fx.rb"></script>
+  <script type="text/ruby" src="share_card.rb"></script>
+  <script type="text/ruby" src="app.rb"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@picoruby/wasm-wasi@4.0.0/dist/init.iife.js"></script>
+</body>
+</html>
