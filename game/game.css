@@ -693,6 +693,29 @@ body.playing .logo {
 .phase-ready .zukan-btn,
 .phase-over .zukan-btn { display: inline-block; }
 
+/* ゆっくりモード切替: 押すとカメが点灯 */
+.slow-btn {
+  display: none;
+  font-family: 'DotGothic16', monospace;
+  font-size: 13px;
+  color: var(--sub);
+  background: transparent;
+  border: 1px solid #2c3a4e;
+  border-radius: 6px;
+  padding: 7px 12px 8px;
+  cursor: pointer;
+}
+
+.phase-ready .slow-btn,
+.phase-over .slow-btn { display: inline-block; }
+
+.slow-btn.on {
+  color: var(--bg);
+  background: #56f096;
+  border-color: transparent;
+  box-shadow: 0 0 8px rgba(86, 240, 150, .4);
+}
+
 .zukan {
   position: fixed;
   inset: 0;

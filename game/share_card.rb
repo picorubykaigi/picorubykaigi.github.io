@@ -1,10 +1,10 @@
 class ShareCard
   EMOJI = ['⬛', '⬜', '🟥', '⬜', '🟨', '🟩', '🟪', '🟧', '🟦']
 
-  def self.text(score, title, core)
+  def self.text(score, title, core, slow = false)
     lines = []
     lines << '🕹️ GC PANIC - PicoRubyKaigi 2026 Assemble'
-    lines << "#{score} bytes 解放・FREE #{core.free_pct}%"
+    lines << "#{score} bytes 解放・FREE #{core.free_pct}%#{slow ? '・🐢ゆっくり' : ''}"
     lines << case (score + core.ticks) % 3
              when 0 then "#{title}を拾いました"
              when 1 then "#{title}が割り当てられました"

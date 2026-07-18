@@ -35,9 +35,10 @@ class App < Funicular::Component
     @frag_cd = 0
     @gc_hinted = false
     @collected = read_collection
+    @yukkuri = JS.global[:localStorage].getItem('gc-panic-slow').to_s == '1'
     { phase: 'ready', score: 0, best: read_best, free: 100, flash: '', chain: 0,
       pc: false, title: '', record: false, over_en: '', over_ja: '', gcbusy: false,
-      gchint: false, zukan: false, comp: collection_complete? }
+      gchint: false, zukan: false, comp: collection_complete?, yukkuri: @yukkuri }
   end
 
   def component_mounted
@@ -76,6 +77,7 @@ class App < Funicular::Component
         do_share if target.closest('.share-btn')
         full_gc_action if target.closest('.gcstart-btn')
         patch(zukan: !state.zukan) if target.closest('.zukan-btn')
+        toggle_yukkuri if target.closest('.slow-btn')
         patch(zukan: false) if state.zukan && target.closest('.zukan')
       end
     end
@@ -116,7 +118,7 @@ class App < Funicular::Component
   def pointer_down(event)
     return unless event
     target = event[:target]
-    return if target && target.closest('.share-btn, .gcstart-btn, .zukan-btn, .zukan, a')
+    return if target && target.closest('.share-btn, .gcstart-btn, .zukan-btn, .zukan, .slow-btn, a')
     if state.phase == 'play'
       @ptr_x = event[:clientX].to_f
       @ptr_y = event[:clientY].to_f
@@ -164,7 +166,7 @@ class App < Funicular::Component
     @dragging = false
     return unless event
     target = event[:target]
-    return if target && target.closest('.share-btn, .zukan-btn, .zukan')
+    return if target && target.closest('.share-btn, .zukan-btn, .zukan, .slow-btn')
     dx = event[:clientX].to_f - @ptr_x
     dy = event[:clientY].to_f - @ptr_y
     adx = dx < 0 ? -dx : dx
@@ -236,7 +238,7 @@ class App < Funicular::Component
 
   def schedule_step
     id = @tick
-    JS.global.setTimeout(@core.interval) do
+    JS.global.setTimeout(step_interval) do
       if id == @tick && @core.phase == :play
         prev = @core.player_cell
         result = @core.step
@@ -364,7 +366,7 @@ class App < Funicular::Component
   # best / share
 
   def best_key
-    "gc-panic-best-#{@core.cols}"
+    @yukkuri ? "gc-panic-best-#{@core.cols}-slow" : "gc-panic-best-#{@core.cols}"
   end
 
   def read_best
@@ -391,6 +393,18 @@ class App < Funicular::Component
     JS.global[:localStorage].setItem(COLLECT_TITLES_KEY, @collected.join('|'))
   end
 
+  def toggle_yukkuri
+    return if state.phase == 'play'
+    @yukkuri = !@yukkuri
+    JS.global[:localStorage].setItem('gc-panic-slow', @yukkuri ? '1' : '0')
+    patch(yukkuri: @yukkuri, best: read_best)
+  end
+
+  def step_interval
+    ms = @core.interval
+    @yukkuri ? ms * 2 : ms
+  end
+
   def collection_complete?
     Titles::TIERS.each do |t|
       t[1].each { |n| return false unless @collected.include?(n) }
@@ -400,7 +414,7 @@ class App < Funicular::Component
 
   def do_share
     return unless state.phase == 'over'
-    JS.global.shareResult(ShareCard.text(state.score, state.title, @core))
+    JS.global.shareResult(ShareCard.text(state.score, state.title, @core, @yukkuri))
   end
 
   # view
@@ -467,6 +481,7 @@ state.chain >= 2 ? "がったい ×#{state.chain}（スコア#{state.chain > 8 ?
       div(class: 'actions') do
         button(class: 'share-btn') { '🏆 称号をシェア' }
         button(class: 'zukan-btn') { '📖 コレクション' }
+        button(class: state.yukkuri ? 'slow-btn on' : 'slow-btn') { '🐢 ゆっくり' }
       end
       if state.zukan
         div(class: 'zukan') do
