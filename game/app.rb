@@ -35,7 +35,8 @@ class App < Funicular::Component
     @frag_cd = 0
     @gc_hinted = false
     @collected = read_collection
-    @yukkuri = JS.global[:localStorage].getItem('gc-panic-slow').to_s == '1'
+    v = JS.global[:localStorage].getItem('gc-panic-slow')
+    @yukkuri = v.nil? ? true : v.to_s == '1'
     { phase: 'ready', score: 0, best: read_best, free: 100, flash: '', chain: 0,
       pc: false, title: '', record: false, over_en: '', over_ja: '', gcbusy: false,
       gchint: false, zukan: false, info: false, comp: collection_complete?,
