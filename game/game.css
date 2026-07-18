@@ -53,6 +53,7 @@ a {
 /* Blogの .panel と同じ発想: 中央の無背景ブロックに盤面を置いて、
    ブレッドボードがLEDの下を走らないようにする */
 main#app {
+  position: relative;
   width: min(100%, 520px);
   background: #131828;
   border: 2px solid #242e45;
@@ -221,7 +222,10 @@ body.playing .logo {
 /* ===== スコア ===== */
 .hud {
   display: flex;
-  gap: 26px;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(10px, 3.5vw, 26px);
+  width: 100%;
   font-family: 'Micro 5', monospace;
 }
 
@@ -731,13 +735,14 @@ body.playing .logo {
   cursor: pointer;
 }
 
-.phase-ready .slow-btn,
-.phase-over .slow-btn { display: inline-block; }
+.phase-ready .slow-btn { display: inline-block; }
 
 /* モバイル専用の操作説明: タップゾーンの図解 */
-/* ⓘ はボタンの箱なし、素のアイコンとして置く */
 .info-btn {
   display: none;
+  position: absolute;
+  top: 10px;
+  right: 12px;
   font-family: 'DotGothic16', monospace;
   font-size: 19px;
   line-height: 1;
@@ -859,6 +864,9 @@ body.playing .logo {
    境界をまたいでLEDサイズが変わってしまうので、幅で判定する */
 @media (max-width: 480px) {
   .frame { gap: 6px; padding-top: 8px; }
+  .hud-label { font-size: 18px; margin-right: 5px; }
+  .hud-value { font-size: 22px; }
+  .gcstart-btn { font-size: 13px; padding: 4px 9px 5px; }
   main#app { padding: 10px 10px 12px; }
   .matrix { width: min(80vw, calc(36svh * var(--cols, 16) / var(--rows, 16)), 460px); }
   .msg-en { font-size: 22px; }

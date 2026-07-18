@@ -434,6 +434,7 @@ class App < Funicular::Component
         span(class: 't-lamp') { '' }
         span { 'GC PANIC' }
       end
+      button(class: 'info-btn') { 'ⓘ' }
       div(class: 'hud') do
         div(class: 'hud-item') do
           span(class: 'hud-label') { 'BYTES' }
@@ -486,7 +487,6 @@ state.chain >= 2 ? "がったい ×#{state.chain}（スコア#{state.chain > 8 ?
         button(class: 'share-btn') { '🏆 称号をシェア' }
         button(class: 'zukan-btn') { '📖 コレクション' }
         button(class: state.yukkuri ? 'slow-btn on' : 'slow-btn') { '🐢 ゆっくり' }
-        button(class: 'info-btn') { 'ⓘ' }
       end
       if state.info
         div(class: 'zukan') do
