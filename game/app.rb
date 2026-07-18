@@ -9,13 +9,13 @@ require 'js'
 #   share_card.rb  - Xポスト文面
 class App < Funicular::Component
   MESSAGES_TOUCH = {
-    'ready' => ['TAP TO START', 'グレーのゴミだけ掃除'],
-    'play'  => ['', '外タップで左右・内タップで上下'],
+    'ready' => ['TAP TO START', '外タップで左右・内タップで上下', 'グレーのゴミだけ掃除'],
+    'play'  => ['', 'グレーのゴミだけ掃除'],
     'over'  => ['SEGV', ''],
   }
 
   MESSAGES_PC = {
-    'ready' => ['PRESS SPACE', 'グレーのゴミだけ掃除'],
+    'ready' => ['PRESS SPACE', '矢印キーで移動・スペースで FULL GC', 'グレーのゴミだけ掃除'],
     'play'  => ['', '矢印キーで掃除・スペースで FULL GC'],
     'over'  => ['SEGV', ''],
   }
@@ -38,7 +38,8 @@ class App < Funicular::Component
     @yukkuri = JS.global[:localStorage].getItem('gc-panic-slow').to_s == '1'
     { phase: 'ready', score: 0, best: read_best, free: 100, flash: '', chain: 0,
       pc: false, title: '', record: false, over_en: '', over_ja: '', gcbusy: false,
-      gchint: false, zukan: false, comp: collection_complete?, yukkuri: @yukkuri }
+      gchint: false, zukan: false, info: false, comp: collection_complete?,
+      yukkuri: @yukkuri }
   end
 
   def component_mounted
@@ -78,6 +79,8 @@ class App < Funicular::Component
         full_gc_action if target.closest('.gcstart-btn')
         patch(zukan: !state.zukan) if target.closest('.zukan-btn')
         toggle_yukkuri if target.closest('.slow-btn')
+        patch(info: !state.info) if target.closest('.info-btn')
+        patch(info: false) if state.info && target.closest('.zukan')
         patch(zukan: false) if state.zukan && target.closest('.zukan')
       end
     end
@@ -118,7 +121,7 @@ class App < Funicular::Component
   def pointer_down(event)
     return unless event
     target = event[:target]
-    return if target && target.closest('.share-btn, .gcstart-btn, .zukan-btn, .zukan, .slow-btn, a')
+    return if target && target.closest('.share-btn, .gcstart-btn, .zukan-btn, .zukan, .slow-btn, .info-btn, a')
     if state.phase == 'play'
       @ptr_x = event[:clientX].to_f
       @ptr_y = event[:clientY].to_f
@@ -166,7 +169,7 @@ class App < Funicular::Component
     @dragging = false
     return unless event
     target = event[:target]
-    return if target && target.closest('.share-btn, .zukan-btn, .zukan, .slow-btn')
+    return if target && target.closest('.share-btn, .zukan-btn, .zukan, .slow-btn, .info-btn')
     dx = event[:clientX].to_f - @ptr_x
     dy = event[:clientY].to_f - @ptr_y
     adx = dx < 0 ? -dx : dx
@@ -467,6 +470,7 @@ state.chain >= 2 ? "がったい ×#{state.chain}（スコア#{state.chain > 8 ?
           oja = state.phase == 'over' && state.over_ja != '' ? state.over_ja : nil
           div(class: 'msg-en') { oen || msg[0] || '' }
           div(class: 'msg-ja') { oja || msg[1] || '' }
+          div(class: 'msg-ja') { state.phase == 'ready' ? (msg[2] || '') : '' }
         end
         div(class: 'msg-record') do
           state.phase == 'over' && state.record ? '🏆 NEW RECORD!' : ''
@@ -482,6 +486,26 @@ state.chain >= 2 ? "がったい ×#{state.chain}（スコア#{state.chain > 8 ?
         button(class: 'share-btn') { '🏆 称号をシェア' }
         button(class: 'zukan-btn') { '📖 コレクション' }
         button(class: state.yukkuri ? 'slow-btn on' : 'slow-btn') { '🐢 ゆっくり' }
+        button(class: 'info-btn') { 'ⓘ' }
+      end
+      if state.info
+        div(class: 'zukan') do
+          div(class: 'zukan-inner') do
+            div(class: 'zukan-title') { 'そうさ方法' }
+            div(class: 'zmap') do
+              div(class: 'zm-side') { '←' }
+              div(class: 'zm-mid') do
+                div(class: 'zm-cell') { '↑' }
+                div(class: 'zm-cell') { '↓' }
+              end
+              div(class: 'zm-side') { '→' }
+            end
+            div(class: 'info-line') { '盤面の下をタップ: はしで左右・内側で上下' }
+            div(class: 'info-line') { 'スワイプでも動かせる' }
+            div(class: 'info-line') { 'FULL GC: 右上のボタン(全ゴミを半額で回収)' }
+            div(class: 'zukan-close') { 'タップで閉じる' }
+          end
+        end
       end
       if state.zukan
         div(class: 'zukan') do

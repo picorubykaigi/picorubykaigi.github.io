@@ -159,10 +159,35 @@ main#app {
 }
 
 .boot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 26px 0;
+}
+
+.boot-loading {
   font-family: 'Jersey 10', monospace;
   font-size: 24px;
   color: var(--dim);
   animation: blink 1.1s linear infinite;
+}
+
+/* 起動待ちの時間が そのまま操作説明タイムになる */
+.boot-help {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+}
+
+@media (pointer: coarse) {
+  .boot-touch { display: flex; }
+}
+
+/* マウスがあるならPC扱い: タッチ説明は出さない(タッチ付きPC対策で後勝ち) */
+@media (pointer: fine) {
+  .boot-pc { display: flex; }
+  .boot-touch { display: none; }
 }
 
 .game {
@@ -708,6 +733,70 @@ body.playing .logo {
 
 .phase-ready .slow-btn,
 .phase-over .slow-btn { display: inline-block; }
+
+/* モバイル専用の操作説明: タップゾーンの図解 */
+/* ⓘ はボタンの箱なし、素のアイコンとして置く */
+.info-btn {
+  display: none;
+  font-family: 'DotGothic16', monospace;
+  font-size: 19px;
+  line-height: 1;
+  color: var(--dim);
+  background: transparent;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+}
+
+.info-btn:active { color: var(--ink); }
+
+.phase-ready .info-btn { display: inline-block; }
+.game.pc .info-btn { display: none; }
+
+.zmap {
+  display: flex;
+  gap: 4px;
+  width: 210px;
+  height: 110px;
+  margin: 4px auto 10px;
+}
+
+.zm-side {
+  width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1a2133;
+  border: 1px dashed #3a4a66;
+  border-radius: 8px;
+  color: var(--ink);
+  font-size: 17px;
+}
+
+.zm-mid {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.zm-cell {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1a2133;
+  border: 1px dashed #3a4a66;
+  border-radius: 8px;
+  color: var(--ink);
+  font-size: 17px;
+}
+
+.info-line {
+  font-size: 12px;
+  color: var(--sub);
+  text-align: center;
+}
 
 .slow-btn.on {
   color: var(--bg);
