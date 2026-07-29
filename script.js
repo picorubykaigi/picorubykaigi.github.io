@@ -600,6 +600,7 @@ function bbApplyGridShift(){
   let endlessDance=false, speakerWasIn=false, speakerEverDragged=false;   // スピーカーを「最後の1個」としてはめて完成させたか
   const blogLink=document.querySelector('.blog-link');
   const gameLink=document.querySelector('.game-link');
+  const teamLink=document.querySelector('.team-link');
   function frame(){
     const sr=stage.getBoundingClientRect();
     SOCKETS.forEach(s=>{
@@ -608,12 +609,13 @@ function bbApplyGridShift(){
       // ソケット枠を「部品が実際に収まる格子位置」に合わせる
       const [sx,sy]=bbSnapPos(s.part, p0.sx, p0.sy, W, H, sr.height);
       s.el.style.left=sx+'px'; s.el.style.top=sy+'px'; s.el.style.width=W+'px'; s.el.style.height=H+'px';
-      // Keep the blog link right-aligned just left of the battery socket (its x moves with the logo width)
+      // Keep the nav links right-aligned just left of the battery socket (x moves with the logo width).
+      // Left to right: Blog, Game, Team
       if(s.part==='battery' && blogLink){
-        const br=sr.width-sx+18;
-        blogLink.style.right=br+'px';
-        // Game link sits just left of Blog, same moving anchor
-        if(gameLink) gameLink.style.right=(br+blogLink.getBoundingClientRect().width+26)+'px';
+        let r=sr.width-sx+18;
+        if(teamLink){ teamLink.style.right=r+'px'; r+=teamLink.getBoundingClientRect().width+26; }
+        if(gameLink){ gameLink.style.right=r+'px'; r+=gameLink.getBoundingClientRect().width+26; }
+        blogLink.style.right=r+'px';
       }
       const ccx=sx+W/2, ccy=sy+H/2; // ソケット中心
       let inSlot=false, hit=null, touching=false, wrong=false;

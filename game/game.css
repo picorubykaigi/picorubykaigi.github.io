@@ -4,6 +4,9 @@
   --dim: #5a6580;
   --sub: #9aa3b8;
   --led-off: #1e2534;
+  /* 共通ナビ(nav.css)が参照するテーマ色 */
+  --card: #10131c;
+  --line: #5a6580;
   --green: #56f096;
   --pink: #fb5479;
   --yellow: #ffc12e;
@@ -68,6 +71,7 @@ main#app {
   padding: 0 clamp(20px, 4vw, 44px);
   display: flex;
   align-items: center;
+  justify-content: space-between;
 }
 
 /* Blogと同じロゴ(content.css .logo 系と同一マークアップ、ゲーム向けサイズ) */

@@ -567,7 +567,8 @@ body.dark .cross { --tint: #56f096; } /* ダーク=緑 */
 }
 
 .blog-link,
-.game-link {
+.game-link,
+.team-link {
   position: absolute;
   top: 16px;
   right: 96px;
