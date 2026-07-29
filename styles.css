@@ -31,6 +31,8 @@ img {
   --redd: #c0223a;
   --yellow: #ffc12e;
   --pink: #ff4a2e; /* Ruby に寄せた光のにじみ色（オレンジ寄りの暖かい赤＝スカーレット。L-chika と共通） */
+  --card: #f6f4ea;
+  --line: #d8d4c4;
   /* L-chika 点灯色(モードで色だけ差し替え。アニメ名は変えない=切替で再スタートしない) */
   --lit-stroke: #ffe7d8;                 /* 点灯時の枠色 */
   --lit-glow-a: #ffd9c2;                  /* にじみ(内) */
@@ -566,20 +568,22 @@ body.dark .cross { --tint: #56f096; } /* ダーク=緑 */
   display: none;
 }
 
-.blog-link,
-.game-link,
-.team-link {
+/* 共通ナビ(nav.css)のトップページ用配置: 右上・上下センター。
+   横並びナビはバッテリーソケット(右上レール)の左、ハンバーガー(≤560px)は右端でバッテリーが左 */
+.top-nav {
   position: absolute;
-  top: 16px;
+  top: 0;
   right: 96px;
-  height: 60px;
-  display: inline-flex;
+  height: 96px;
+  display: flex;
   align-items: center;
   z-index: 6;
-  font-family: 'Jersey 10', sans-serif;
-  font-size: clamp(20px, 2.4vw, 21px);
-  letter-spacing: .14em;
-  color: var(--ink);
+}
+
+@media (max-width: 560px) {
+  .top-nav {
+    right: 20px;
+  }
 }
 /* ===== 電光掲示板ティッカー: 日付+会場が右→左へ流れる ===== */
 .ticker {
@@ -899,7 +903,7 @@ body.fx-lchika-off .title .prk .l-chika::after { animation: none; }
 
 /* ダークモード: breadboard_dark.png のカラーリング(配置・デザインは同じ)。
    背景=濃紺、ホール=ティールグリーン、レールは赤/青のまま。文字は明色に反転。 */
-body.dark { --bg: #10131c; --ink: #ece9df; }
+body.dark { --bg: #10131c; --ink: #ece9df; --card: #191d28; --line: #333a49; }
 body.dark .stage {
   background:
     url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2796%27%3E%3Crect%20x=%270%27%20y=%270%27%20width=%2724%27%20height=%2796%27%20fill=%27%2310131c%27/%3E%3Crect%20x=%270%27%20y=%2712%27%20width=%2724%27%20height=%274%27%20fill=%27%23e8404b%27/%3E%3Crect%20x=%279.5%27%20y=%2731.5%27%20width=%275%27%20height=%275%27%20fill=%27%232e5247%27/%3E%3Crect%20x=%2711%27%20y=%2733%27%20width=%274%27%20height=%274%27%20fill=%27%2316302a%27/%3E%3Crect%20x=%279.5%27%20y=%2755.5%27%20width=%275%27%20height=%275%27%20fill=%27%232e5247%27/%3E%3Crect%20x=%2711%27%20y=%2757%27%20width=%274%27%20height=%274%27%20fill=%27%2316302a%27/%3E%3Crect%20x=%270%27%20y=%2776%27%20width=%2724%27%20height=%274%27%20fill=%27%234a7bd6%27/%3E%3C/svg%3E") left top/24px 96px repeat-x,
