@@ -580,7 +580,7 @@ body.dark .cross { --tint: #56f096; } /* ダーク=緑 */
   z-index: 6;
 }
 
-@media (max-width: 560px) {
+@media (max-width: 767px) {
   .top-nav {
     right: 20px;
   }

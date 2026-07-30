@@ -179,8 +179,8 @@ const BB_MOBILE=()=>window.matchMedia('(max-width: 767px)').matches;
 const M_DX={ seg7:-102, speaker:-6, motor:58, chip:128 };  // Ruby中心からの各ソケット中心オフセット(隙間20px)
 const M_SOCKET_GAP=24;   // ソケット行: Ruby下端から1レール(穴ピッチ)あけて配置
 const M_BAT_RIGHT=50;    // バッテリーソケット: ステージ右端から中心までの距離(右上レール、ナビの右)
-const M_BAT_RIGHT_BURGER=82;  // ハンバーガーメニュー幅(≤560px)ではナビが右端に来るので、その左に置く
-const NAV_BURGER=()=>window.matchMedia('(max-width: 560px)').matches;
+const M_BAT_RIGHT_BURGER=82;  // ハンバーガーメニュー幅(≤767px)ではナビが右端に来るので、その左に置く
+const NAV_BURGER=()=>window.matchMedia('(max-width: 767px)').matches;
 
 // ===== 部品スナップ共有定義(ドラッグ／回路の両方で使用) =====
 const BB_GRID=24;
