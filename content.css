@@ -282,14 +282,14 @@ img {
   justify-content: space-between;
   padding-bottom: 18px;
   border-bottom: 2px solid var(--line);
-  margin-bottom: 24px;
 }
 
 .team-title {
-  font-family: 'DotGothic16', sans-serif;
-  font-size: 28px;
-  line-height: 1.35;
-  letter-spacing: .18em;
+  font-family: 'Jersey 10', 'DotGothic16', sans-serif;
+  font-size: 38px;
+  line-height: 1;
+  letter-spacing: .24em;
+  padding-left: 4px;
 }
 
 .team-header .team-dancers {
@@ -303,22 +303,14 @@ img {
 }
 
 .team-section h2 {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-family: 'DotGothic16', sans-serif;
-  font-size: 22px;
+  width: fit-content;
+  font-family: 'Jersey 10', 'DotGothic16', sans-serif;
+  font-size: 28px;
   letter-spacing: .14em;
-  margin-bottom: 16px;
-}
-
-.team-section h2::before {
-  content: "";
-  flex-shrink: 0;
-  width: 4px;
-  height: 24px;
-  background: var(--muted);
-  transform: translateY(1px);
+  line-height: 1;
+  padding: 0 4px 0 8px;
+  background: #e2dfd0;
+  margin-bottom: 32px;
 }
 
 .team-grid {
@@ -358,6 +350,7 @@ img {
 .team-role {
   font-family: 'DotGothic16', sans-serif;
   font-size: 12px;
+  font-weight: 700;
   line-height: 1;
   letter-spacing: .1em;
   color: var(--muted);
@@ -466,6 +459,8 @@ html.dark .blog-card { background: #212838; }
 
 html.dark .content-body :not(pre) > code { background: #2b3242; }
 
+html.dark .team-section h2 { background: #2b3242; }
+
 html.dark .blog-dancer-led {
   position: absolute;
   right: 5px;
@@ -493,11 +488,8 @@ html.dark .logo .kaigi {
   .panel { padding: 24px 20px 32px; border-radius: 12px; }
   .blog-title { font-size: 36px; }
   .content-header h1 { font-size: 24px; }
-  .team-title {
-    font-size: 24px;
-  }
   .team-header .team-dancers {
-    gap: 16px;
+    gap: 10px;
   }
   .content-header { margin-bottom: 20px; }
   .content-body { font-size: 17px; }
