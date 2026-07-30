@@ -178,7 +178,9 @@ const BB_MOBILE=()=>window.matchMedia('(max-width: 767px)').matches;
 // ランダムに散らす(下の defaultPos)。
 const M_DX={ seg7:-102, speaker:-6, motor:58, chip:128 };  // Ruby中心からの各ソケット中心オフセット(隙間20px)
 const M_SOCKET_GAP=24;   // ソケット行: Ruby下端から1レール(穴ピッチ)あけて配置
-const M_BAT_RIGHT=50;    // バッテリーソケット(モバイル): ステージ右端から中心までの距離(右上レール)
+const M_BAT_RIGHT=50;    // バッテリーソケット: ステージ右端から中心までの距離(右上レール、ナビの右)
+const M_BAT_RIGHT_BURGER=82;  // ハンバーガーメニュー幅(≤767px)ではナビが右端に来るので、その左に置く
+const NAV_BURGER=()=>window.matchMedia('(max-width: 767px)').matches;
 
 // ===== 部品スナップ共有定義(ドラッグ／回路の両方で使用) =====
 const BB_GRID=24;
@@ -545,18 +547,6 @@ function bbApplyGridShift(){
   const mPlace=(a,sr,part,w,h)=>
     ({ sx:cx(a,sr)+M_DX[part]-w/2, sy:rubyBottom(a,sr)+M_SOCKET_GAP });
   // 「PicoRubyKaigi」が1行に収まっているか(<wbr>で PicoRuby/Kaigi が折り返すと2行になる)。
-  const logoPico=document.querySelector('.title .picoruby');
-  const logoKaigi=document.querySelector('.title .kaigi');
-  const logoOneLine=()=> !!logoPico && !!logoKaigi &&
-    Math.abs(logoPico.getBoundingClientRect().top - logoKaigi.getBoundingClientRect().top) < 4;
-  // バッテリーソケットの水平中心: ロゴ1行目の末尾文字の真上。1行なら Kaigi の "i"、折り返し時は PicoRuby の "y"。
-  const lastKaigiLed=document.querySelector('.title .kaigi .l-chika:last-child');
-  const lastPicoLed =document.querySelector('.title .picoruby .l-chika:last-child');
-  const batCenterX=sr=>{
-    const el=logoOneLine()?lastKaigiLed:lastPicoLed;
-    if(el){ const r=el.getBoundingClientRect(); return r.left-sr.left+r.width/2; }
-    return sr.width-166.5;   // フォールバック: 従来の右端-180 + 幅27/2
-  };
   const SOCKETS=[
     // 7セグ → スピーカーのさらに左 → 会期カウントダウンが点灯(抜くと消灯)。
     scene && { part:'seg7', anchor:scene, h:53,
@@ -587,19 +577,15 @@ function bbApplyGridShift(){
                                           : ({ sx:cx(a,sr)+204, sy:rowTop(a,sr,56) }),
                apply:on=>body.classList.toggle('fx-lchika-off', !on) },
     // バッテリー → 電源レール(赤+/青-)をまたぐ → ダークモード(暗闇でボードが光る)。
-    // 電光掲示板が出るデスクトップ(≥768px): ロゴ1行目末尾文字(1行=Kaigiの"i"/折り返し=PicoRubyの"y")の真上
-    // (部品のスナップ格子に丸める)。電光掲示板の無いモバイル(<768px): 右上レール。y は両方とも電源レール据え置き。
+    // 位置は右上レール。横並びナビでは右端(ナビの右)、ハンバーガー時は右端のナビの左。
     {            part:'battery', anchor:stage, w:27, h:46,
-               place(a,sr){ return BB_MOBILE() ? ({ sx:a.width-M_BAT_RIGHT-13.5, sy:24 })
-                                               : ({ sx:bbSnapP(batCenterX(sr),'battery',0)-this.w/2, sy:24 }); },
+               place:(a,sr)=>({ sx:a.width-(NAV_BURGER()?M_BAT_RIGHT_BURGER:M_BAT_RIGHT)-13.5, sy:24 }),
                apply:on=>{ body.classList.toggle('dark', on);
                  // ダンス中にダーク切替されたらパーティモードのベース増強も追従
                  if(window.danceParty) window.danceParty(on && body.classList.contains('dance-on')); } },
   ].filter(Boolean);
   SOCKETS.forEach(s=>{ s.el=document.createElement('div'); s.el.className='circuit-slot circuit-slot--'+s.part; stage.appendChild(s.el); s.was=false; s.wasTouch=false; s.wasWrong=false; s.apply(false); });
   let endlessDance=false, speakerWasIn=false, speakerEverDragged=false;   // スピーカーを「最後の1個」としてはめて完成させたか
-  const blogLink=document.querySelector('.blog-link');
-  const gameLink=document.querySelector('.game-link');
   function frame(){
     const sr=stage.getBoundingClientRect();
     SOCKETS.forEach(s=>{
@@ -608,13 +594,6 @@ function bbApplyGridShift(){
       // ソケット枠を「部品が実際に収まる格子位置」に合わせる
       const [sx,sy]=bbSnapPos(s.part, p0.sx, p0.sy, W, H, sr.height);
       s.el.style.left=sx+'px'; s.el.style.top=sy+'px'; s.el.style.width=W+'px'; s.el.style.height=H+'px';
-      // Keep the blog link right-aligned just left of the battery socket (its x moves with the logo width)
-      if(s.part==='battery' && blogLink){
-        const br=sr.width-sx+18;
-        blogLink.style.right=br+'px';
-        // Game link sits just left of Blog, same moving anchor
-        if(gameLink) gameLink.style.right=(br+blogLink.getBoundingClientRect().width+26)+'px';
-      }
       const ccx=sx+W/2, ccy=sy+H/2; // ソケット中心
       let inSlot=false, hit=null, touching=false, wrong=false;
       parts.forEach(p=>{

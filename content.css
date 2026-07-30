@@ -54,6 +54,7 @@ img {
   padding: 0 clamp(20px, 4vw, 44px);
   display: flex;
   align-items: center;
+  justify-content: space-between;
 }
 
 .logo {
@@ -271,6 +272,136 @@ img {
   font-size: 15px;
 }
 
+.container-wide {
+  max-width: 1200px;
+}
+
+.team-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 18px;
+  border-bottom: 2px solid var(--line);
+}
+
+.team-title {
+  font-family: 'Jersey 10', 'DotGothic16', sans-serif;
+  font-size: 38px;
+  line-height: 1;
+  letter-spacing: .24em;
+  padding-left: 4px;
+}
+
+.team-header .team-dancers {
+  margin: 0;
+  gap: 28px;
+  transform: translateY(6px);
+}
+
+.team-section {
+  margin-top: 36px;
+}
+
+.team-section h2 {
+  width: fit-content;
+  font-family: 'Jersey 10', 'DotGothic16', sans-serif;
+  font-size: 28px;
+  letter-spacing: .14em;
+  line-height: 1;
+  padding: 0 4px 0 8px;
+  background: #e2dfd0;
+  margin-bottom: 32px;
+}
+
+.team-grid {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px 14px;
+}
+
+@media (min-width: 640px) {
+  .team-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 32px 20px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .team-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 40px 24px;
+  }
+}
+
+.team-card {
+  min-width: 0;
+  text-align: center;
+}
+
+.team-photo {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.team-role {
+  font-family: 'DotGothic16', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: .1em;
+  color: var(--muted);
+  margin-top: 12px;
+}
+
+.team-name {
+  font-family: 'Jersey 10', 'DotGothic16', sans-serif;
+  font-size: 24px;
+  line-height: .95;
+  letter-spacing: .1em;
+  margin-top: 4px;
+}
+
+.team-links {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.team-links a {
+  display: inline-flex;
+  padding: 3px;
+  color: var(--muted);
+  transition: color .15s ease;
+}
+
+.team-links a:hover {
+  color: var(--ink);
+}
+
+.team-links svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+.team-id {
+  font-family: 'Jersey 10', sans-serif;
+  font-size: 15px;
+  line-height: 1;
+  letter-spacing: .04em;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.team-id a:hover {
+  text-decoration: underline;
+}
+
 .blog-footer {
   margin-top: 48px;
   padding-top: 20px;
@@ -328,6 +459,8 @@ html.dark .blog-card { background: #212838; }
 
 html.dark .content-body :not(pre) > code { background: #2b3242; }
 
+html.dark .team-section h2 { background: #2b3242; }
+
 html.dark .blog-dancer-led {
   position: absolute;
   right: 5px;
@@ -355,6 +488,9 @@ html.dark .logo .kaigi {
   .panel { padding: 24px 20px 32px; border-radius: 12px; }
   .blog-title { font-size: 36px; }
   .content-header h1 { font-size: 24px; }
+  .team-header .team-dancers {
+    gap: 10px;
+  }
   .content-header { margin-bottom: 20px; }
   .content-body { font-size: 17px; }
   .logo-name { letter-spacing: .01em; }
