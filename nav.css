@@ -29,14 +29,22 @@
   text-decoration: none;
 }
 
-@media (min-width: 768px) {
+/* The longest label in the nav; tighter tracking keeps it from sprawling
+   next to Blog/Game/Team. */
+.nav-list .nav-sponsors {
+  letter-spacing: .06em;
+}
+
+@media (min-width: 900px) {
   .nav-list a:hover {
     text-decoration: underline;
     text-underline-offset: 4px;
   }
 }
 
-@media (max-width: 767px) {
+/* The four-item nav plus the logo needs ~900px on one line; below that the
+   burger takes over. */
+@media (max-width: 899px) {
   .nav-burger {
     display: flex;
     flex-direction: column;
