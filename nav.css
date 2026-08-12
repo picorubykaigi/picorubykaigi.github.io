@@ -29,22 +29,26 @@
   text-decoration: none;
 }
 
-/* The longest label in the nav; tighter tracking keeps it from sprawling
+/* The long labels in the nav; tighter tracking keeps them from sprawling
    next to Blog/Game/Team. */
 .nav-list .nav-sponsors {
   letter-spacing: .06em;
 }
 
-@media (min-width: 900px) {
+.nav-list .nav-goodies {
+  letter-spacing: .08em;
+}
+
+@media (min-width: 1024px) {
   .nav-list a:hover {
     text-decoration: underline;
     text-underline-offset: 4px;
   }
 }
 
-/* The four-item nav plus the logo needs ~900px on one line; below that the
+/* The five-item nav plus the logo needs ~1024px on one line; below that the
    burger takes over. */
-@media (max-width: 899px) {
+@media (max-width: 1023px) {
   .nav-burger {
     display: flex;
     flex-direction: column;

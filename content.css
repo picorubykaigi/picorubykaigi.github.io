@@ -416,7 +416,7 @@ img {
   gap: 16px;
   background: #fff;
   border-radius: 8px;
-  padding: 20px;
+  padding: 18px;
 }
 
 /* Logos keep a white plate in both themes: sponsor artwork is supplied for light
@@ -435,10 +435,15 @@ img {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
+}
+
+.sponsor-logo img,
+.goodies-plate img {
   transition: transform .15s ease;
 }
 
-.sponsor-logo:hover img {
+.sponsor-logo:hover img,
+.goodies-plate:hover img {
   transform: scale(1.05);
 }
 
@@ -551,6 +556,122 @@ img {
   }
 }
 
+.goodies-list {
+  list-style: none;
+  max-width: 880px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 18px;
+}
+
+.goodies-item {
+  min-width: 0;
+  display: flex;
+}
+
+.goodies-plate {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eceade;
+  border-radius: 8px;
+  padding: 16px;
+  overflow: hidden;
+}
+
+.goodies-plate img {
+  width: 100%;
+  height: auto;
+}
+
+.goodies-list-logo {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.goodies-item-wide {
+  grid-column: 1 / -1;
+}
+
+.goodies-item-wide .goodies-plate {
+  padding-top: 44px;
+  padding-bottom: 34px;
+}
+
+.goodies-plate .goodies-horizontal {
+  width: 100%;
+}
+
+.goodies-plate .goodies-vertical {
+  width: 88%;
+}
+
+.goodies-plate .goodies-mark {
+  width: 62%;
+}
+
+.goodies-plate-main {
+  padding: 0;
+  transition: transform .15s ease;
+}
+
+.goodies-plate-main:hover {
+  transform: scale(1.02);
+  z-index: 1;
+}
+
+.goodies-plate-main:hover img {
+  transform: none;
+}
+
+.goodies-license {
+  max-width: 880px;
+  margin: 0 auto;
+  font-size: 15px;
+  line-height: 1.95;
+  color: var(--muted);
+}
+
+.goodies-license a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.goodies-license a:hover {
+  color: var(--ink);
+}
+
+@media (min-width: 640px) {
+  .goodies-list-logo {
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  .goodies-item-wide {
+    grid-column: auto;
+  }
+
+  .goodies-item-wide .goodies-plate {
+    padding-top: 16px;
+    padding-bottom: 16px;
+  }
+
+  .goodies-list-logo .goodies-horizontal {
+    width: 92%;
+  }
+
+  .goodies-list-logo .goodies-vertical {
+    width: 84%;
+  }
+}
+
 .blog-footer {
   margin-top: 48px;
   padding-top: 20px;
@@ -612,6 +733,8 @@ html.dark .team-section h2 { background: #2b3242; }
 
 html.dark .sponsor-card { background: #212838; }
 
+html.dark .goodies-list { background: #212838; }
+
 html.dark .blog-dancer-led {
   position: absolute;
   right: 5px;
@@ -663,6 +786,16 @@ html.dark .logo .kaigi {
   .sponsor-list-ruby .sponsor-desc { font-size: 13px; }
   .sponsor-url { font-size: 12px; }
   .content-body { font-size: 17px; }
+  .goodies-header .team-title {
+    font-size: clamp(30px, 8.5vw, 38px);
+    letter-spacing: .08em;
+  }
+  .goodies-header .team-dancers {
+    gap: 8px;
+  }
+  .goodies-list { gap: 14px; padding: 14px; }
+  .goodies-plate:not(.goodies-plate-main) { padding: 22px 16px; }
+  .goodies-item-wide .goodies-plate { padding-top: 30px; padding-bottom: 24px; }
   .logo-name { letter-spacing: .01em; }
   .logo .kaigi .kern-yk { margin-left: .01em; }
   .logo-meta { margin-left: 4px; transform: translateY(-2px); }
