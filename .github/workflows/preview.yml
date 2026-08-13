@@ -1,0 +1,70 @@
+name: Deploy preview to Cloudflare Pages
+
+on:
+  push:
+    branches-ignore: [main]
+  pull_request:
+    types: [opened, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: preview-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+env:
+  CF_PAGES_PROJECT: picorubykaigi
+
+jobs:
+  preview:
+    # Secrets are unavailable to pull requests from forks, so skip them.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '4.0'
+          bundler-cache: true
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm run build
+
+      - id: deploy
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=${{ env.CF_PAGES_PROJECT }} --branch=${{ github.head_ref || github.ref_name }}
+
+      - name: Report preview URL
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          BRANCH: ${{ github.head_ref || github.ref_name }}
+          URL: ${{ steps.deploy.outputs.pages-deployment-alias-url || steps.deploy.outputs.deployment-url }}
+          SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          body=$(cat <<EOF
+          ### プレビュー環境
+
+          | | |
+          | --- | --- |
+          | URL | $URL |
+          | commit | \`$SHA\` |
+          EOF
+          )
+
+          printf '%s\n' "$body" >> "$GITHUB_STEP_SUMMARY"
+
+          pr=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number // empty')
+          if [ -z "$pr" ]; then
+            echo "No open PR for $BRANCH; preview URL is in the job summary only."
+            exit 0
+          fi
+          gh pr comment "$pr" --edit-last --create-if-none --body "$body"
