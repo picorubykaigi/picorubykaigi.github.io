@@ -442,7 +442,9 @@ img {
   transition: transform .15s ease;
 }
 
-.sponsor-logo:hover img,
+/* Anchor only: a sponsor whose site isn't up yet renders an unlinked plate,
+   which shouldn't react to hover. */
+a.sponsor-logo:hover img,
 .goodies-plate:hover img {
   transform: scale(1.05);
 }
