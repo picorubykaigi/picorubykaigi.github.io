@@ -779,9 +779,9 @@ html.dark .logo .kaigi {
   .sponsor-list-ruby .sponsor-logo { height: 240px; padding: 20px 16px; }
   .sponsor-list-pico .sponsor-logo { width: 220px; height: 220px; }
   .sponsor-list-femto .sponsor-logo { width: 165px; height: 165px; }
-  .sponsor-name { font-size: 15px; }
+  .sponsor-name { font-size: 15px; letter-spacing: .02em; }
   .sponsor-list-ruby .sponsor-name { font-size: 19px; }
-  .sponsor-list-femto .sponsor-name { font-size: 14px; }
+  .sponsor-list-femto .sponsor-name { font-size: 13px; }
   .sponsor-desc,
   .sponsor-list-ruby .sponsor-desc { font-size: 13px; }
   .sponsor-url { font-size: 12px; }
