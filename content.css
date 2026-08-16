@@ -467,7 +467,6 @@ a.sponsor-logo:hover img,
   font-weight: 700;
   line-height: 1.55;
   letter-spacing: .1em;
-  color: var(--muted);
 }
 
 .sponsor-name a:hover,
@@ -480,7 +479,6 @@ a.sponsor-logo:hover img,
 .sponsor-desc {
   font-size: 14px;
   line-height: 1.95;
-  color: var(--muted);
   margin-top: 12px;
 }
 
