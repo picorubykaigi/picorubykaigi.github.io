@@ -478,12 +478,12 @@ a.sponsor-logo:hover img,
 
 .sponsor-desc {
   font-size: 14px;
-  line-height: 1.95;
-  margin-top: 12px;
+  line-height: 1.8;
+  margin-top: 7px;
 }
 
 .sponsor-desc p + p {
-  margin-top: 10px;
+  margin-top: 1px;
 }
 
 .sponsor-url {
@@ -491,12 +491,12 @@ a.sponsor-logo:hover img,
   line-height: 1.5;
   letter-spacing: .04em;
   color: var(--muted);
-  margin-top: 4px;
+  margin-top: 2px;
   overflow-wrap: anywhere;
 }
 
 .sponsor-list-ruby .sponsor-logo {
-  height: 320px;
+  height: 318px;
   padding: 20px 30px;
 }
 
@@ -539,14 +539,13 @@ a.sponsor-logo:hover img,
 
   .sponsor-list-ruby .sponsor-card {
     flex-direction: row;
-    align-items: flex-start;
+    align-items: center;
     gap: 32px;
-    padding: 28px 32px;
+    padding: 20px 32px;
   }
 
   .sponsor-list-ruby .sponsor-logo {
     flex: 0 0 340px;
-    align-self: center;
   }
 }
 
@@ -775,7 +774,8 @@ html.dark .logo .kaigi {
   }
   .content-header { margin-bottom: 20px; }
   .sponsor-card { padding: 16px; }
-  .sponsor-desc p + p { margin-top: 8px; }
+  .sponsor-desc { line-height: 1.65; }
+  .sponsor-desc p + p { margin-top: 2px; }
   .sponsor-list-ruby .sponsor-logo { height: 240px; padding: 20px 16px; }
   .sponsor-list-pico .sponsor-logo { width: 220px; height: 220px; }
   .sponsor-list-femto .sponsor-logo { width: 165px; height: 165px; }
