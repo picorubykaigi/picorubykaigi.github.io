@@ -501,7 +501,7 @@ a.sponsor-logo:hover img,
 }
 
 .sponsor-list-ruby .sponsor-name {
-  font-size: 20px;
+  font-size: 24px;
 }
 
 .sponsor-list-ruby .sponsor-desc {
@@ -780,7 +780,7 @@ html.dark .logo .kaigi {
   .sponsor-list-pico .sponsor-logo { width: 220px; height: 220px; }
   .sponsor-list-femto .sponsor-logo { width: 165px; height: 165px; }
   .sponsor-name { font-size: 15px; }
-  .sponsor-list-ruby .sponsor-name { font-size: 17px; }
+  .sponsor-list-ruby .sponsor-name { font-size: 19px; }
   .sponsor-list-femto .sponsor-name { font-size: 14px; }
   .sponsor-desc,
   .sponsor-list-ruby .sponsor-desc { font-size: 13px; }
