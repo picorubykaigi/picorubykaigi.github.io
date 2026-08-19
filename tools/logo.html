@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<!-- Goodies 用ロゴ画像の生成ページ。index.html と同じ styles.css を読み、
+     トップのロゴ(.title)をそのまま素材として書き出す=サイトとロゴがずれない。
+     ?shape=vertical で PicoRuby / Kaigi を縦に積んだ(正方形に近い)組み方になる。
+     背景は透過。L-chika のアニメーションは止めて「消灯」状態で固定する
+     (アニメを動かしたままだと、スクショの瞬間によって光っている文字が変わる)。 -->
+<base href="../">
+<title>PicoRubyKaigi 2026 Assemble — Logo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="styles.css">
+<style>
+  /* 背景は透過。余白は render_logo.sh 側で trim して付け直すが、ここでも広めに取っておく:
+     ピクセルフォントの i の点は行ボックスの上にはみ出すので、余白が無いと
+     ビューポートの外に出て(=y<0)切れたまま撮れてしまう。 */
+  html,
+  body {
+    background: none;
+    margin: 0;
+  }
+
+  body {
+    display: inline-block;
+    padding: 80px;
+  }
+
+  #logo .title {
+    margin: 0;
+    padding: 0;
+    gap: 5px;
+  }
+
+  #logo .title .year,
+  #logo .title .assemble {
+    margin-top: 0;
+  }
+
+  #logo .title .prk {
+    font-size: 112px;
+    line-height: .86;
+  }
+
+  #logo .title .year {
+    font-size: 68px;
+  }
+
+  #logo .title .assemble {
+    font-size: 40px;
+  }
+
+  #logo .title .prk .l-chika {
+    animation: none;
+  }
+
+  #logo .title .prk .l-chika::before,
+  #logo .title .prk .l-chika::after {
+    animation: none;
+    opacity: 0;
+  }
+
+  #logo.vertical .title .prk {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  #logo.vertical .title .prk .kaigi > .l-chika:nth-child(1) {
+    margin-left: 0;
+  }
+
+  /* 縦組みは PicoRubyKaigi の幅が横組みの6割ほどになり、そのままだと 2026 と Assemble
+     だけが痩せて見えるので、横組みの 68px / 40px より大きくする。
+     Kaigi↔2026 は字の大きさが変わるぶん gap(5px)だけでは詰まって見えるので足す。 */
+  #logo.vertical .title .year {
+    font-size: 97px;
+    margin-top: 4px;
+  }
+
+  #logo.vertical .title .assemble {
+    font-size: 54px;
+    margin-top: 0;
+  }
+</style>
+</head>
+<body>
+  <div id="logo">
+    <div class="title">
+      <div class="prk"><span class="picoruby">PicoRuby</span><span class="kaigi">Kaigi</span></div>
+      <div class="year">2026</div>
+      <div class="assemble">- Assemble -</div>
+    </div>
+  </div>
+
+<script>
+  // script.js と同じ分割。1文字=1つの .l-chika にしないと、字間の微調整
+  // (.picoruby > .l-chika:nth-child(n)) と枠(-webkit-text-stroke)が効かない。
+  document.querySelectorAll('.title .prk').forEach(prk => {
+    let i = 0;
+    const chikaify = node => {
+      [...node.childNodes].forEach(child => {
+        if (child.nodeType === Node.TEXT_NODE) {
+          const frag = document.createDocumentFragment();
+          [...child.textContent].forEach(ch => {
+            const s = document.createElement('span');
+            s.className = 'l-chika'; s.textContent = ch; s.dataset.ch = ch; s.style.setProperty('--i', i++);
+            frag.appendChild(s);
+          });
+          child.replaceWith(frag);
+        } else if (child.nodeType === Node.ELEMENT_NODE) {
+          chikaify(child);
+        }
+      });
+    };
+    chikaify(prk);
+  });
+
+  if (new URLSearchParams(location.search).get('shape') === 'vertical') {
+    document.getElementById('logo').classList.add('vertical');
+    // 横組みでは Assemble の前後のハイフンが幅の広いロゴを受け止めるが、
+    // 縦組みでは塊が狭いので締まらない。文字だけにする。
+    document.querySelector('.title .assemble').textContent = 'Assemble';
+  }
+</script>
+</body>
+</html>

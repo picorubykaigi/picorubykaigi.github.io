@@ -12,6 +12,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="styles.css">
+<!-- ?v=simple = Goodies で配るシンプル版(日付・会場・KEYNOTE を落としてロゴと Ruby だけ)。
+     クラスは <html> に付ける(この時点で body はまだ無い)。 -->
+<script>
+  if (new URLSearchParams(location.search).get('v') === 'simple') document.documentElement.classList.add('simple');
+</script>
 </head>
 <body>
   <div class="stage">
@@ -200,18 +205,37 @@
   .scene{ margin-top:38px !important; }    /* ロゴ群↔Ruby群(上側)。Rubyがscene枠から上下に溢れる分、margin大きめでAssemble↔Ruby視覚gapを確保 */
   .info{ margin-top:6px !important; }       /* 会場↔KEYNOTEは詰めて1群に */
   .button{ margin-top:10px !important; }
+
+  /* ===== シンプル版(?v=simple): 日付・会場・KEYNOTE を落としてロゴと Ruby だけにする ===== */
+  html.simple .venue,
+  html.simple .info{ display:none !important; }
+
+  /* スピーカーだけ他の部品より小ぶりに見えるので大きくする。幅/高さを変えれば
+     layout() の中心合わせも追従する(offsetWidth 基準のため)。 */
+  html.simple .bb-speaker{ width:50px !important; height:50px !important; }
+
+  /* 行間は文字が小さくなるにつれ狭めて3行を1つの塊に見せる。gap ではなく行ごとの margin で
+     置くのは、gap だと3行に同じ値がかかって等間隔になるため。 */
+  html.simple .title{ gap:0 !important; }
+  html.simple .title .year{ margin-top:18px !important; }
+  html.simple .title .assemble{ margin-top:14px !important; }
+  html.simple .scene{ margin-top:64px !important; }
+  html.simple .wrap{ padding-top:56px !important; padding-bottom:45px !important; }
 </style>
 <script>
 (function(){
   const stage=document.querySelector('.stage');
   const ruby=document.querySelector('.ruby-led');
   if(!stage||!ruby) return;
+  const SNAP=document.documentElement.classList.contains('simple');
 
   // 各パーツの「Ruby中心からの配置オフセット」。横一列はRuby縦中心からやや下(+18px)に置き、
   // 通電判定(ソケット中心±8px)に当たらないようにする=エフェクトを出さない。
   const ROW_DY=-6;       // 横一列の中心YをRuby中心からずらす量(負=上)。元18から1レール(24px)上げて-6
   const GAP_RUBY=88;     // Ruby端〜内側パーツの間隔(2レール分=元44の倍)
-  const GAP_PART=60;     // パーツ同士の間隔(2レール分=元30の倍)
+  // パーツ同士の間隔(2レール分=元30の倍)。シンプル版は日付やKEYNOTEが無く横に余白が残るので、
+  // 外側の seg7 / chip を穴1つぶん離して間延びを抑える。
+  const GAP_PART=SNAP ? 108 : 60;
 
   function layout(){
     const sr=stage.getBoundingClientRect();
@@ -233,16 +257,39 @@
 
     // battery: 画面上部の赤+/青-レールの中間に置く(サイズは元のまま)。
     // レールは body 背景(赤 中心y≈14 / 青 中心y≈78)。stage上端基準でその中点≈46。
-    const batCx = rcx + 340, batCy = 46;
+    const batCx = rcx + (SNAP ? 408 : 340), batCy = 46;
 
     const put=(id, cx, ccy)=>{ const e=el(id); if(!e) return;
       e.style.left=(cx-W(id)/2)+'px'; e.style.top=(ccy-H(id)/2)+'px';
       e.style.right='auto'; e.style.bottom='auto'; };
 
-    put('seg7',    segCx, cy);
-    put('speaker', spkCx, cy);
-    put('motor',   motCx, cy);
-    put('chip',    chpCx, cy);
+    // シンプル版だけ、部品をブレッドボードの穴に乗せる(通常版の見え方は変えない)。
+    // 穴は24px間隔、位相と PIN_DX は書き出した画像から実測した値。
+    // ピンの位置はスプライトごとに違うので、中心を穴に乗せるだけではピンは合わない。
+    // PIN_DX はピンが穴に乗るまで中心をずらす量。
+    const PIN_DX = { motor: 11.75, chip: 11.4 };
+    const snapX = (v, id) => Math.round((v - PIN_DX[id])/24)*24 + PIN_DX[id];
+    const snapY = v => SNAP ? Math.round((v-12.5)/24)*24+12.5 : v;
+    const sy = snapY(cy);
+
+    let segX=segCx, spkX=spkCx, motX=motCx, chpX=chpCx;
+    if(SNAP){
+      // ピンのある右側(motor/chip)を穴に合わせて先に確定させ、左側はその間隔をそのまま
+      // 鏡写しにして置く。部品ごとに幅が違うので、左右を別々にスナップすると同じ「1つ空き」
+      // でも穴半個ぶんずれて、間隔が不揃いに見えてしまう。
+      // seg7/speaker はピンが無いので、穴に乗らなくても見た目は崩れない。
+      motX = snapX(motCx, 'motor');
+      chpX = snapX(chpCx, 'chip');
+      const gapInner = (motX - W('motor')/2) - (rcx + halfR);          // Ruby ↔ 内側の部品
+      const gapOuter = (chpX - W('chip')/2) - (motX + W('motor')/2);   // 内側 ↔ 外側の部品
+      spkX = rcx - halfR - gapInner - W('speaker')/2;
+      segX = spkX - W('speaker')/2 - gapOuter - W('seg7')/2;
+    }
+
+    put('seg7',    segX, sy);
+    put('speaker', spkX, sy);
+    put('motor',   motX, sy);
+    put('chip',    chpX, sy);
     put('battery', batCx, batCy);
   }
 

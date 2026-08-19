@@ -402,6 +402,276 @@ img {
   text-decoration: underline;
 }
 
+.sponsor-list {
+  list-style: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+}
+
+.sponsor-card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 18px;
+}
+
+/* Logos keep a white plate in both themes: sponsor artwork is supplied for light
+   backgrounds and dark ink would disappear on the dark palette. */
+.sponsor-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border-radius: 6px;
+  padding: 8px;
+}
+
+.sponsor-logo img {
+  width: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.sponsor-logo img,
+.goodies-plate img {
+  transition: transform .15s ease;
+}
+
+/* Anchor only: a sponsor whose site isn't up yet renders an unlinked plate,
+   which shouldn't react to hover. */
+a.sponsor-logo:hover img,
+.goodies-plate:hover img {
+  transform: scale(1.05);
+}
+
+.sponsor-logo-emblem img {
+  max-width: 75%;
+  max-height: 75%;
+}
+
+.sponsor-body {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.sponsor-name {
+  font-family: 'DotGothic16', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.55;
+  letter-spacing: .1em;
+}
+
+.sponsor-name a:hover,
+.sponsor-url a:hover {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.sponsor-desc {
+  font-size: 14px;
+  line-height: 1.8;
+  margin-top: 7px;
+}
+
+.sponsor-desc p + p {
+  margin-top: 1px;
+}
+
+.sponsor-url {
+  font-family: 'Jersey 10', sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  letter-spacing: .04em;
+  color: var(--muted);
+  margin-top: 2px;
+  overflow-wrap: anywhere;
+}
+
+.sponsor-list-ruby .sponsor-logo {
+  height: 318px;
+  padding: 20px 30px;
+}
+
+.sponsor-list-ruby .sponsor-name {
+  font-size: 24px;
+}
+
+.sponsor-list-ruby .sponsor-desc {
+  font-size: 15px;
+}
+
+.sponsor-list-pico .sponsor-logo {
+  width: 266px;
+  height: 266px;
+  margin: 0 auto;
+}
+
+.sponsor-list-femto .sponsor-logo {
+  width: 186px;
+  height: 186px;
+  margin: 0 auto;
+}
+
+.sponsor-list-femto .sponsor-name {
+  font-size: 15px;
+}
+
+@media (min-width: 640px) {
+  .sponsor-list-femto {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+  }
+}
+
+@media (min-width: 768px) {
+  .sponsor-list-pico {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+  }
+
+  .sponsor-list-ruby .sponsor-card {
+    flex-direction: row;
+    align-items: center;
+    gap: 32px;
+    padding: 20px 32px;
+  }
+
+  .sponsor-list-ruby .sponsor-logo {
+    flex: 0 0 340px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .sponsor-list-femto {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.goodies-list {
+  list-style: none;
+  max-width: 880px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 18px;
+}
+
+.goodies-item {
+  min-width: 0;
+  display: flex;
+}
+
+.goodies-plate {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eceade;
+  border-radius: 8px;
+  padding: 16px;
+  overflow: hidden;
+}
+
+.goodies-plate img {
+  width: 100%;
+  height: auto;
+}
+
+.goodies-list-logo {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.goodies-item-wide {
+  grid-column: 1 / -1;
+}
+
+.goodies-item-wide .goodies-plate {
+  padding-top: 44px;
+  padding-bottom: 34px;
+}
+
+.goodies-plate .goodies-horizontal {
+  width: 100%;
+}
+
+.goodies-plate .goodies-vertical {
+  width: 88%;
+}
+
+.goodies-plate .goodies-mark {
+  width: 62%;
+}
+
+.goodies-plate-main {
+  padding: 0;
+  transition: transform .15s ease;
+}
+
+.goodies-plate-main:hover {
+  transform: scale(1.02);
+  z-index: 1;
+}
+
+.goodies-plate-main:hover img {
+  transform: none;
+}
+
+.goodies-license {
+  max-width: 880px;
+  margin: 0 auto;
+  font-size: 15px;
+  line-height: 1.95;
+  color: var(--muted);
+}
+
+.goodies-license a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.goodies-license a:hover {
+  color: var(--ink);
+}
+
+@media (min-width: 640px) {
+  .goodies-list-logo {
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  .goodies-item-wide {
+    grid-column: auto;
+  }
+
+  .goodies-item-wide .goodies-plate {
+    padding-top: 16px;
+    padding-bottom: 16px;
+  }
+
+  .goodies-list-logo .goodies-horizontal {
+    width: 92%;
+  }
+
+  .goodies-list-logo .goodies-vertical {
+    width: 84%;
+  }
+}
+
 .blog-footer {
   margin-top: 48px;
   padding-top: 20px;
@@ -461,6 +731,10 @@ html.dark .content-body :not(pre) > code { background: #2b3242; }
 
 html.dark .team-section h2 { background: #2b3242; }
 
+html.dark .sponsor-card { background: #212838; }
+
+html.dark .goodies-list { background: #212838; }
+
 html.dark .blog-dancer-led {
   position: absolute;
   right: 5px;
@@ -491,8 +765,38 @@ html.dark .logo .kaigi {
   .team-header .team-dancers {
     gap: 10px;
   }
+
+  .sponsors-header .team-title {
+    font-size: clamp(30px, 8.5vw, 38px);
+    letter-spacing: .08em;
+  }
+  .sponsors-header .team-dancers {
+    gap: 8px;
+  }
   .content-header { margin-bottom: 20px; }
+  .sponsor-card { padding: 16px; }
+  .sponsor-desc { line-height: 1.65; }
+  .sponsor-desc p + p { margin-top: 2px; }
+  .sponsor-list-ruby .sponsor-logo { height: 240px; padding: 20px 16px; }
+  .sponsor-list-pico .sponsor-logo { width: 220px; height: 220px; }
+  .sponsor-list-femto .sponsor-logo { width: 165px; height: 165px; }
+  .sponsor-name { font-size: 15px; letter-spacing: .02em; }
+  .sponsor-list-ruby .sponsor-name { font-size: 19px; }
+  .sponsor-list-femto .sponsor-name { font-size: 13px; }
+  .sponsor-desc,
+  .sponsor-list-ruby .sponsor-desc { font-size: 13px; }
+  .sponsor-url { font-size: 14px; }
   .content-body { font-size: 17px; }
+  .goodies-header .team-title {
+    font-size: clamp(30px, 8.5vw, 38px);
+    letter-spacing: .08em;
+  }
+  .goodies-header .team-dancers {
+    gap: 8px;
+  }
+  .goodies-list { gap: 14px; padding: 14px; }
+  .goodies-plate:not(.goodies-plate-main) { padding: 22px 16px; }
+  .goodies-item-wide .goodies-plate { padding-top: 30px; padding-bottom: 24px; }
   .logo-name { letter-spacing: .01em; }
   .logo .kaigi .kern-yk { margin-left: .01em; }
   .logo-meta { margin-left: 4px; transform: translateY(-2px); }
