@@ -49,9 +49,8 @@ class BlogBuilder
     # Newest first.
     posts.sort_by! { |post| post[:date].to_s }.reverse!
 
-    show_back_link = posts.length > 1
     posts.each do |post|
-      File.write(File.join(out_blog, "#{post[:slug]}.html"), post_page(post, show_back_link))
+      File.write(File.join(out_blog, "#{post[:slug]}.html"), post_page(post))
     end
     File.write(File.join(out_blog, 'index.html'), index_page(posts))
 
@@ -127,8 +126,8 @@ class BlogBuilder
     ERB.new(File.read(File.join(TEMPLATES, name)), trim_mode: '-').result(b)
   end
 
-  def post_page(post, show_back_link)
-    render('post.html.erb', post: post, show_back_link: show_back_link, header: HEADER.chomp)
+  def post_page(post)
+    render('post.html.erb', post: post, header: HEADER.chomp)
   end
 
   def index_page(posts)
