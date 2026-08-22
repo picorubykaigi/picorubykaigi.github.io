@@ -22,7 +22,10 @@
 <%= header %>
   <main class="container">
     <div class="panel">
-      <h1 class="blog-title">Blog</h1>
+      <div class="team-header blog-header">
+        <h1 class="team-title">Blog</h1>
+        <%= dancers('team-dancers') %>
+      </div>
       <ul class="blog-list">
 <% posts.each do |post| -%>
         <li>

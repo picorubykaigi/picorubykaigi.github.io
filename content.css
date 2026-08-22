@@ -223,18 +223,40 @@ img {
   font-size: .92em;
 }
 
-.blog-title {
-  font-family: 'Micro 5', 'DotGothic16', sans-serif;
-  font-size: 44px;
-  line-height: 1.1;
-  margin-bottom: 6px;
+.blog-header {
+  margin-bottom: 36px;
 }
 
 .blog-list {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 30px;
+  position: relative;
+  z-index: 0;
+}
+
+.blog-list li {
+  position: relative;
+}
+
+.blog-list li::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: 8px;
+  background-image: conic-gradient(from -90deg, var(--line) 0 25%, transparent 0 50%, var(--line) 0 75%, transparent 0);
+  background-size: 10px 10px;
+  background-position: left bottom;   /* 帯の下端に升を揃える */
+  opacity: 0;
+  transition: opacity .06s linear;
+  pointer-events: none;
+}
+
+.blog-list li:hover::after {
+  opacity: 1;
+  transition: opacity .1s linear;
 }
 
 .blog-card {
@@ -244,25 +266,25 @@ img {
   border-radius: 8px;
   padding: 18px 20px;
   color: inherit;
-  transition: border-color .15s ease, transform .15s ease;
+  transition: transform .06s linear;
 }
 
 .blog-card:hover {
-  border-color: var(--red);
   text-decoration: none;
-  transform: translateY(-2px);
+  transform: translateY(-5px);
+  transition: transform .08s cubic-bezier(.1, 1.7, .35, 1);
 }
 
 .blog-card time {
   font-family: 'Jersey 10', sans-serif;
-  font-size: 16px;
+  font-size: 18px;
   color: var(--muted);
 }
 
 .blog-card h2 {
   font-family: 'DotGothic16', sans-serif;
   font-size: 22px;
-  margin: 4px 0 8px;
+  margin: 0px 0 6px;
   line-height: 1.4;
   letter-spacing: .04em;
 }
@@ -774,7 +796,10 @@ html.dark .logo .kaigi {
 
 @media (max-width: 560px) {
   .panel { padding: 24px 20px 32px; border-radius: 12px; }
-  .blog-title { font-size: 36px; }
+  .blog-card p { display: none; }   /* 狭い画面では抜粋を出さず、日付とタイトルだけ */
+  .blog-card { padding: 10px 16px 16px; }
+  .blog-card time { font-size: 16px; line-height: 1; }
+  .blog-card h2 { font-size: 19px; margin: -2px 0 0; line-height: 1.4; }
   .content-header h1 { font-size: 24px; }
   .team-header .team-dancers {
     gap: 10px;

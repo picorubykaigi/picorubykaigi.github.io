@@ -14,9 +14,7 @@ class BlogBuilder
   TEMPLATES = File.join(__dir__, 'templates')
   HEADER = Renderer.partial('header.html.erb')
   TWEET_URL = %r{https?://(?:twitter\.com|x\.com)/\w+/status/\d+(?:\?\S*)?}
-  DANCERS = '<div class="blog-dancers" aria-hidden="true">' +
-            ('<div class="blog-dancer"><span class="blog-dancer-led"></span></div>' * 4) +
-            '</div>'
+  DANCER = '<div class="blog-dancer"><span class="blog-dancer-led"></span></div>'
 
   def initialize(out_dir)
     @out_dir = out_dir
@@ -32,7 +30,7 @@ class BlogBuilder
       meta, body = parse_frontmatter(File.read(File.join(posts_src, filename)))
       slug = slug_of(filename)
       content_html = markdown_to_html(expand_tweet_urls(body))
-      content_html = content_html.gsub(/<hr\s*\/?>/, DANCERS)   # 水平線は dancers
+      content_html = content_html.gsub(/<hr\s*\/?>/, dancers)   # 水平線は dancers
       description = meta_value(meta, 'description') || excerpt(content_html, 200)
       summary = meta_value(meta, 'summary') || meta_value(meta, 'description') || excerpt(content_html, 90)
       {
@@ -81,6 +79,12 @@ class BlogBuilder
   def meta_value(meta, key)
     value = meta[key]
     value unless value.to_s.empty?
+  end
+
+  # NOTE: extra_class は他ページのヘッダーと揃えるための追加クラス
+  def dancers(extra_class = nil)
+    klass = ['blog-dancers', extra_class].compact.join(' ')
+    %(<div class="#{klass}" aria-hidden="true">#{DANCER * 4}</div>)
   end
 
   def display_date(date)
