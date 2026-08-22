@@ -515,18 +515,24 @@ a.sponsor-logo:hover img,
   margin: 0 auto;
 }
 
-.sponsor-list-femto .sponsor-logo {
+.sponsor-list-femto .sponsor-logo,
+.sponsor-list-tool .sponsor-logo,
+.sponsor-list-support .sponsor-logo {
   width: 186px;
   height: 186px;
   margin: 0 auto;
 }
 
-.sponsor-list-femto .sponsor-name {
+.sponsor-list-femto .sponsor-name,
+.sponsor-list-tool .sponsor-name,
+.sponsor-list-support .sponsor-name {
   font-size: 15px;
 }
 
 @media (min-width: 640px) {
-  .sponsor-list-femto {
+  .sponsor-list-femto,
+  .sponsor-list-tool,
+  .sponsor-list-support {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 24px;
   }
@@ -551,7 +557,9 @@ a.sponsor-logo:hover img,
 }
 
 @media (min-width: 1024px) {
-  .sponsor-list-femto {
+  .sponsor-list-femto,
+  .sponsor-list-tool,
+  .sponsor-list-support {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
@@ -780,9 +788,20 @@ html.dark .logo .kaigi {
   .sponsor-list-ruby .sponsor-logo { height: 240px; padding: 20px 16px; }
   .sponsor-list-pico .sponsor-logo { width: 220px; height: 220px; }
   .sponsor-list-femto .sponsor-logo { width: 165px; height: 165px; }
+
+  .sponsor-list-tool .sponsor-logo,
+  .sponsor-list-support .sponsor-logo {
+    width: 165px;
+    height: 165px;
+  }
   .sponsor-name { font-size: 15px; letter-spacing: .02em; }
   .sponsor-list-ruby .sponsor-name { font-size: 19px; }
   .sponsor-list-femto .sponsor-name { font-size: 13px; }
+
+  .sponsor-list-tool .sponsor-name,
+  .sponsor-list-support .sponsor-name {
+    font-size: 13px;
+  }
   .sponsor-desc,
   .sponsor-list-ruby .sponsor-desc { font-size: 13px; }
   .sponsor-url { font-size: 14px; }
