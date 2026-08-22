@@ -17,16 +17,15 @@ OUT = File.join(ROOT, 'dist')
 PORT = (ARGV[0] || ENV['PORT'] || 8916).to_i
 INTERVAL = 0.4
 IGNORE = %w[dist node_modules design tools docs .git .cloudflare].freeze
-REBUILD_ALL = %w[build.rb blog_builder.rb minify.mjs].freeze
+REBUILD_ALL = %w[build.rb blog_builder.rb page_builder.rb renderer.rb minify.mjs].freeze
 NOT_COPIED = %w[package.json package-lock.json Gemfile Gemfile.lock build.mjs].freeze
-
-def blog_source?(path)
-  path.start_with?('blog/posts/', 'templates/')
-end
+BLOG_TEMPLATES = %w[templates/post.html.erb templates/index.html.erb].freeze
 
 def classify(path)
   return :full if REBUILD_ALL.include?(path)
-  return :blog if blog_source?(path)
+  return :blog if path.start_with?('blog/posts/') || BLOG_TEMPLATES.include?(path)
+  return :pages if path.start_with?('templates/pages/') || path == 'templates/layout.html.erb'
+  return :full if path.start_with?('templates/')   # 共通部品はページにもブログにも効く
   return :skip if NOT_COPIED.include?(path) || path.end_with?('.md')
 
   :copy
@@ -46,6 +45,10 @@ end
 
 def build_blog
   system(RbConfig.ruby, File.join(ROOT, 'blog_builder.rb'), OUT) || warn('blog_builder.rb failed')
+end
+
+def build_pages
+  system(RbConfig.ruby, File.join(ROOT, 'page_builder.rb'), OUT) || warn('page_builder.rb failed')
 end
 
 def full_build
@@ -68,6 +71,7 @@ def apply(changed, removed)
   end
 
   changed.zip(kinds).each { |path, kind| copy_to_dist(path) if kind == :copy }
+  build_pages if kinds.include?(:pages)
   build_blog if kinds.include?(:blog)
   true
 end

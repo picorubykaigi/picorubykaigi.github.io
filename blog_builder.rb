@@ -5,13 +5,14 @@ require 'cgi'
 require 'uri'
 require 'date'
 require 'erb'
+require_relative 'renderer'
 
 # Generates the blog (post pages + index) from blog/posts/*.md into <out>/blog.
 # Usage: ruby blog_builder.rb <out-dir>
 class BlogBuilder
   SITE = 'https://picorubykaigi.org'
   TEMPLATES = File.join(__dir__, 'templates')
-  HEADER = File.read(File.join(TEMPLATES, 'header.html'))
+  HEADER = Renderer.partial('header.html.erb')
   TWEET_URL = %r{https?://(?:twitter\.com|x\.com)/\w+/status/\d+(?:\?\S*)?}
   DANCERS = '<div class="blog-dancers" aria-hidden="true">' +
             ('<div class="blog-dancer"><span class="blog-dancer-led"></span></div>' * 4) +

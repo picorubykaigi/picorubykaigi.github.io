@@ -4,6 +4,7 @@
 require 'fileutils'
 require 'set'
 require_relative 'blog_builder'
+require_relative 'page_builder'
 
 ROOT = Dir.pwd
 OUT = File.join(ROOT, 'dist')
@@ -11,7 +12,7 @@ OUT = File.join(ROOT, 'dist')
 EXCLUDE = Set.new(%w[
   node_modules dist design tools
   package.json package-lock.json
-  build.mjs build.rb minify.mjs blog_builder.rb Gemfile Gemfile.lock templates
+  build.mjs build.rb minify.mjs blog_builder.rb page_builder.rb renderer.rb Gemfile Gemfile.lock templates
 ])
 
 FileUtils.rm_rf(OUT)
@@ -26,6 +27,7 @@ end
 FileUtils.rm_rf(File.join(OUT, 'blog', 'posts'))
 Dir.glob(File.join(OUT, '**', '{*.md,.DS_Store}'), File::FNM_DOTMATCH).each { |f| FileUtils.rm_f(f) }
 
+PageBuilder.new(OUT).build
 BlogBuilder.new(OUT).build
 
 Dir.glob(File.join(OUT, 'game', '*.rb')).each do |f|
