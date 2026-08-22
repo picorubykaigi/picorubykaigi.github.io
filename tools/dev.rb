@@ -85,6 +85,14 @@ no_cache = Class.new(WEBrick::HTTPServlet::FileHandler) do
 end
 server.mount('/', no_cache, OUT, FancyIndexing: true)
 
+devtools_probe = Class.new(WEBrick::HTTPServlet::AbstractServlet) do
+  def do_GET(_req, res)
+    res.status = 404
+    res.body = ''
+  end
+end
+server.mount('/.well-known/appspecific/com.chrome.devtools.json', devtools_probe)
+
 trap('INT') { server.shutdown }
 trap('TERM') { server.shutdown }
 
