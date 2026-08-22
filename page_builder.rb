@@ -12,6 +12,7 @@ class PageBuilder
   # the site header. name -> <title>.
   CONTENT_PAGES = {
     'sponsors' => 'Sponsors',
+    'jobs' => 'Jobs',
     'team' => 'Team',
     'goodies' => 'Goodies'
   }.freeze
