@@ -270,6 +270,12 @@ img {
 .blog-card p {
   color: var(--muted);
   font-size: 15px;
+  margin-left: -.05em;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
 }
 
 .container-wide {

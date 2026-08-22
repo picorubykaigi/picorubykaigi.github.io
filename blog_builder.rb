@@ -33,13 +33,14 @@ class BlogBuilder
       slug = slug_of(filename)
       content_html = markdown_to_html(expand_tweet_urls(body))
       content_html = content_html.gsub(/<hr\s*\/?>/, DANCERS)   # 水平線は dancers
-      description = meta['description']
-      description = excerpt(content_html) if description.to_s.empty?
+      description = meta_value(meta, 'description') || excerpt(content_html, 200)
+      summary = meta_value(meta, 'summary') || meta_value(meta, 'description') || excerpt(content_html, 90)
       {
         slug: slug,
         title: meta['title'] || slug,
         date: meta['date'] || '',
         description: description,
+        summary: summary,
         content_html: content_html,
         og_image: og_image_for(content_html, slug),
         has_tweet: content_html.include?('twitter-tweet')
@@ -77,6 +78,11 @@ class BlogBuilder
     CGI.escapeHTML(text.to_s)
   end
 
+  def meta_value(meta, key)
+    value = meta[key]
+    value unless value.to_s.empty?
+  end
+
   def display_date(date)
     Date.iso8601(date.to_s).strftime('%Y.%m.%d.')
   end
@@ -110,10 +116,13 @@ class BlogBuilder
     Kramdown::Document.new(body, input: 'GFM', syntax_highlighter: nil, auto_ids: false).to_html
   end
 
-  # First `limit` characters of the body text, for the meta/OG description.
-  def excerpt(content_html, limit = 200)
+  def excerpt(content_html, limit)
     text = CGI.unescapeHTML(content_html.gsub(/<[^>]+>/, ' ')).gsub(/\s+/, ' ').strip
-    text.length > limit ? "#{text[0, limit]}…" : text
+    return text if text.length <= limit
+
+    head = text[0, limit]
+    end_of_sentence = head.rindex('。')
+    "#{end_of_sentence ? head[0, end_of_sentence + 1] : head}…"
   end
 
   # templates

@@ -29,7 +29,7 @@
           <a class="blog-card" href="<%= post[:slug] %>.html">
             <time datetime="<%= escape(post[:date]) %>"><%= display_date(post[:date]) %></time>
             <h2><%= escape(post[:title]) %></h2>
-            <p><%= escape(post[:description]) %></p>
+            <p><%= escape(post[:summary]) %></p>
           </a>
         </li>
 <% end -%>
