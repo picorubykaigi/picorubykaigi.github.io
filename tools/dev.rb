@@ -14,8 +14,6 @@ ROOT = File.expand_path('..', __dir__)
 Dir.chdir(ROOT)
 OUT = File.join(ROOT, 'dist')
 
-require_relative '../blog_builder'
-
 PORT = (ARGV[0] || ENV['PORT'] || 8916).to_i
 INTERVAL = 0.4
 IGNORE = %w[dist node_modules design tools docs .git .cloudflare].freeze
@@ -46,6 +44,10 @@ rescue Errno::ENOENT
   retry   # 監視中に消えたファイルがあれば取り直す
 end
 
+def build_blog
+  system(RbConfig.ruby, File.join(ROOT, 'blog_builder.rb'), OUT) || warn('blog_builder.rb failed')
+end
+
 def full_build
   system(RbConfig.ruby, File.join(ROOT, 'build.rb')) || warn('build.rb failed')
 end
@@ -66,7 +68,7 @@ def apply(changed, removed)
   end
 
   changed.zip(kinds).each { |path, kind| copy_to_dist(path) if kind == :copy }
-  BlogBuilder.new(OUT).build if kinds.include?(:blog)
+  build_blog if kinds.include?(:blog)
   true
 end
 
