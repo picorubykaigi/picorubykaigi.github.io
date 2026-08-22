@@ -48,8 +48,10 @@ class BlogBuilder
     # Newest first.
     posts.sort_by! { |post| post[:date].to_s }.reverse!
 
-    posts.each do |post|
-      File.write(File.join(out_blog, "#{post[:slug]}.html"), post_page(post))
+    posts.each_with_index do |post, index|
+      older = posts[index + 1]
+      newer = (posts[index - 1] if index.positive?)
+      File.write(File.join(out_blog, "#{post[:slug]}.html"), post_page(post, older, newer))
     end
     File.write(File.join(out_blog, 'index.html'), index_page(posts))
 
@@ -139,8 +141,8 @@ class BlogBuilder
     ERB.new(File.read(File.join(TEMPLATES, name)), trim_mode: '-').result(b)
   end
 
-  def post_page(post)
-    render('post.html.erb', post: post, header: HEADER.chomp)
+  def post_page(post, older, newer)
+    render('post.html.erb', post: post, older: older, newer: newer, header: HEADER.chomp)
   end
 
   def index_page(posts)

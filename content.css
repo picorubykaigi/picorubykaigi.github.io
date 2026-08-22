@@ -710,13 +710,61 @@ a.sponsor-logo:hover img,
 
 .blog-footer {
   margin-top: 48px;
-  padding-top: 20px;
+  padding-top: 24px;
   border-top: 2px solid var(--line);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: baseline;
+  gap: 20px;
 }
 
-.blog-back-link {
+.blog-footer > span:empty {
+  align-self: center;
+}
+
+.blog-nav {
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 15px;
+  color: var(--muted);
+  transition: color .15s ease;
+}
+
+.blog-nav:hover {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.blog-nav-next {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.blog-nav-arrow {
+  flex: none;
+  transform: translateY(-1px);
+}
+
+.blog-nav-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.blog-nav-index {
   font-family: 'Jersey 10', sans-serif;
   font-size: 18px;
+  letter-spacing: .1em;
+  color: var(--muted);
+  transition: color .15s ease;
+}
+
+.blog-nav-index:hover {
+  color: var(--ink);
+  text-decoration: none;
 }
 
 .blog-dancers {
@@ -729,6 +777,11 @@ a.sponsor-logo:hover img,
 
 .blog-dancers:last-child {
   margin-bottom: 12px;
+}
+
+.blog-footer + .blog-dancers {
+  margin-top: 22px;
+  margin-bottom: 4px;
 }
 
 .blog-dancer {
@@ -796,7 +849,8 @@ html.dark .logo .kaigi {
 
 @media (max-width: 560px) {
   .panel { padding: 24px 20px 32px; border-radius: 12px; }
-  .blog-card p { display: none; }   /* 狭い画面では抜粋を出さず、日付とタイトルだけ */
+  .blog-nav-title { display: none; }
+  .blog-card p { display: none; }
   .blog-card { padding: 10px 16px 16px; }
   .blog-card time { font-size: 16px; line-height: 1; }
   .blog-card h2 { font-size: 19px; margin: -2px 0 0; line-height: 1.4; }
