@@ -30,12 +30,28 @@
         <div class="content-body">
 <%= post[:content_html].chomp %>
         </div>
-<% if show_back_link -%>
         <footer class="blog-footer">
-          <a class="blog-back-link" href="./">&larr; Blog 一覧へ</a>
+          <% if older -%>
+            <a class="blog-nav blog-nav-prev" href="<%= older[:slug] %>.html" rel="prev">
+              <span class="blog-nav-arrow">&lt;</span>
+              <span class="blog-nav-title"><%= escape(older[:title]) %></span>
+            </a>
+          <% else -%>
+            <span></span>
+          <% end -%>
+
+          <a class="blog-nav-index" href="./">Index</a>
+
+          <% if newer -%>
+            <a class="blog-nav blog-nav-next" href="<%= newer[:slug] %>.html" rel="next">
+              <span class="blog-nav-title"><%= escape(newer[:title]) %></span>
+              <span class="blog-nav-arrow">&gt;</span>
+            </a>
+          <% else -%>
+            <span></span>
+          <% end -%>
         </footer>
-<% end -%>
-        <%= DANCERS %>
+        <%= dancers %>
       </article>
     </div>
   </main>

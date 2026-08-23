@@ -14,9 +14,7 @@ class BlogBuilder
   TEMPLATES = File.join(__dir__, 'templates')
   HEADER = Renderer.partial('header.html.erb')
   TWEET_URL = %r{https?://(?:twitter\.com|x\.com)/\w+/status/\d+(?:\?\S*)?}
-  DANCERS = '<div class="blog-dancers" aria-hidden="true">' +
-            ('<div class="blog-dancer"><span class="blog-dancer-led"></span></div>' * 4) +
-            '</div>'
+  DANCER = '<div class="blog-dancer"><span class="blog-dancer-led"></span></div>'
 
   def initialize(out_dir)
     @out_dir = out_dir
@@ -32,14 +30,15 @@ class BlogBuilder
       meta, body = parse_frontmatter(File.read(File.join(posts_src, filename)))
       slug = slug_of(filename)
       content_html = markdown_to_html(expand_tweet_urls(body))
-      content_html = content_html.gsub(/<hr\s*\/?>/, DANCERS)   # 水平線は dancers
-      description = meta['description']
-      description = excerpt(content_html) if description.to_s.empty?
+      content_html = content_html.gsub(/<hr\s*\/?>/, dancers)   # 水平線は dancers
+      description = meta_value(meta, 'description') || excerpt(content_html, 200)
+      summary = meta_value(meta, 'summary') || meta_value(meta, 'description') || excerpt(content_html, 90)
       {
         slug: slug,
         title: meta['title'] || slug,
         date: meta['date'] || '',
         description: description,
+        summary: summary,
         content_html: content_html,
         og_image: og_image_for(content_html, slug),
         has_tweet: content_html.include?('twitter-tweet')
@@ -49,9 +48,10 @@ class BlogBuilder
     # Newest first.
     posts.sort_by! { |post| post[:date].to_s }.reverse!
 
-    show_back_link = posts.length > 1
-    posts.each do |post|
-      File.write(File.join(out_blog, "#{post[:slug]}.html"), post_page(post, show_back_link))
+    posts.each_with_index do |post, index|
+      older = posts[index + 1]
+      newer = (posts[index - 1] if index.positive?)
+      File.write(File.join(out_blog, "#{post[:slug]}.html"), post_page(post, older, newer))
     end
     File.write(File.join(out_blog, 'index.html'), index_page(posts))
 
@@ -76,6 +76,17 @@ class BlogBuilder
 
   def escape(text)
     CGI.escapeHTML(text.to_s)
+  end
+
+  def meta_value(meta, key)
+    value = meta[key]
+    value unless value.to_s.empty?
+  end
+
+  # NOTE: extra_class は他ページのヘッダーと揃えるための追加クラス
+  def dancers(extra_class = nil)
+    klass = ['blog-dancers', extra_class].compact.join(' ')
+    %(<div class="#{klass}" aria-hidden="true">#{DANCER * 4}</div>)
   end
 
   def display_date(date)
@@ -111,10 +122,13 @@ class BlogBuilder
     Kramdown::Document.new(body, input: 'GFM', syntax_highlighter: nil, auto_ids: false).to_html
   end
 
-  # First `limit` characters of the body text, for the meta/OG description.
-  def excerpt(content_html, limit = 200)
+  def excerpt(content_html, limit)
     text = CGI.unescapeHTML(content_html.gsub(/<[^>]+>/, ' ')).gsub(/\s+/, ' ').strip
-    text.length > limit ? "#{text[0, limit]}…" : text
+    return text if text.length <= limit
+
+    head = text[0, limit]
+    end_of_sentence = head.rindex('。')
+    "#{end_of_sentence ? head[0, end_of_sentence + 1] : head}…"
   end
 
   # templates
@@ -127,8 +141,8 @@ class BlogBuilder
     ERB.new(File.read(File.join(TEMPLATES, name)), trim_mode: '-').result(b)
   end
 
-  def post_page(post, show_back_link)
-    render('post.html.erb', post: post, show_back_link: show_back_link, header: HEADER.chomp)
+  def post_page(post, older, newer)
+    render('post.html.erb', post: post, older: older, newer: newer, header: HEADER.chomp)
   end
 
   def index_page(posts)
