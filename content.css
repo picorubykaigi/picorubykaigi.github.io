@@ -600,6 +600,10 @@ a.sponsor-logo:hover img,
   margin-top: 32px;
 }
 
+.job-card {
+  padding: 24px;
+}
+
 .job-logo {
   width: 260px;
   height: 140px;
@@ -607,8 +611,13 @@ a.sponsor-logo:hover img,
   padding: 14px 20px;
 }
 
+.job-card .sponsor-desc {
+  line-height: 1.7;
+  margin-top: 12px;
+}
+
 .job-link {
-  margin-top: 4px;
+  margin-top: 14px;
   font-family: 'DotGothic16', sans-serif;
   font-size: 14px;
   letter-spacing: .06em;
@@ -650,7 +659,7 @@ html.dark .job-link a:hover .job-led {
     flex-direction: row;
     align-items: center;
     gap: 28px;
-    padding: 20px 28px;
+    padding: 28px 32px;
   }
 
   .job-logo {
@@ -959,6 +968,8 @@ html.dark .logo .kaigi {
   .sponsor-list-ruby .sponsor-desc { font-size: 13px; }
   .sponsor-url { font-size: 14px; }
   .content-body { font-size: 17px; }
+  .job-card { padding: 20px 18px; }
+  .job-card .sponsor-desc { line-height: 1.65; }
   .job-logo {
     width: 220px;
     height: 120px;
