@@ -39,16 +39,16 @@
   letter-spacing: .08em;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1180px) {
   .nav-list a:hover {
     text-decoration: underline;
     text-underline-offset: 4px;
   }
 }
 
-/* The five-item nav plus the logo needs ~1024px on one line; below that the
+/* The six-item nav plus the logo needs ~1180px on one line; below that the
    burger takes over. */
-@media (max-width: 1023px) {
+@media (max-width: 1179px) {
   .nav-burger {
     display: flex;
     flex-direction: column;
