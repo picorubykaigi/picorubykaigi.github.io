@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<base href="../">
+<title>PicoRubyKaigi 2026 Assemble Official Party — OGP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Jersey+10&family=Micro+5&display=swap">
+<style>
+  @font-face {
+    font-family: 'Conti Neue 2P';
+    src: url('fonts/ContiNeue2P-1.0.1.woff2') format('woff2');
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+  }
+
+  :root {
+    --ink: #ece9df;
+  }
+
+  /* 夜空: 上ほど深い紺。サイトのダークモードと同じ24pxの穴を重ねる。 */
+  .card {
+    position: relative;
+    width: 1200px;
+    height: 630px;
+    overflow: hidden;
+    color: var(--ink);
+    background:
+      url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='24'%20height='24'%3E%3Crect%20x='9.5'%20y='9.5'%20width='5'%20height='5'%20fill='%232e5247'/%3E%3Crect%20x='11'%20y='11'%20width='5'%20height='5'%20fill='%2316302a'/%3E%3C/svg%3E") 0 0/24px 24px,
+      linear-gradient(#080b13 0%, #10131c 55%, #171c2b 100%);
+  }
+
+  .scatter {
+    position: absolute;
+    inset: 0;
+  }
+
+  /* 紙吹雪。4色で、多くは45度に傾ける。 */
+  .confetti {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+  }
+
+  /* ピクセルの十字光 */
+  .spark {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: #fff;
+    mix-blend-mode: screen;
+    box-shadow:
+      0 -4px #fff, 0 4px #fff, -4px 0 #fff, 4px 0 #fff,
+      0 -8px var(--tint), 0 8px var(--tint), -8px 0 var(--tint), 8px 0 var(--tint);
+  }
+
+  .spark.s-pink { --tint: #ff96b9; }
+  .spark.s-green { --tint: #56f096; }
+  .spark.s-blue { --tint: #8ad9ff; }
+
+  /* LED マトリクスのルビー。宝石のかたちで切り抜いて、紙吹雪の色を流す。 */
+  .ruby {
+    position: absolute;
+    left: 515px;
+    top: 82px;
+    width: 170px;
+    height: 139px;
+    background: linear-gradient(118deg, #e8404b 0%, #fb5479 28%, #ffc12e 56%, #6ef0a0 76%, #55d6f2 100%);
+    -webkit-mask: url('images/ruby-2.png') center/contain no-repeat;
+    mask: url('images/ruby-2.png') center/contain no-repeat;
+  }
+
+  .stage {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 90px;
+    text-align: center;
+  }
+
+  .name {
+    font-family: 'Jersey 10', sans-serif;
+    font-size: 52px;
+    line-height: 1;
+    letter-spacing: .16em;
+  }
+
+  .party {
+    margin-top: 14px;
+    font-family: 'Jersey 10', sans-serif;
+    font-size: 142px;
+    line-height: .8;
+    letter-spacing: .22em;
+    word-spacing: -.16em;
+    color: #f6f4ea;
+    text-shadow: 5px 5px 0 #fb5479, 10px 10px 0 #ffc12e, 15px 15px 0 #55d6f2;
+  }
+
+  .when {
+    margin-top: 16px;
+    font-family: 'Micro 5', sans-serif;
+    font-size: 54px;
+    line-height: 1;
+    letter-spacing: .08em;
+  }
+
+  .when .dow {
+    font-size: .66em;
+    letter-spacing: .04em;
+    margin-left: -.28em;
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="scatter" aria-hidden="true"></div>
+    <div class="ruby" aria-hidden="true"></div>
+
+    <div class="stage">
+      <div class="name">PicoRubyKaigi 2026 Assemble</div>
+      <div class="party">Official Party</div>
+      <div class="when">2026.10.31. <span class="dow">SAT</span> 17:30</div>
+    </div>
+  </div>
+
+<script>
+  // Conti Neue 2P は等幅なので、i や l のような細い字のまわりだけ余白が広く見える。
+  // 字ごとに実際のインクの左右の縁を測り、隣り合う字のあいだの余白がどこも同じになるよう詰める。
+  async function evenOutTracking(el) {
+    const cs = getComputedStyle(el);
+    const size = parseFloat(cs.fontSize);
+    const font = `${size}px ${cs.fontFamily}`;
+    await document.fonts.load(font);   // canvas は明示的に読ませないと代替フォントで測ってしまう
+    const pad = Math.ceil(size * 2);
+    const cv = document.createElement('canvas');
+    cv.width = pad * 3;
+    cv.height = size * 3;
+    const ctx = cv.getContext('2d', { willReadFrequently: true });
+
+    // 1文字だけ描いて、インクのある左端・右端を画素から拾う。
+    const bearings = c => {
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      ctx.font = font;
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillStyle = '#fff';
+      ctx.fillText(c, pad, size * 2);
+      const d = ctx.getImageData(0, 0, cv.width, cv.height).data;
+      let lo = null, hi = null;
+      for (let x = 0; x < cv.width; x++) {
+        for (let y = 0; y < cv.height; y++) {
+          if (d[(y * cv.width + x) * 4 + 3] > 40) { if (lo === null) lo = x; hi = x; break; }
+        }
+      }
+      return lo === null ? null : [lo - pad, pad + ctx.measureText(c).width - (hi + 1)];
+    };
+
+    const chars = [...el.textContent];
+    const measured = chars.map(c => (c === ' ' ? null : bearings(c)));
+    // 目標の余白は実測値の中央値。行全体の幅をなるべく変えずに凸凹だけならす。
+    const flat = measured.filter(Boolean).flat().sort((a, b) => a - b);
+    const target = flat[Math.floor(flat.length / 2)];
+    el.textContent = '';
+    chars.forEach((c, i) => {
+      const span = document.createElement('span');
+      span.textContent = c;
+      if (measured[i]) {
+        span.style.marginLeft = `${(target - measured[i][0]).toFixed(2)}px`;
+        span.style.marginRight = `${(target - measured[i][1]).toFixed(2)}px`;
+      }
+      el.appendChild(span);
+    });
+  }
+
+  // 散らし: 毎回同じ絵を書き出したいので、goods の柄と同じシード付き乱数(LCG)で置く。
+  const CONFETTI_COLORS = ['#fb5479', '#55d6f2', '#6ef0a0', '#ffc12e'];
+  const SPARK_TINTS = ['s-pink', 's-green', 's-blue'];
+
+  // 粒を置かない矩形。文字はブロックの箱が行いっぱいに広がるので、Range で字のあるところだけ測る。
+  function keepOut() {
+    const card = document.querySelector('.card').getBoundingClientRect();
+    const rect = (b, padX, padY = padX) => [b.left - card.left - padX, b.top - card.top - padY,
+                                            b.right - card.left + padX, b.bottom - card.top + padY];
+    // 日付の行は短いので、左右だけ広めに空ける(行の延長線上に粒を置かない)。
+    const els = [...document.querySelectorAll('.stage > div')];
+    const lines = els.map((el, i) => {
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      return rect(range.getBoundingClientRect(), i === els.length - 1 ? 110 : 18, 18);
+    });
+    return lines.concat([rect(document.querySelector('.ruby').getBoundingClientRect(), 14)]);
+  }
+
+  // ジッターグリッドに紙吹雪を撒く。市松に間引くので密度はどこも同じ。
+  function sprinkle() {
+    const boxes = keepOut();
+    const clear = (x, y) => !boxes.some(([x1, y1, x2, y2]) => x > x1 && x < x2 && y > y1 && y < y2);
+    const scatter = document.querySelector('.scatter');
+    // 散らしの見え方を選ぶための種。上半分と下半分で別々に振れるようにしてあるので、
+    // 片方だけ気に入ったときにもう片方だけ振り直せる。?seed=N / ?seedb=N。
+    const q = new URLSearchParams(location.search);
+    const lcg = start => {
+      let n = start;
+      return () => ((n = n * 48271 % 2147483647) / 2147483647);
+    };
+    const rTop = lcg(+q.get('seed') || 20261104);
+    const rBot = lcg(+q.get('seedb') || 4);
+    const r = rTop;   // 大きさや傾きなど、帯に関係ない揺らぎはこちらを使う
+
+    const place = (px, py, el) => {
+      el.style.left = `${px.toFixed(1)}px`;
+      el.style.top = `${py.toFixed(1)}px`;
+      scatter.appendChild(el);
+    };
+
+    let placed = 0, row = 0, top = 0;
+    for (let y = 16; y < 630; y += 84, row++) {
+      let col = 0;
+      for (let x = 16; x < 1200; x += 96, col++) {
+        // 市松に間引く。抜く判定を乱数にすると場所によって粗密が出るので使わない。
+        if ((row + col) % 2 === 0) continue;
+        const gen = y < 265 ? rTop : rBot;
+        const px = x + (gen() * 64 - 32);
+        const py = y + (gen() * 56 - 28);
+        if (!clear(px, py)) continue;
+        // 上の帯は文字に遮られないぶん粒が全部残るので、3つに1つだけ間引く。
+        if (py < 265 && top++ % 3 === 0) continue;
+        if (px < 14 || px > 1186 || py < 14 || py > 616) continue;   // 端で切れないように
+        const el = document.createElement('div');
+        el.className = 'confetti';
+        // 乱数だと色が偏るので、置いた順に4色をきっちり回す。
+        el.style.background = CONFETTI_COLORS[placed++ % 4];
+        // 濃さはそろえて、大きさで散らす。
+        const size = [6, 8, 11][Math.floor(gen() * 3)];
+        el.style.width = `${size}px`;
+        el.style.height = `${size}px`;
+        // 正方形より菱形を多めに。
+        if (gen() < .78) el.style.transform = 'rotate(45deg)';
+        // 下の帯は並びはそのままに、少し持ち上げて余白を作る。
+        place(px, y < 265 ? py : py - 20, el);
+      }
+    }
+
+    // きらめきは数が少ないぶん、乱数に任せると固まる。四隅と中ほどに置き場所を決めておく。
+    // 文字と宝石を避けた空き(上の帯・タイトルの左右・下の帯)から選んである。
+    // 種ごとに5箇所だけ使い、置き場所も少し振れるようにする。
+    // 上のほうが賑やかに見えるよう、上の帯から3つ・それ以外から2つ選ぶ。
+    const TOP = [[150, 110], [340, 72], [770, 106], [1044, 88], [944, 208], [560, 258]];
+    const REST = [[46, 378], [1152, 378], [300, 584], [906, 584]];
+    // 宝石と名前の行のあいだが空くので、左右に1つずつ必ず置く。
+    const ALWAYS = [[280, 240], [905, 240]];
+    const pick = (list, n, gen) => list.map((spot, i) => [spot, i, gen()])
+      .sort((a, b) => a[2] - b[2]).slice(0, n);
+    const picked = ALWAYS.map((spot, i) => [spot, i])
+      .concat(pick(TOP, 3, rTop), pick(REST, 2, rBot));
+    picked.forEach(([[sx, sy], i]) => {
+      const px = sx + (rTop() * 24 - 12);
+      const py = sy + (rTop() * 24 - 12);
+      // 十字は腕が伸びるので、字・宝石・画面端から余分に離す。
+      if (!clear(px, py) || !clear(px, py - 16) || !clear(px, py + 16)) return;
+      if (px < 40 || px > 1160 || py < 40 || py > 590) return;
+      const el = document.createElement('div');
+      el.className = `spark ${SPARK_TINTS[i % 3]}`;
+      place(px, py < 265 ? py : py - 20, el);
+    });
+  }
+
+  // 字送りをそろえ、3行ぶんの書体が出そろってから撒く。読み込み前に測ると
+  // 代替フォントの幅で「避ける矩形」を作ってしまい、粒の位置が変わってしまう。
+  Promise.all([
+    document.fonts.load('142px "Jersey 10"'),
+    document.fonts.load('54px "Micro 5"'),
+    evenOutTracking(document.querySelector('.name'))
+  ]).then(() => document.fonts.ready).then(sprinkle);
+</script>
+</body>
+</html>

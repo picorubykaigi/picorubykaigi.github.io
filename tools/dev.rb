@@ -90,6 +90,9 @@ no_cache = Class.new(WEBrick::HTTPServlet::FileHandler) do
   end
 end
 server.mount('/', no_cache, OUT, FancyIndexing: true)
+# 画像生成ページ(tools/ogp*.html)も同じサーバから見られるようにする。<base href="../"> の
+# 参照先(images/ fonts/)は dist/ 側で解決される。
+server.mount('/tools', no_cache, File.join(ROOT, 'tools'), FancyIndexing: true)
 
 devtools_probe = Class.new(WEBrick::HTTPServlet::AbstractServlet) do
   def do_GET(_req, res)
