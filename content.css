@@ -823,7 +823,6 @@ html.dark .job-link a:hover .job-led {
 
 .event-thumb {
   background: var(--card);
-  border: 2px solid var(--line);
   border-radius: 8px;
   overflow: hidden;
 }
