@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<base href="../">
+<title>電子部品お買い物ツアー（ガイド付き） — OGP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitcount+Single:ELSH,wght@0..100,100..900&family=DotGothic16&family=Jersey+10&family=Micro+5&display=swap">
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+  }
+
+  .card {
+    position: relative;
+    width: 1200px;
+    height: 630px;
+    overflow: hidden;
+    background: #4a4e5c;
+  }
+
+  .map {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1200px;
+    height: 632px;
+    image-rendering: pixelated;
+  }
+
+  .win {
+    position: absolute;
+    left: 50%;
+    top: 92px;
+    width: 1080px;
+    height: 264px;
+    box-sizing: border-box;
+    transform: translateX(-50%);
+    z-index: 3;
+    padding: 34px 40px 0;
+    text-align: center;
+    color: #fff;
+    background: url('tools/ogp_tour/tour-window.png') 0 0 / 1080px 264px no-repeat;
+    image-rendering: pixelated;
+  }
+
+  .logo {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .logo-mark {
+    display: block;
+    height: 32px;
+    width: auto;
+    margin-right: 14px;
+    transform: translate(-4px, -4px);
+  }
+
+  .logo-name {
+    font-family: 'Bitcount Single', sans-serif;
+    font-size: 34px;
+    line-height: .9;
+    letter-spacing: .14em;
+    font-variation-settings: 'wght' 400, 'ELSH' 100;
+    -webkit-text-stroke: 1.5px #fff;
+    paint-order: stroke fill;
+  }
+
+  .logo .pico .kern-pi {
+    margin-left: -.03em;
+  }
+
+  .logo .pico .kern-ic {
+    margin-left: -.055em;
+  }
+
+  .logo .kaigi .kern-yk {
+    margin-left: .04em;
+    margin-right: -.07em;
+  }
+
+  .logo .kaigi .kern-ig {
+    margin-left: -.08em;
+  }
+
+  .logo-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    line-height: 1;
+    margin-left: 16px;
+    transform: translateY(-1px);
+  }
+
+  .logo-meta .year {
+    font-family: 'Micro 5', sans-serif;
+    font-size: 42px;
+    letter-spacing: .1em;
+  }
+
+  .logo-meta .assemble {
+    font-family: 'Jersey 10', sans-serif;
+    font-size: 34px;
+    letter-spacing: .14em;
+  }
+
+  .title {
+    margin-top: 12px;
+    font-family: 'DotGothic16', sans-serif;
+    font-size: 64px;
+    line-height: 1;
+    letter-spacing: .02em;
+    white-space: nowrap;
+  }
+
+  .title .guide {
+    font-size: .5em;
+    letter-spacing: .06em;
+  }
+
+  .rule {
+    margin-top: 22px;
+    height: 4px;
+    background: #fff;
+  }
+
+  .when {
+    margin-top: 14px;
+    font-family: 'Micro 5', sans-serif;
+    font-size: 38px;
+    line-height: 1;
+    letter-spacing: .1em;
+    text-align: right;
+  }
+
+  .when .dow {
+    font-size: .66em;
+    letter-spacing: .04em;
+    margin-left: -.24em;
+    margin-right: .06em;
+  }
+
+  .cast {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 92px;
+    z-index: 4;
+  }
+
+  .crowd {
+    display: flex;
+    align-items: flex-end;
+    gap: 40px;
+  }
+
+  .cast img {
+    display: block;
+    image-rendering: pixelated;
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <img class="map" src="tools/ogp_tour/tour-map.png" alt="" aria-hidden="true">
+
+    <div class="win">
+      <span class="logo">
+        <svg class="logo-mark" viewBox="0 0 65 52" fill="#fff" aria-hidden="true">
+          <circle cx="19.5" cy="6.5" r="5.3"/>
+          <circle cx="32.5" cy="6.5" r="5.3"/>
+          <circle cx="45.5" cy="6.5" r="5.3"/>
+          <circle cx="6.5" cy="19.5" r="5.3"/>
+          <circle cx="19.5" cy="19.5" r="5.3"/>
+          <circle cx="32.5" cy="19.5" r="5.3"/>
+          <circle cx="45.5" cy="19.5" r="5.3"/>
+          <circle cx="58.5" cy="19.5" r="5.3"/>
+          <circle cx="19.5" cy="32.5" r="5.3"/>
+          <circle cx="32.5" cy="32.5" r="5.3"/>
+          <circle cx="45.5" cy="32.5" r="5.3"/>
+          <circle cx="32.5" cy="45.5" r="5.3"/>
+        </svg>
+        <span class="logo-name"><span class="pico">P<span class="kern-pi">i</span><span class="kern-ic">c</span>oRuby</span><span class="kaigi"><span class="kern-yk">K</span>ai<span class="kern-ig">gi</span></span></span><span class="logo-meta"><span class="year">2026</span><span class="assemble">Assemble</span></span>
+      </span>
+      <div class="title">電子部品お買い物ツアー<span class="guide">（ガイド付き）</span></div>
+      <div class="rule"></div>
+      <div class="when">2026.11.01. <span class="dow">SUN</span> 12:00</div>
+    </div>
+
+    <div class="cast">
+      <img src="tools/ogp_tour/shop1.png"  alt="" width="112" height="120">
+      <div class="crowd">
+        <img src="tools/ogp_tour/chara1.png" alt="" width="84" height="132">
+        <img src="tools/ogp_tour/chara2.png" alt="" width="72" height="132">
+        <img src="tools/ogp_tour/chara3.png" alt="" width="84" height="140">
+        <img src="tools/ogp_tour/chara4.png" alt="" width="80" height="136">
+      </div>
+      <img src="tools/ogp_tour/shop2.png"  alt="" width="112" height="120">
+    </div>
+  </div>
+</body>
+</html>
