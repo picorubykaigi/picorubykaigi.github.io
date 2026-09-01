@@ -785,6 +785,146 @@ html.dark .job-link a:hover .job-led {
   }
 }
 
+/* The day heading pairs a "Day N" label with the calendar date; the date sits
+   in the same plate but stays quieter than the label. */
+.event-day + .event-day {
+  margin-top: 52px;
+}
+
+.event-day h2 {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 40px;
+}
+
+.event-day-date {
+  font-size: 22px;
+  letter-spacing: .1em;
+  color: var(--muted);
+}
+
+.event-list {
+  list-style: none;
+}
+
+.event-item {
+  display: grid;
+  grid-template-columns: 380px minmax(0, 1fr);
+  align-items: start;
+  gap: 22px;
+}
+
+.event-item + .event-item {
+  margin-top: 32px;
+  padding-top: 32px;
+  border-top: 2px solid var(--line);
+}
+
+.event-thumb {
+  background: var(--card);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.event-thumb img {
+  width: 100%;
+  height: auto;
+}
+
+.event-detail {
+  margin-top: 5px;
+}
+
+.event-name {
+  font-family: 'DotGothic16', sans-serif;
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: .04em;
+}
+
+.event-meta {
+  margin-top: 14px;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.event-meta-row {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.event-meta dt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.8em;
+  padding-top: 3px;
+}
+
+.event-icon {
+  width: 13px;
+  height: 13px;
+  fill: var(--muted);
+  image-rendering: pixelated;
+}
+
+.event-icon-pin {
+  width: 11px;
+  height: 13px;
+}
+
+.event-icon-people {
+  width: 16px;
+  height: 11px;
+}
+
+.event-meta-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.event-meta dd {
+  min-width: 0;
+}
+
+.event-meta dd a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.event-cta {
+  display: inline-block;
+  font-family: 'DotGothic16', sans-serif;
+  font-size: 13px;
+  line-height: 1.7;
+  letter-spacing: .1em;
+  text-indent: .1em;
+  padding: 0 7px 1px;
+  margin-right: 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+  vertical-align: .12em;
+  background: #e2dfd0;
+  color: var(--muted);
+}
+
+a.event-cta {
+  background: var(--red);
+  color: #fff;
+}
+
+a.event-cta:hover {
+  background: var(--redd);
+}
+
 .blog-footer {
   margin-top: 48px;
   padding-top: 24px;
@@ -985,6 +1125,46 @@ html.dark .logo .kaigi {
   .goodies-list { gap: 14px; padding: 14px; }
   .goodies-plate:not(.goodies-plate-main) { padding: 22px 16px; }
   .goodies-item-wide .goodies-plate { padding-top: 30px; padding-bottom: 24px; }
+  .events-header .team-title {
+    font-size: clamp(30px, 8.5vw, 38px);
+    letter-spacing: .08em;
+  }
+  .events-header .team-dancers {
+    gap: 8px;
+  }
+  .event-day + .event-day {
+    margin-top: 40px;
+  }
+  .event-day h2 {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    margin-bottom: 28px;
+  }
+  .event-day-date {
+    font-size: 19px;
+  }
+
+  .event-detail {
+    margin-top: 0;
+  }
+  .event-item {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--line);
+  }
+  .event-item + .event-item {
+    margin-top: 24px;
+    padding-top: 0;
+    border-top: 0;
+  }
+  .event-meta {
+    margin-top: 8px;
+  }
+  .event-name {
+    font-size: 18px;
+  }
   .logo-name { letter-spacing: .01em; }
   .logo .kaigi .kern-yk { margin-left: .01em; }
   .logo-meta { margin-left: 4px; transform: translateY(-2px); }
