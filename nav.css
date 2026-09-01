@@ -20,27 +20,13 @@
   gap: 28px;
   font-family: 'Jersey 10', sans-serif;
   font-size: 21px;
-  letter-spacing: .14em;
+  letter-spacing: .08em;
   line-height: 1.9;
 }
 
 .nav-list a {
   color: var(--ink);
   text-decoration: none;
-}
-
-/* The long labels in the nav; tighter tracking keeps them from sprawling
-   next to Blog/Game/Team. */
-.nav-list .nav-sponsors {
-  letter-spacing: .06em;
-}
-
-.nav-list .nav-goodies {
-  letter-spacing: .08em;
-}
-
-.nav-list .nav-events {
-  letter-spacing: .08em;
 }
 
 @media (min-width: 1180px) {
