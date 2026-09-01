@@ -810,7 +810,7 @@ html.dark .job-link a:hover .job-led {
 
 .event-item {
   display: grid;
-  grid-template-columns: 380px minmax(0, 1fr) auto;
+  grid-template-columns: 380px minmax(0, 1fr);
   align-items: start;
   gap: 22px;
 }
@@ -832,8 +832,7 @@ html.dark .job-link a:hover .job-led {
   height: auto;
 }
 
-.event-detail,
-.event-action {
+.event-detail {
   margin-top: 5px;
 }
 
@@ -904,27 +903,26 @@ html.dark .job-link a:hover .job-led {
 .event-cta {
   display: inline-block;
   font-family: 'DotGothic16', sans-serif;
-  font-size: 15px;
-  line-height: 1.6;
+  font-size: 13px;
+  line-height: 1.7;
   letter-spacing: .1em;
-  padding: 6px 22px;
-  border: 2px solid var(--line);
-  border-radius: 8px;
+  text-indent: .1em;
+  padding: 0 7px 1px;
+  margin-right: 10px;
+  border-radius: 4px;
   white-space: nowrap;
+  vertical-align: .12em;
+  background: #e2dfd0;
+  color: var(--muted);
 }
 
 a.event-cta {
   background: var(--red);
-  border-color: var(--redd);
   color: #fff;
 }
 
 a.event-cta:hover {
   background: var(--redd);
-}
-
-.event-cta-tbd {
-  color: var(--muted);
 }
 
 .blog-footer {
@@ -1147,8 +1145,7 @@ html.dark .logo .kaigi {
     font-size: 19px;
   }
 
-  .event-detail,
-  .event-action {
+  .event-detail {
     margin-top: 0;
   }
   .event-item {
@@ -1167,9 +1164,6 @@ html.dark .logo .kaigi {
   }
   .event-name {
     font-size: 18px;
-  }
-  .event-action {
-    justify-self: start;
   }
   .logo-name { letter-spacing: .01em; }
   .logo .kaigi .kern-yk { margin-left: .01em; }
