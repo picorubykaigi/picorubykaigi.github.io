@@ -812,7 +812,7 @@ html.dark .job-link a:hover .job-led {
   display: grid;
   grid-template-columns: 380px minmax(0, 1fr) auto;
   align-items: start;
-  gap: 28px;
+  gap: 22px;
 }
 
 .event-item + .event-item {
@@ -830,6 +830,11 @@ html.dark .job-link a:hover .job-led {
 .event-thumb img {
   width: 100%;
   height: auto;
+}
+
+.event-detail,
+.event-action {
+  margin-top: 5px;
 }
 
 .event-name {
@@ -1140,6 +1145,11 @@ html.dark .logo .kaigi {
   }
   .event-day-date {
     font-size: 19px;
+  }
+
+  .event-detail,
+  .event-action {
+    margin-top: 0;
   }
   .event-item {
     grid-template-columns: minmax(0, 1fr);
