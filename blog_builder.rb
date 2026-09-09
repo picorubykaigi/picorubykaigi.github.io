@@ -1,5 +1,6 @@
 require 'kramdown'
 require 'kramdown-parser-gfm'
+require 'rouge'
 require 'fileutils'
 require 'cgi'
 require 'uri'
@@ -15,6 +16,11 @@ class BlogBuilder
   HEADER = Renderer.partial('header.html.erb')
   TWEET_URL = %r{https?://(?:twitter\.com|x\.com)/\w+/status/\d+(?:\?\S*)?}
   DANCER = '<div class="blog-dancer"><span class="blog-dancer-led"></span></div>'
+
+  # Rouge's <pre><code> wrapper without the deprecated HTMLLegacy formatter.
+  class CodeFormatter < Rouge::Formatters::HTMLPygments
+    def initialize(opts) = super(Rouge::Formatters::HTML.new, opts[:css_class])
+  end
 
   def initialize(out_dir)
     @out_dir = out_dir
@@ -119,7 +125,13 @@ class BlogBuilder
   end
 
   def markdown_to_html(body)
-    Kramdown::Document.new(body, input: 'GFM', syntax_highlighter: nil, auto_ids: false).to_html
+    Kramdown::Document.new(
+      body,
+      input: 'GFM',
+      syntax_highlighter: 'rouge',
+      syntax_highlighter_opts: { formatter: CodeFormatter },
+      auto_ids: false,
+    ).to_html
   end
 
   def excerpt(content_html, limit)
