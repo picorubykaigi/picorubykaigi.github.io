@@ -6,6 +6,12 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'Monaspace Krypton';
+  src: url('../fonts/MonaspaceKrypton-1.101.woff2') format('woff2');
+  font-display: swap;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -147,12 +153,23 @@ img {
 }
 
 .content-body h2 {
+  position: relative;
   font-family: 'DotGothic16', sans-serif;
-  font-size: 24px;
+  font-size: 21px;
   margin: 40px 0 14px;
-  padding-left: 12px;
-  border-left: 5px solid var(--red);
+  padding-left: 16px;
+  padding-bottom: 4px;
   letter-spacing: .04em;
+}
+
+.content-body h2::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 5px;
+  background: var(--red);
 }
 
 .content-body h3 {
@@ -213,14 +230,93 @@ img {
 }
 
 .content-body code {
-  font-family: 'DotGothic16', monospace;
+  font-family: 'Monaspace Krypton', 'Zen Kaku Gothic New', monospace;
+}
+
+/* Rouge syntax highlighting. The code block is dark in both themes, so one
+   token palette covers light and dark. */
+.highlight .c,
+.highlight .c1,
+.highlight .cm,
+.highlight .cp,
+.highlight .cs {
+  color: #8b8199;
+}
+
+.highlight .k,
+.highlight .kc,
+.highlight .kd,
+.highlight .kn,
+.highlight .kp,
+.highlight .kr,
+.highlight .kv {
+  color: #f4707c;
+}
+
+.highlight .s,
+.highlight .s1,
+.highlight .s2,
+.highlight .sb,
+.highlight .sc,
+.highlight .sd,
+.highlight .sh,
+.highlight .si,
+.highlight .sr,
+.highlight .ss,
+.highlight .sx {
+  color: #8ed081;
+}
+
+.highlight .m,
+.highlight .mb,
+.highlight .mf,
+.highlight .mh,
+.highlight .mi,
+.highlight .mo,
+.highlight .il {
+  color: #f2c14e;
+}
+
+.highlight .nb,
+.highlight .bp {
+  color: #f2c14e;
+}
+
+.highlight .nc,
+.highlight .nn,
+.highlight .no,
+.highlight .ne {
+  color: #7fd7ff;
+}
+
+.highlight .nf,
+.highlight .nd {
+  color: #a7c4f2;
+}
+
+.highlight .nv,
+.highlight .vc,
+.highlight .vg,
+.highlight .vi {
+  color: #ffb3a7;
+}
+
+.highlight .o,
+.highlight .ow,
+.highlight .p {
+  color: #c9c3d6;
+}
+
+.highlight .err {
+  color: #f0ede2;
 }
 
 .content-body :not(pre) > code {
   background: #e2dfd0;
   border-radius: 4px;
-  padding: 1px 6px;
-  font-size: .92em;
+  padding: 4px 8px;
+  font-size: .82em;
+  vertical-align: .08em;
 }
 
 .blog-header {
