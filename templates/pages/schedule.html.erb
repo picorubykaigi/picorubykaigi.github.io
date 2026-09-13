@@ -1,0 +1,84 @@
+<%-
+# Provisional timetable. Talk titles and speakers are placeholders until the
+# lineup is announced. Rows with minutes: show an end time as well.
+slots = [
+  { time: '10:00', kind: :info, title: 'ドアオープン' },
+  { time: '10:30', kind: :info, title: 'オープニング' },
+  { time: '10:40', kind: :sponsor, title: 'スポンサーLT' },
+  { time: '10:45', minutes: 30, kind: :keynote, title: 'TBD', speaker: 'まつもとゆきひろ' },
+  { time: '11:20', minutes: 20, kind: :talk, title: 'PicoRubyで自作キーボードのファームウェアを書く', speaker: 'picopico_taro' },
+  { time: '11:45', minutes: 20, kind: :talk, title: 'Building a Tiny HTTP Server on PicoRuby with W5500', speaker: 'jdoe' },
+  { time: '12:05', minutes: 70, kind: :break, title: '休憩' },
+  { time: '13:15', minutes: 30, kind: :showcase, works: [
+    { title: 'PicoRubyシンセサイザー', presenter: 'hanako_synth', tags: %w[鳴る 触れる] },
+    { title: 'LEDマトリクスで遊ぶ迷路ゲーム', presenter: 'ichiro_led', tags: %w[光る 触れる] },
+    { title: '自走するプラレール制御ボード', presenter: 'sakura_rail', tags: %w[動く] },
+    { title: 'M5Stackで作る喋る置き時計', presenter: 'jsmith', tags: %w[鳴る 光る] }
+  ] },
+  { time: '13:50', minutes: 20, kind: :talk, title: 'Raspberry Pi PicoのPIOをRubyから叩く', speaker: 'jiro_pio' },
+  { time: '14:10', minutes: 30, kind: :break, title: '休憩' },
+  { time: '14:40', minutes: 20, kind: :talk, title: 'ESP32とPicoRubyで作る温湿度ロガー、そして3か月動かして分かったこと', speaker: 'midori_esp' },
+  { time: '15:05', minutes: 20, kind: :talk, title: 'mruby/c VMを読む', speaker: 'ken_vm' },
+  { time: '15:30', minutes: 20, kind: :talk, title: 'PicoRuby.wasmでブラウザ上に開発環境を作る', speaker: 'akari_wasm' },
+  { time: '15:55', kind: :sponsor, title: 'スポンサーLT' },
+  { time: '16:00', minutes: 30, kind: :keynote, title: 'Keynote', speaker: 'hasumikin' },
+  { time: '16:30', kind: :info, title: 'クロージング' }
+]
+labels = { keynote: 'KEYNOTE', talk: 'TALK', sponsor: 'SPONSOR LT', showcase: 'SHOWCASE' }
+finish = lambda do |time, minutes|
+  hour, minute = time.split(':').map(&:to_i)
+  total = hour * 60 + minute + minutes
+  format('%d:%02d', total / 60, total % 60)
+end
+-%>
+  <main class="container container-wide">
+    <div class="panel">
+      <div class="team-header schedule-header">
+        <h1 class="team-title">Schedule</h1>
+        <div class="blog-dancers team-dancers" aria-hidden="true">
+          <div class="blog-dancer"><span class="blog-dancer-led"></span></div>
+          <div class="blog-dancer"><span class="blog-dancer-led"></span></div>
+          <div class="blog-dancer"><span class="blog-dancer-led"></span></div>
+          <div class="blog-dancer"><span class="blog-dancer-led"></span></div>
+        </div>
+      </div>
+
+      <section class="team-section">
+        <ol class="schedule">
+<%- slots.each do |slot| -%>
+          <li class="schedule-slot schedule-slot-<%= slot[:kind] %>">
+            <p class="schedule-time"><time><%= slot[:time] %></time><%- if slot[:minutes] -%><time><%= finish.call(slot[:time], slot[:minutes]) %></time><%- end -%></p>
+            <div class="schedule-body">
+<%- if labels[slot[:kind]] -%>
+              <span class="schedule-label"><%= labels[slot[:kind]] %></span>
+<%- end -%>
+<%- if slot[:kind] == :showcase -%>
+              <div class="showcase-floor">
+                <span class="showcase-walker" aria-hidden="true"></span>
+                <ul class="showcase">
+<%- slot[:works].each do |work| -%>
+                  <li class="showcase-work">
+                    <h3 class="showcase-title"><%= escape(work[:title]) %></h3>
+                    <p class="showcase-presenter"><%= escape(work[:presenter]) %></p>
+                    <ul class="showcase-tags">
+<%- work[:tags].each do |tag| -%>
+                      <li><%= tag %></li>
+<%- end -%>
+                    </ul>
+                  </li>
+<%- end -%>
+                </ul>
+              </div>
+<%- else -%>
+              <h3 class="schedule-title"><%= escape(slot[:title]) %></h3>
+<%- if slot[:speaker] -%>
+              <p class="schedule-speaker"><%= escape(slot[:speaker]) %></p>
+<%- end -%>
+<%- end -%>
+            </div>
+          </li>
+<%- end -%>
+        </ol>
+      </section>
+    </div>
+  </main>

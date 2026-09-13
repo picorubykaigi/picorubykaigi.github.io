@@ -11,6 +11,7 @@ class PageBuilder
   # supply only their <body> content, and the layout gives them the <head> and
   # the site header. name -> <title>.
   CONTENT_PAGES = {
+    'schedule' => 'Schedule',
     'events' => 'Events',
     'sponsors' => 'Sponsors',
     'jobs' => 'Jobs',
