@@ -1,0 +1,82 @@
+<%-
+keynote = [
+  { name: 'hasumikin', github: 'hasumikin', x: 'hasumikin' },
+  { name: %w[まつもと ゆきひろ], github: 'matz', x: 'yukihiro_matz' }
+]
+talk = [
+  { name: 'khoriosk', x: 'khoriosk', bio: '個人でPicoRuby/FemtoRubyのMCUへのポーティングに取り組んでいます。現在はCortex-M7 MCUを対象に、Ruby実行環境とhardwareの境界や、移植時に必要となる構成を確認しています。' },
+  { name: 'S.H.', github: 'S-H-GAMELINKS', bio: 'Rubyを自作カーネルやseL4マイクロカーネルなどの上に移植することが楽しいRubyist。最近はPicoRubyの上でCRubyを動かす遊びを覚えた。' },
+  { name: 'Shota Osaki', github: 'Suzune2741', bio: "松江工業高等専門学校 電子情報システム工学専攻所属。\n在学中にRubyに触れ、初心者でも分かりやすい記述に魅力を感じて愛用している。小中学生向けのプログラミング出張講座や自身の体験などからプログラミングを始めるハードルの高さを感じ、Node-REDとmruby/cを活用したブラウザで完結できる開発環境の構築を行っている。" },
+  { name: 'ydah', github: 'ydah', x: 'ydah_', bio: 'Ruby committer. A committer of Lrama LALR parser generator. Co-Founder of Kyobashi.rb.' },
+  { name: 'youchan', github: 'youchan', x: 'youchan', bio: 'PicoPicoRuby(共同)主催者' },
+  { name: 'Yuhei Okazaki', github: 'yuuu', x: 'Y_uuu', bio: "福岡にある株式会社FusicでIoTクラウドエンジニアとして、RubyやAWSを活用したIoTシステムの受託開発をしています。\nまた、フィヨルドブートキャンプというRubyのオンラインプログラミングスクールでメンターをしています。RubyKaigi 2019ではLocal Organizerをしていました。\nR2P2-ESP32を公開して以来、常にESP32デバイスをリュックサックに忍ばせています。" },
+]
+showcase = [
+  { name: 'Shunsuke Michii (harukasan)', github: 'harukasan', x: 'harukasan', bio: '電子工作を趣味としているRubyist。自作のRubyコンピューターである「Harucom」を製作している。インフラエンジニア。ピクシブ株式会社 執行役員 CTO。' },
+  { name: 'yancya', github: 'yancya', x: 'yancya', bio: 'Rubyist です。テックカンファレンス期間限定シェアハウス「やんちゃハウス」(yancya.house) の Organizer をやっています。RubyKaigi で Raspberry Pi Pico を配ったりとかしてます。PicoRubyの実力はＬチカに毛が生えたくらいの感じです' },
+  { name: 'たろサ', github: 'tarosay', x: 'momoonga', bio: '　Wakayama.rb主催。UIAPrubyを開発し、CoderDojo和歌山有田で子供たちのプログラミングや電子工作を支援しています。Rubyが使えるマイコンボード「GR-CITRUS」の開発経験があり、UIAPduino用Arduino IDEボードパッケージ、Scratch拡張機能を開発・公開し、Windows・Mac・Linuxの開発環境も整備しています。現在は、ブロックプログラミングからRubyコードを生成する「URB Block」も開発中です。宇宙甲子園近畿地方大会では缶サット部門の審査員を務めています。関西Ruby会議09では、参加者のうち希望された方にUIAPrubyボードを配布しました。' },
+  { name: '久保トークン', x: 'kubo_token', bio: "普段はRailsを使ったWEB開発に従事しています。\n学生時代にバンド活動をやっていました。その中でエフェクタというものに関心を持ち、作ってみたいと思うように。大学は電子回路の勉強のために電気系の学科に入りましたが、電子回路はあまりやらずにプログラミングに興味が移ってソフトウェア業界に入りました。\nたまにエフェクタ作ったりギターアンプ作ったりはしていたんですが、2025年のRubyKaigiでPicoRubyというものを知り電子回路熱が再燃。せっかくならシンセサイザを作ろう！と思い立ちいろいろ勉強＆挑戦しています。" },
+]
+display_name = ->(s) { Array(s[:name]).join }
+by_name = ->(s) { [display_name.call(s).ascii_only? ? 0 : 1, display_name.call(s).downcase] }
+sections = [
+  ['Keynote', 'keynote', keynote],
+  ['Talk', 'talk', talk.sort_by(&by_name)],
+  ['Showcase', 'showcase', showcase.sort_by(&by_name)]
+]
+-%>
+  <svg width="0" height="0" aria-hidden="true" style="position:absolute">
+    <symbol id="icon-x" viewBox="0 0 24 24">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+    </symbol>
+    <symbol id="icon-github" viewBox="0 0 16 16">
+      <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+    </symbol>
+  </svg>
+
+  <main class="container container-wide">
+    <div class="panel">
+      <div class="team-header speakers-header">
+        <h1 class="team-title">Speakers</h1>
+        <div class="blog-dancers team-dancers" aria-hidden="true">
+          <div class="blog-dancer"><span class="blog-dancer-led"></span></div>
+          <div class="blog-dancer"><span class="blog-dancer-led"></span></div>
+          <div class="blog-dancer"><span class="blog-dancer-led"></span></div>
+          <div class="blog-dancer"><span class="blog-dancer-led"></span></div>
+        </div>
+      </div>
+
+<%- sections.each do |heading, kind, speakers| -%>
+      <section class="team-section">
+        <h2><%= heading %></h2>
+        <ul class="speaker-list speaker-list-<%= kind %>">
+<%- speakers.each do |s| -%>
+<%- name = display_name.call(s) -%>
+          <li class="speaker-card speaker-card-<%= kind %>">
+            <div class="speaker-body">
+              <img class="speaker-photo" src="/<%= Dir.glob("images/speakers/#{s[:github] || s[:x]}.*").first %>" alt="" loading="lazy">
+              <div class="speaker-meta">
+                <p class="speaker-name<%= name.ascii_only? ? '' : ' speaker-name-ja' %>"><%= Array(s[:name]).map { |part| escape(part) }.join('<wbr>') %></p>
+<%- if s[:github] -%>
+                <p class="team-id"><a href="https://github.com/<%= s[:github] %>" target="_blank" rel="noopener">@<%= s[:github] %></a></p>
+<%- end -%>
+                <p class="team-links speaker-links">
+<%- if s[:github] -%>
+                  <a href="https://github.com/<%= s[:github] %>" target="_blank" rel="noopener" aria-label="GitHub"><svg><use href="#icon-github"/></svg></a>
+<%- end -%>
+<%- if s[:x] -%>
+                  <a href="https://x.com/<%= s[:x] %>" target="_blank" rel="noopener" aria-label="X"><svg><use href="#icon-x"/></svg></a>
+<%- end -%>
+                </p>
+              </div>
+<%- if s[:bio] -%>
+              <p class="speaker-bio"><%= escape(s[:bio]).gsub("\n", '<br>') %></p>
+<%- end -%>
+            </div>
+          </li>
+<%- end -%>
+        </ul>
+      </section>
+<%- end -%>
+    </div>
+  </main>
