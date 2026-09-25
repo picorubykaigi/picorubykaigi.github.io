@@ -12,6 +12,7 @@ class PageBuilder
   # the site header. name -> <title>.
   CONTENT_PAGES = {
     'events' => 'Events',
+    'speakers' => 'Speakers',
     'sponsors' => 'Sponsors',
     'jobs' => 'Jobs',
     'team' => 'Team',
