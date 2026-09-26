@@ -3,25 +3,20 @@ slots = [
   { time: '10:00', kind: :info, title: 'ドアオープン' },
   { time: '10:30', kind: :info, title: 'オープニング' },
   { time: '10:40', kind: :sponsor, title: 'スポンサーLT', speaker: 'ピクシブ株式会社' },
-  { time: '10:45', minutes: 30, kind: :keynote, title: 'TBD', speaker: 'まつもとゆきひろ', handle: 'matz' },
-  { time: '11:25', minutes: 20, kind: :talk, title: %w[PicoRubyではじめる 自作カーネル入門], speaker: 'S.H.', handle: 'S-H-GAMELINKS' },
-  { time: '11:50', minutes: 20, kind: :talk, title: 'mruby/cとNode-REDで始めるマイコンプログラミング', speaker: 'Shota Osaki', handle: 'Suzune2741' },
+  'matz',
+  'S-H-GAMELINKS',
+  'Suzune2741',
   { time: '12:10', minutes: 70, kind: :break, title: '昼休み' },
-  { time: '13:20', minutes: 40, kind: :showcase, title: 'Showcase', works: [
-    { title: 'Soft Hardware, Softer Software with PicoRuby', presenter: 'Shunsuke Michii (harukasan)', handle: 'harukasan' },
-    { title: %w[PicoRubyで作る 制御ペンライト], presenter: 'yancya', handle: 'yancya' },
-    { title: '290円のマイコンでRubyを動かす ― UIAPrubyと缶サットへの挑戦', presenter: 'たろサ', handle: 'tarosay' },
-    { title: 'PicoRubyでピコピコサウンド -Rubyで制御するシンセサイザを作る-', presenter: '久保トークン', handle: 'kubo_token' }
-  ] },
-  { time: '14:05', minutes: 20, kind: :talk, title: '$ brew update', speaker: 'ydah', handle: 'ydah' },
+  { time: '13:20', minutes: 40, kind: :showcase, title: 'Showcase', works: %w[harukasan yancya tarosay kubo_token] },
+  'ydah',
   { time: '14:25', minutes: 30, kind: :break, title: 'ひと休み' },
-  { time: '14:55', minutes: 20, kind: :talk, title: 'Cortex-M7 MCUへのfemtoRubyポーティング — 限られたRAMでの構成と検証', speaker: 'khoriosk', handle: 'khoriosk' },
-  { time: '15:20', minutes: 20, kind: :talk, title: %w[PicoRubyで作る PicoRuby開発環境], speaker: 'youchan', handle: 'youchan' },
-  { time: '15:45', minutes: 20, kind: :talk, title: "Growing PicoRuby's Ecosystem on ESP32", speaker: 'Yuhei Okazaki', handle: 'yuuu' },
+  'khoriosk',
+  'youchan',
+  'yuuu',
   { time: '16:15', kind: :sponsor, title: 'スポンサーLT', speaker: '株式会社Gaji-Labo' },
-  { time: '16:20', minutes: 30, kind: :keynote, title: 'TBD', speaker: 'hasumikin', handle: 'hasumikin' },
-  { time: '16:50', kind: :info, title: 'クロージング' }
-]
+  'hasumikin',
+  { time: '16:50', kind: :info, title: 'クロージング' },
+].map { |slot| slot.is_a?(String) ? sessions.fetch(slot) : slot }
 finish = lambda do |time, minutes|
   hour, minute = time.split(':').map(&:to_i)
   total = hour * 60 + minute + minutes
@@ -60,13 +55,14 @@ end
               <div class="showcase-floor">
                 <span class="showcase-walker" aria-hidden="true"></span>
                 <ul class="showcase">
-    <%- slot[:works].each do |work| -%>
+    <%- slot[:works].each do |handle| -%>
+      <%- work = sessions.fetch(handle) -%>
                   <li class="showcase-work">
                     <a class="schedule-link showcase-link" href="/schedule/<%= work[:handle] %>/">
                       <img class="schedule-icon" src="/<%= Dir.glob("images/speakers/#{work[:handle]}.*").first %>" alt="" loading="lazy">
                       <div>
-                        <h3 class="showcase-title"><%= Array(work[:title]).map { |part| %(<span class="title-part">#{escape(part)}</span>) }.join %></h3>
-                        <p class="showcase-presenter"><%= escape(work[:presenter]) %></p>
+                        <h3 class="showcase-title"><%= work[:title] %></h3>
+                        <p class="showcase-presenter"><%= work[:speaker] %></p>
                       </div>
                     </a>
                   </li>
@@ -78,8 +74,8 @@ end
               <a class="schedule-link schedule-session" href="/schedule/<%= slot[:handle] %>/">
                 <img class="schedule-icon" src="/<%= Dir.glob("images/speakers/#{slot[:handle]}.*").first %>" alt="" loading="lazy">
                 <div>
-                  <h3 class="schedule-title"><%= Array(slot[:title]).map { |part| %(<span class="title-part">#{escape(part)}</span>) }.join %></h3>
-                  <p class="schedule-speaker"><%= escape(slot[:speaker]) %></p>
+                  <h3 class="schedule-title"><%= slot[:title] %></h3>
+                  <p class="schedule-speaker"><%= slot[:speaker] %></p>
                 </div>
               </a>
     <%- else -%>

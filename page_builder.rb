@@ -1,6 +1,8 @@
 # Usage: ruby page_builder.rb <out-dir>
 
 require 'fileutils'
+require 'kramdown'
+require 'kramdown-parser-gfm'
 require_relative 'renderer'
 
 class PageBuilder
@@ -27,13 +29,19 @@ class PageBuilder
     'game' => 'game/index.html'
   }.freeze
 
+  # One Markdown file per session in sessions/<handle>.md: the front matter has
+  # the title, speaker, kind, time and accounts, and the body is the abstract.
+  # A `|` in the title or the speaker's name marks where it may break: `title` and `speaker` are
+  # the HTML with those breaks, `title_label` and `speaker_label` the plain text. `\n` in the bio is a line break.
+  SESSIONS_DIR = File.join(__dir__, 'sessions')
+
   def initialize(out_dir)
     @out_dir = out_dir
   end
 
   def build
     CONTENT_PAGES.each do |name, title|
-      write "#{name}/index.html", content_page(name, title)
+      write "#{name}/index.html", content_page(name, title, sessions:)
     end
     STANDALONE_PAGES.each do |name, path|
       write path, Renderer.render("pages/#{name}.html.erb")
@@ -44,9 +52,58 @@ class PageBuilder
 
   private
 
-  def content_page(name, title, description: DESCRIPTION)
-    content = Renderer.render("pages/#{name}.html.erb").chomp
+  def content_page(name, title, description: DESCRIPTION, **locals)
+    content = Renderer.render("pages/#{name}.html.erb", **locals).chomp
     Renderer.render 'layout.html.erb', title:, path: "/#{name}/", description:, content:
+  end
+
+  def sessions
+    @sessions ||= Dir.glob(File.join(SESSIONS_DIR, '*.md')).sort.to_h do |file|
+      meta, body = parse_frontmatter(File.read(file))
+      handle = File.basename(file, '.md')
+      title = meta['title'].to_s
+      speaker = meta['speaker'].to_s
+      minutes = meta['minutes'].to_i
+      [handle, {
+        handle:,
+        title: breakable(title, '') { |part| %(<span class="title-part">#{part}</span>) },
+        title_label: title.delete('|'),
+        speaker: breakable(speaker, '<wbr>') { |part| part },
+        speaker_label: speaker.delete('|'),
+        bio: meta['bio']&.gsub('\\n', "\n"),
+        kind: meta['kind'].downcase.to_sym,
+        time: meta['time'],
+        minutes:,
+        end_time: end_time(meta['time'], minutes),
+        github: meta['github'],
+        x: meta['x'],
+        abstract_html: body.strip.empty? ? nil : markdown_to_html(body)
+      }]
+    end
+  end
+
+  # Split `--- frontmatter --- body` into a Hash and the remaining Markdown body.
+  def parse_frontmatter(raw)
+    match = raw.match(/\A---\n(.*?)\n---\n?(.*)\z/m) or return [{}, raw]
+    meta = match[1].split("\n").filter_map do |line|
+      pair = line.match(/\A([\w-]+):\s*(.*)\z/) and [pair[1], pair[2].strip]
+    end.to_h
+    [meta, match[2]]
+  end
+
+  # `|` marks where the text may break: each piece is escaped, wrapped by the block and joined.
+  def breakable(text, separator, &wrap)
+    text.split('|').map { |part| wrap.call(Renderer.escape(part)) }.join(separator)
+  end
+
+  def markdown_to_html(body)
+    Kramdown::Document.new(body, input: 'GFM', auto_ids: false).to_html
+  end
+
+  def end_time(time, minutes)
+    hour, minute = time.split(':').map(&:to_i)
+    total = hour * 60 + minute + minutes
+    format('%d:%02d', total / 60, total % 60)
   end
 
   def write(path, html)
