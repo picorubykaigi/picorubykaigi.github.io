@@ -57,9 +57,7 @@ sections = [
               <img class="speaker-photo" src="/<%= Dir.glob("images/speakers/#{s[:github] || s[:x]}.*").first %>" alt="" loading="lazy">
               <div class="speaker-meta">
                 <p class="speaker-name<%= name.ascii_only? ? '' : ' speaker-name-ja' %>"><%= Array(s[:name]).map { |part| escape(part) }.join('<wbr>') %></p>
-<%- if s[:github] -%>
-                <p class="team-id"><a href="https://github.com/<%= s[:github] %>" target="_blank" rel="noopener">@<%= s[:github] %></a></p>
-<%- end -%>
+                <p class="team-id">@<%= s[:github] || s[:x] %></p>
                 <p class="team-links speaker-links">
 <%- if s[:github] -%>
                   <a href="https://github.com/<%= s[:github] %>" target="_blank" rel="noopener" aria-label="GitHub"><svg><use href="#icon-github"/></svg></a>
