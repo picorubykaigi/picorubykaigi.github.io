@@ -51,9 +51,9 @@ description: PicoRubyKaigi 2026 Assembleのオリジナル基板「Adventure Boa
 名前が決まったのに合わせて、基板用のライブラリの名前も `adventure_board` になりました。前回の記事のコードは、今はこう書きます。
 
 ```ruby
-require 'adventure_board/led_matrix'   # 使う部品を読み込む
+require 'adventure_board'
 
-matrix = AdventureBoard.matrix         # ライブラリから LED マトリクスを取り出す
+matrix = AdventureBoard.matrix   # LED マトリクスを読み込んで取り出す
 matrix.clear
 i = 1
 while i <= 16
@@ -67,7 +67,7 @@ end
 matrix.show                # ここでLEDドライバICへ送る
 ```
 
-LEDマトリクス、ボタン、スピーカーなど、使う部品ごとに読み込んで、`AdventureBoard.matrix` のように取り出して使う形にしました。マイコンのメモリは限られているので、使わないものは読み込まないようにしています。`matrix` がどこから来たのかがコードに書いてあるので、読んで追いかけやすくなっていると思います。
+LEDマトリクス、ボタン、スピーカーなど、使う部品は `AdventureBoard.matrix` のように取り出して使います。部品のプログラムは取り出したときに初めて読み込まれるので、使わないものはメモリを使いません。マイコンのメモリは限られているので、ここは大事なところです。`matrix` がどこから来たのかがコードに書いてあるので、読んで追いかけやすくなっていると思います。
 
 基板には、LEDマトリクスで文字を流す、ボタンでドットを動かす、ライフゲーム、メロディを鳴らす、といったサンプルプログラムも入れておく予定です。
 
