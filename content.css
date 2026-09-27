@@ -1123,8 +1123,14 @@ html.dark {
   --wash: color-mix(in srgb, #00d26a 12%, var(--card));
 }
 
+.schedule-link {
+  -webkit-tap-highlight-color: transparent;
+}
+
 .schedule-slot:has(.schedule-link:hover),
-.showcase-work:has(.showcase-link:hover) {
+.schedule-slot:has(.schedule-link:active),
+.showcase-work:has(.showcase-link:hover),
+.showcase-work:has(.showcase-link:active) {
   background-color: var(--wash);
 }
 
@@ -1132,7 +1138,8 @@ html.dark {
   transition: background-color .12s;
 }
 
-.schedule-slot-showcase:has(.schedule-link:hover) {
+.schedule-slot-showcase:has(.schedule-link:hover),
+.schedule-slot-showcase:has(.schedule-link:active) {
   background-color: transparent;
 }
 
@@ -1243,6 +1250,119 @@ html.dark .schedule-link:hover .schedule-icon {
 .schedule-slot-sponsor .schedule-speaker {
   line-height: 22px;
   margin-top: 0;
+}
+
+.session-kind {
+  width: fit-content;
+  font-family: 'Jersey 10', sans-serif;
+  font-size: 15px;
+  line-height: 1;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  padding: 6px 9px 5px 10px;
+  border-radius: 3px;
+  margin-bottom: 6px;
+  background: #e2dfd0;
+}
+
+html.dark .session-kind {
+  background: #2b3242;
+}
+
+.session .content-header {
+  padding-bottom: 20px;
+}
+
+.session-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 220px;
+  gap: 0 48px;
+  align-items: start;
+  padding: 8px 20px 0;
+}
+
+.session-columns .content-body > :first-child {
+  margin-top: 0;
+}
+
+.session-columns .content-body > :last-child {
+  margin-bottom: 0;
+}
+
+.session-columns .content-body li {
+  margin: 4px 0;
+  line-height: 1.9;
+}
+
+.session .blog-footer {
+  margin-top: 32px;
+  padding-top: 32px;
+}
+
+.panel:has(.session) {
+  padding-top: 40px;
+  padding-bottom: 36px;
+}
+
+@media (max-width: 560px) {
+  .session .blog-footer {
+    padding-top: 20px;
+  }
+  .panel:has(.session) {
+    padding-top: 28px;
+    padding-bottom: 20px;
+  }
+}
+
+.session-photo {
+  display: block;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.session-name {
+  font-family: 'DotGothic16', sans-serif;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: .04em;
+  word-break: keep-all;
+  margin-top: 8px;
+}
+
+.session-aside {
+  grid-column: 2;
+  grid-row: 1;
+  padding: 20px;
+  border-radius: 10px;
+  background: #fff;
+}
+
+html.dark .session-aside {
+  background: #212838;
+}
+
+.session-aside:not(:has(.session-bio)) {
+  padding-top: 32px;
+  padding-bottom: 32px;
+}
+
+.session-aside .team-id {
+  margin-top: 3px;
+}
+
+.session-aside .team-links {
+  margin: 3px 0 0 -3px;
+}
+
+.session-bio {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--muted);
+  margin-top: 12px;
 }
 
 .schedule-title-row {
@@ -1558,6 +1678,54 @@ html.dark .logo .kaigi {
   text-shadow: 0 0 6px rgba(110, 240, 160, .40), 0 0 16px rgba(110, 240, 160, .22);
 }
 
+@media (max-width: 760px) {
+  .session-columns {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px 0;
+    padding: 0;
+  }
+  .session .content-header {
+    margin-bottom: 20px;
+  }
+  .session .blog-footer {
+    margin-top: 29px;
+  }
+  .session-aside {
+    grid-column: auto;
+    grid-row: auto;
+    order: 1;
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr);
+    grid-template-rows: 1fr auto auto auto 1fr;
+    column-gap: 16px;
+  }
+  .session-photo {
+    grid-row: 1 / 6;
+    width: 72px;
+    height: 72px;
+  }
+  .session-name {
+    grid-row: 2;
+    margin-top: 0;
+  }
+  .session-aside .team-id {
+    grid-row: 3;
+  }
+  .session-aside .team-links {
+    grid-row: 4;
+  }
+  .session-bio {
+    grid-column: 1 / -1;
+    margin-top: 16px;
+  }
+  .session-columns:not(:has(.content-body)) .session-aside {
+    margin-top: 9px;
+  }
+  .session-aside:not(:has(.session-bio)) {
+    padding: 28px 24px;
+  }
+}
+
 @media (max-width: 560px) {
   .panel { padding: 24px 20px 32px; border-radius: 12px; }
   .blog-nav-title { display: none; }
@@ -1674,30 +1842,53 @@ html.dark .logo .kaigi {
     grid-template-columns: 10px minmax(0, 1fr);
     gap: 12px 14px;
     align-items: start;
-    margin: 0;
-    padding: 20px 0;
+    margin: 8px -12px 0;
+    padding: 10px 12px 22px;
+  }
+  .schedule-slot:first-child {
+    margin-top: 0;
   }
   .schedule-slot-info,
   .schedule-slot-break,
   .schedule-slot-sponsor {
-    margin-bottom: -2px;
     padding-bottom: 0;
   }
   .schedule-slot:has(.schedule-session) {
     row-gap: 16px;
   }
+  .schedule-slot-talk {
+    margin-top: 2px;
+    padding-top: 16px;
+  }
+  .schedule-slot.schedule-slot-talk::after {
+    top: 26px;
+  }
+  .schedule-slot-break + .schedule-slot-talk {
+    margin-top: 8px;
+    padding-top: 10px;
+  }
+  .schedule-slot.schedule-slot-break + .schedule-slot-talk::after {
+    top: 20px;
+  }
+  .schedule-slot.schedule-slot-break + .schedule-slot-talk::before {
+    top: -8px;
+  }
   .schedule-slot::before {
-    left: 4px;
+    top: -8px;
+    left: 16px;
+  }
+  .schedule-slot.schedule-slot-talk::before {
+    top: -2px;
   }
   .schedule-slot:first-child::before {
-    top: 30px;
+    top: 20px;
   }
   .schedule-slot:last-child::before {
-    height: 30px;
+    height: 28px;
   }
   .schedule-slot::after {
-    top: 30px;
-    left: 1px;
+    top: 20px;
+    left: 13px;
   }
   .schedule-time,
   .schedule-time:has(time + time) {

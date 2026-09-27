@@ -46,8 +46,11 @@ class PageBuilder
     STANDALONE_PAGES.each do |name, path|
       write path, Renderer.render("pages/#{name}.html.erb")
     end
+    sessions.each_value do |session|
+      write "schedule/#{session[:handle]}/index.html", session_page(session)
+    end
 
-    CONTENT_PAGES.length + STANDALONE_PAGES.length
+    CONTENT_PAGES.length + STANDALONE_PAGES.length + sessions.length
   end
 
   private
@@ -57,13 +60,22 @@ class PageBuilder
     Renderer.render 'layout.html.erb', title:, path: "/#{name}/", description:, content:
   end
 
+  def session_page(session)
+    content = Renderer.render('pages/session.html.erb', session:).chomp
+    description = session[:abstract_html] ? excerpt(session[:abstract_html], 120) : DESCRIPTION
+    Renderer.render 'layout.html.erb',
+      title: "#{session[:title_label]} - #{session[:speaker_label]}",
+      path: "/schedule/#{session[:handle]}/",
+      description:,
+      content:
+  end
+
   def sessions
     @sessions ||= Dir.glob(File.join(SESSIONS_DIR, '*.md')).sort.to_h do |file|
       meta, body = parse_frontmatter(File.read(file))
       handle = File.basename(file, '.md')
       title = meta['title'].to_s
       speaker = meta['speaker'].to_s
-      minutes = meta['minutes'].to_i
       [handle, {
         handle:,
         title: breakable(title, '') { |part| %(<span class="title-part">#{part}</span>) },
@@ -72,9 +84,9 @@ class PageBuilder
         speaker_label: speaker.delete('|'),
         bio: meta['bio']&.gsub('\\n', "\n"),
         kind: meta['kind'].downcase.to_sym,
+        kind_label: meta['kind'],
         time: meta['time'],
-        minutes:,
-        end_time: end_time(meta['time'], minutes),
+        minutes: meta['minutes'].to_i,
         github: meta['github'],
         x: meta['x'],
         abstract_html: body.strip.empty? ? nil : markdown_to_html(body)
@@ -96,15 +108,22 @@ class PageBuilder
     text.split('|').map { |part| wrap.call(Renderer.escape(part)) }.join(separator)
   end
 
+  # What speakers wrote is shown as written: no curly quotes or dashes swapped in.
   def markdown_to_html(body)
-    Kramdown::Document.new(body, input: 'GFM', auto_ids: false).to_html
+    Kramdown::Document.new(
+      body,
+      input: 'GFM',
+      auto_ids: false,
+      smart_quotes: %w[apos apos quot quot],
+      typographic_symbols: { hellip: '...', mdash: '---', ndash: '--', laquo: '<<', raquo: '>>', laquo_space: '<< ', raquo_space: ' >>' }
+    ).to_html
   end
 
-  def end_time(time, minutes)
-    hour, minute = time.split(':').map(&:to_i)
-    total = hour * 60 + minute + minutes
-    format('%d:%02d', total / 60, total % 60)
+  def excerpt(html, limit)
+    text = CGI.unescapeHTML(html.gsub(/<[^>]+>/, ' ')).gsub(/\s+/, ' ').strip
+    text.length <= limit ? text : "#{text[0, limit]}…"
   end
+
 
   def write(path, html)
     dest = File.join(@out_dir, path)
