@@ -1,20 +1,20 @@
 ---
 title: オリジナル基板「Adventure Board」の試作基板とWebコンソールのご紹介
-date: 2026-09-27
+date: 2026-09-28
 summary: こんにちは、PicoRubyKaigi 2026 Assembleのスタッフのkishimaです。オリジナル基板「Adventure Board」の試作と、ブラウザで動くWebコンソールについてご紹介します。
 description: PicoRubyKaigi 2026 Assembleのオリジナル基板「Adventure Board」の試作と、ブラウザで動くWebコンソールについてご紹介します
 ---
 
 こんにちは、PicoRubyKaigi 2026 Assembleのスタッフをしている[kishima](https://github.com/kishima)です。
 
-[前回の記事](board.html)では、このイベントのために準備しているオリジナル基板の仕様をご紹介しました。今回は試作基板が完成したので、その基板と、ブラウザで基板のシミュレーションができる「Adventure Board Console」についてご紹介したいと思います。
+[以前の記事](board.html)では、このイベントのために準備しているオリジナル基板の仕様をご紹介しました。今回は試作基板が完成したので、その基板と、ブラウザで基板のシミュレーションができる「Adventure Board Console」についてご紹介したいと思います。
 
 ---
 
 ## オリジナル基板の名前は「Adventure Board」
 
 基板の紹介の前に、名前が決まったのでお伝えします。
-前回の記事では「PicoRubyKaigi基板（仮）」と呼んでいましたが、正式な名前が **Adventure Board** に決まりました！
+以前の記事では「PicoRubyKaigi基板（仮）」と呼んでいましたが、正式な名前が **Adventure Board** に決まりました！
 
 この基板とPicoRubyで、Lチカのその先へ冒険に出かけましょう！
 
@@ -88,21 +88,21 @@ Adventure Board上で動くPicoRubyを、Wasmでブラウザの中で動かせ�
 
 ![Webコンソールの画面](/images/blog/adventure-board-console-1.jpg)
 
-### ブレッドボード
+### ブレッドボードのシミュレーション
 
-あらかじめ用意された部品（ジャンパ線・抵抗・LED・タクトスイッチ）をブレッドボードの穴に挿して、簡単な回路を組めます。実際に電流を計算していて、抵抗の数でLEDの明るさが変わります。抵抗を入れ忘れたり、GNDとショートしたりしていると注意が出ます。
+Adventure Board Consoleの画面上の仮想ブレッドボードに、あらかじめ用意された部品（ジャンパ線・抵抗・LED・タクトスイッチ）を挿して、簡単な回路を組めます。実際に電流を計算していて、抵抗の数でLEDの明るさが変わります。抵抗を入れ忘れたり、GNDとショートしたりしていると注意が出ます。
 
 ![ブレッドボードを拡大した画面](/images/blog/adventure-board-console-2.jpg)
 
 ### 実機に転送して実行
 
-基板をUSBでつなぎ、Web Serialで接続すると、書いたコードをワンタッチで基板に送ってすぐに実行できます（ChromeとEdgeで使えます）。
+基板をUSBでつなぎ、Web Serialで接続すると、書いたコードをワンタッチで基板に送ってすぐに実行できます（Google ChromeとMicrosoft Edgeで使えます）。
 
 ターミナルとしてもつながっているので、R2P2のWebコンソールとしても使えます。
 
 ![実機に接続した画面](/images/blog/adventure-board-console-connected.jpg)
 
-ちなみに、このWebコンソールの画面も、PicoRuby.wasmとFunicular（PicoRuby.wasmのUIフレームワーク）を使って、Rubyで書いています。
+ちなみに、このWebコンソールの画面も、[PicoRuby.wasm](https://picoruby.org/wasm)と[Funicular](https://picoruby.org/funicular)（PicoRuby.wasmのUIフレームワーク）を使って、Rubyで書いています。
 
 Adventure Board Consoleは、イベントまでに公開する予定です。
 
