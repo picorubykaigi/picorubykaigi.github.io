@@ -1252,6 +1252,90 @@ html.dark .schedule-link:hover .schedule-icon {
   margin-top: 0;
 }
 
+.schedule-slot-break .schedule-body:has(.corner) {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  row-gap: 8px;
+}
+
+.corner {
+  display: flex;
+  align-items: center;
+  font-family: 'DotGothic16', sans-serif;
+  font-size: 14px;
+  line-height: 24px;
+  letter-spacing: .04em;
+}
+
+.corner-trace {
+  position: relative;
+  width: 160px;
+  height: 8px;
+  margin: 0 12px 0 8px;
+  --pad: radial-gradient(circle at 4px 4px, var(--card) 0 1.6px, var(--line) 2.2px 3.8px, transparent 4.4px);
+  background:
+    var(--pad) left center / 8px 8px no-repeat,
+    var(--pad) right center / 8px 8px no-repeat,
+    repeating-linear-gradient(90deg, var(--line) 0 4px, transparent 4px 8px) 11px center / calc(100% - 22px) 2px no-repeat;
+}
+
+.corner-label {
+  position: absolute;
+  right: 12px;
+  top: -14px;
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: .08em;
+  white-space: nowrap;
+  color: var(--muted);
+}
+
+.corner-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 12px 3px 10px;
+  border: 2px dashed var(--line);
+  border-radius: 8px;
+}
+
+.corner-led {
+  position: relative;
+  top: 1px;
+  width: 7px;
+  height: 7px;
+  border-radius: 1px;
+  background: var(--card);
+  box-shadow: inset 0 0 0 2px var(--muted);
+}
+
+.corner-box:hover .corner-led {
+  box-shadow:
+    inset 0 0 0 2px #ff9e73,
+    0 0 4px 1px rgba(255, 158, 115, .5);
+}
+
+html.dark .corner-box:hover .corner-led {
+  box-shadow:
+    inset 0 0 0 2px #5be89a,
+    0 0 4px 1px rgba(110, 240, 160, .45);
+}
+
+@media (hover: none) {
+  .corner-led {
+    box-shadow:
+      inset 0 0 0 2px #ff9e73,
+      0 0 4px 1px rgba(255, 158, 115, .5);
+  }
+
+  html.dark .corner-led {
+    box-shadow:
+      inset 0 0 0 2px #5be89a,
+      0 0 4px 1px rgba(110, 240, 160, .45);
+  }
+}
+
 .session-kind {
   width: fit-content;
   font-family: 'Jersey 10', sans-serif;
@@ -1852,6 +1936,40 @@ html.dark .logo .kaigi {
   .schedule-slot-break,
   .schedule-slot-sponsor {
     padding-bottom: 0;
+  }
+  .schedule-slot-break .schedule-body:has(.corner) {
+    row-gap: 0;
+  }
+  .corner {
+    flex-basis: 100%;
+    margin-top: 12px;
+    padding-left: 18px;
+  }
+  .corner-trace {
+    width: 124px;
+    margin: 0 12px 0 0;
+    background:
+      var(--pad) right center / 8px 8px no-repeat,
+      repeating-linear-gradient(90deg, var(--line) 0 4px, transparent 4px 8px) 4px center / calc(100% - 15px) 2px no-repeat;
+  }
+  .corner-trace::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 3px;
+    width: 8px;
+    height: 24px;
+    background:
+      var(--pad) top center / 8px 8px no-repeat,
+      repeating-linear-gradient(180deg, var(--line) 0 4px, transparent 4px 8px) 3px 11px / 2px calc(100% - 11px) no-repeat;
+  }
+  .corner-label {
+    left: calc(100% + 14px);
+    right: auto;
+    top: -33px;
+  }
+  .corner-box {
+    white-space: nowrap;
   }
   .schedule-slot:has(.schedule-session) {
     row-gap: 16px;
