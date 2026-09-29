@@ -62,7 +62,7 @@ end
                       <img class="schedule-icon" src="/<%= Dir.glob("images/speakers/#{work[:handle]}.*").first %>" alt="" loading="lazy">
                       <div>
                         <h3 class="showcase-title"><%= work[:title] %></h3>
-                        <p class="showcase-presenter"><%= work[:speaker] %></p>
+                        <p class="showcase-presenter<%= work[:speaker_label].ascii_only? ? '' : ' schedule-speaker-ja' %>"><%= work[:speaker] %><span class="schedule-handle">@<%= work[:github] || work[:x] %></span></p>
                       </div>
                     </a>
                   </li>
@@ -75,7 +75,7 @@ end
                 <img class="schedule-icon" src="/<%= Dir.glob("images/speakers/#{slot[:handle]}.*").first %>" alt="" loading="lazy">
                 <div>
                   <h3 class="schedule-title"><%= slot[:title] %></h3>
-                  <p class="schedule-speaker"><%= slot[:speaker] %></p>
+                  <p class="schedule-speaker<%= slot[:speaker_label].ascii_only? ? '' : ' schedule-speaker-ja' %>"><%= slot[:speaker] %><span class="schedule-handle">@<%= slot[:github] || slot[:x] %></span></p>
                 </div>
               </a>
     <%- else -%>

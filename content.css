@@ -1246,6 +1246,29 @@ html.dark .schedule-link:hover .schedule-icon {
   margin-top: 3px;
 }
 
+.schedule-session .schedule-speaker,
+.showcase-presenter {
+  font-family: 'DotGothic16', sans-serif;
+  font-size: 14px;
+  letter-spacing: .04em;
+  margin-top: 1px;
+}
+
+.schedule-session .schedule-speaker-ja,
+.showcase-presenter.schedule-speaker-ja {
+  font-size: 13px;
+}
+
+.schedule-handle {
+  display: block;
+  margin-top: 3px;
+  line-height: 1;
+  font-family: 'Jersey 10', sans-serif;
+  font-size: 14px;
+  letter-spacing: .04em;
+  color: var(--muted);
+}
+
 .schedule-slot-sponsor .schedule-title,
 .schedule-slot-sponsor .schedule-speaker {
   line-height: 22px;
@@ -1523,7 +1546,7 @@ html.dark .session-aside {
 
 .showcase-link {
   height: 100%;
-  padding: 18px 22px;
+  padding: 14px 16px 14px 22px;
 }
 
 .showcase-work::before,
@@ -1565,10 +1588,9 @@ html.dark .session-aside {
 }
 
 .showcase-presenter {
-  font-size: 15px;
   line-height: 1.5;
   color: var(--muted);
-  margin-top: 3px;
+  margin-top: 1px;
 }
 
 .schedule-session .schedule-title,
@@ -1576,17 +1598,40 @@ html.dark .session-aside {
   line-height: 1.4;
 }
 
+@media (min-width: 561px) {
+  .schedule-session .schedule-title,
+  .showcase-title {
+    font-size: 21px;
+  }
+
+  .schedule-slot-break {
+    padding-top: 7px;
+    padding-bottom: 7px;
+  }
+  .schedule-slot-break:has(.corner) {
+    padding-top: 15px;
+    padding-bottom: 15px;
+  }
+
+  .schedule-slot-info + .schedule-slot:has(.schedule-session),
+  .schedule-slot-sponsor + .schedule-slot:has(.schedule-session),
+  .schedule-slot:has(.schedule-session) + .schedule-slot-info,
+  .schedule-slot:has(.schedule-session) + .schedule-slot-sponsor {
+    margin-top: -8px;
+  }
+}
+
 .schedule-session,
 .showcase-link {
   display: grid;
-  grid-template-columns: 72px minmax(0, 1fr);
+  grid-template-columns: 76px minmax(0, 1fr);
   gap: 18px;
   align-items: center;
 }
 
 .schedule-icon {
-  width: 72px;
-  height: 72px;
+  width: 76px;
+  height: 76px;
   object-fit: cover;
   border-radius: 50%;
 }
@@ -1973,6 +2018,9 @@ html.dark .logo .kaigi {
   }
   .schedule-slot:has(.schedule-session) {
     row-gap: 16px;
+  }
+  .schedule-session {
+    align-items: start;
   }
   .schedule-slot-talk {
     margin-top: 2px;
