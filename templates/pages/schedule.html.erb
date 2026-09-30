@@ -9,7 +9,7 @@ slots = [
   { time: '12:10', minutes: 70, kind: :break, title: '昼休み' },
   { time: '13:20', minutes: 40, kind: :showcase, title: 'Showcase', works: %w[harukasan yancya tarosay kubo_token] },
   'ydah',
-  { time: '14:25', minutes: 30, kind: :break, title: 'ひと休み', corner: 'Lチカ入門' },
+  { time: '14:25', minutes: 30, kind: :break, title: 'ひと休み' },
   'khoriosk',
   'youchan',
   'yuuu',
@@ -82,9 +82,6 @@ end
               <h3 class="schedule-title"><%= escape(slot[:title]) %></h3>
       <%- if slot[:speaker] -%>
               <p class="schedule-speaker"><%= escape(slot[:speaker]) %></p>
-      <%- end -%>
-      <%- if slot[:corner] -%>
-              <p class="corner"><span class="corner-trace"><span class="corner-label">ミニコーナー</span></span><span class="corner-box"><span class="corner-led" aria-hidden="true"></span><%= escape(slot[:corner]) %></span></p>
       <%- end -%>
     <%- end -%>
   <%- end -%>
