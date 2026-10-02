@@ -1,28 +1,9 @@
 <%-
-keynote = [
-  { name: 'hasumikin', github: 'hasumikin', x: 'hasumikin' },
-  { name: %w[まつもと ゆきひろ], github: 'matz', x: 'yukihiro_matz' }
-]
-talk = [
-  { name: 'khoriosk', x: 'khoriosk', bio: '個人でPicoRuby/FemtoRubyのMCUへのポーティングに取り組んでいます。現在はCortex-M7 MCUを対象に、Ruby実行環境とhardwareの境界や、移植時に必要となる構成を確認しています。' },
-  { name: 'S.H.', github: 'S-H-GAMELINKS', bio: 'Rubyを自作カーネルやseL4マイクロカーネルなどの上に移植することが楽しいRubyist。最近はPicoRubyの上でCRubyを動かす遊びを覚えた。' },
-  { name: 'Shota Osaki', github: 'Suzune2741', bio: "松江工業高等専門学校 電子情報システム工学専攻所属。\n在学中にRubyに触れ、初心者でも分かりやすい記述に魅力を感じて愛用している。小中学生向けのプログラミング出張講座や自身の体験などからプログラミングを始めるハードルの高さを感じ、Node-REDとmruby/cを活用したブラウザで完結できる開発環境の構築を行っている。" },
-  { name: 'ydah', github: 'ydah', x: 'ydah_', bio: 'Ruby のコミット権を有する OSS プログラマー。主に構文解析器の改善に取り組んでいる。Kyobashi.rb の創設メンバー。2024 年以降大阪 Ruby 会議 / 関西 Ruby 会議のチーフオーガナイザーを務める。株式会社 SmartHR プロダクトエンジニア。' },
-  { name: 'youchan', github: 'youchan', x: 'youchan', bio: 'PicoPicoRuby(共同)主催者' },
-  { name: 'Yuhei Okazaki', github: 'yuuu', x: 'Y_uuu', bio: "福岡にある株式会社FusicでIoTクラウドエンジニアとして、RubyやAWSを活用したIoTシステムの受託開発をしています。\nまた、フィヨルドブートキャンプというRubyのオンラインプログラミングスクールでメンターをしています。RubyKaigi 2019ではLocal Organizerをしていました。\nR2P2-ESP32を公開して以来、常にESP32デバイスをリュックサックに忍ばせています。" },
-]
-showcase = [
-  { name: 'Shunsuke Michii (harukasan)', github: 'harukasan', x: 'harukasan', bio: '電子工作を趣味としているRubyist。自作のRubyコンピューターである「Harucom」を製作している。インフラエンジニア。ピクシブ株式会社 執行役員 CTO。' },
-  { name: 'yancya', github: 'yancya', x: 'yancya', bio: 'Rubyist です。テックカンファレンス期間限定シェアハウス「やんちゃハウス」(yancya.house) の Organizer をやっています。RubyKaigi で Raspberry Pi Pico を配ったりとかしてます。PicoRubyの実力はＬチカに毛が生えたくらいの感じです' },
-  { name: 'たろサ', github: 'tarosay', x: 'momoonga', bio: '　Wakayama.rb主催。UIAPrubyを開発し、CoderDojo和歌山有田で子供たちのプログラミングや電子工作を支援しています。Rubyが使えるマイコンボード「GR-CITRUS」の開発経験があり、UIAPduino用Arduino IDEボードパッケージ、Scratch拡張機能を開発・公開し、Windows・Mac・Linuxの開発環境も整備しています。現在は、ブロックプログラミングからRubyコードを生成する「URB Block」も開発中です。宇宙甲子園近畿地方大会では缶サット部門の審査員を務めています。関西Ruby会議09では、参加者のうち希望された方にUIAPrubyボードを配布しました。' },
-  { name: '久保トークン', x: 'kubo_token', bio: "普段はRailsを使ったWEB開発に従事しています。\n学生時代にバンド活動をやっていました。その中でエフェクタというものに関心を持ち、作ってみたいと思うように。大学は電子回路の勉強のために電気系の学科に入りましたが、電子回路はあまりやらずにプログラミングに興味が移ってソフトウェア業界に入りました。\nたまにエフェクタ作ったりギターアンプ作ったりはしていたんですが、2025年のRubyKaigiでPicoRubyというものを知り電子回路熱が再燃。せっかくならシンセサイザを作ろう！と思い立ちいろいろ勉強＆挑戦しています。" },
-]
-display_name = ->(s) { Array(s[:name]).join }
-by_name = ->(s) { [display_name.call(s).ascii_only? ? 0 : 1, display_name.call(s).downcase] }
+by_name = ->(session) { [session[:speaker_label].ascii_only? ? 0 : 1, session[:speaker_label].downcase] }
 sections = [
-  ['Keynote', 'keynote', keynote],
-  ['Talk', 'talk', talk.sort_by(&by_name)],
-  ['Showcase', 'showcase', showcase.sort_by(&by_name)]
+  ['Keynote', 'keynote', %w[hasumikin matz].map { |handle| sessions.fetch(handle) }],
+  ['Talk', 'talk', sessions.values.select { |session| session[:kind] == :talk }.sort_by(&by_name)],
+  ['Showcase', 'showcase', sessions.values.select { |session| session[:kind] == :showcase }.sort_by(&by_name)]
 ]
 -%>
   <svg width="0" height="0" aria-hidden="true" style="position:absolute">
@@ -50,29 +31,28 @@ sections = [
       <section class="team-section">
         <h2><%= heading %></h2>
         <ul class="speaker-list speaker-list-<%= kind %>">
-<%- speakers.each do |s| -%>
-<%- name = display_name.call(s) -%>
+  <%- speakers.each do |speaker| -%>
           <li class="speaker-card speaker-card-<%= kind %>">
             <div class="speaker-body">
-              <img class="speaker-photo" src="/<%= Dir.glob("images/speakers/#{s[:github] || s[:x]}.*").first %>" alt="" loading="lazy">
+              <img class="speaker-photo" src="/<%= Dir.glob("images/speakers/#{speaker[:handle]}.*").first %>" alt="" loading="lazy">
               <div class="speaker-meta">
-                <p class="speaker-name<%= name.ascii_only? ? '' : ' speaker-name-ja' %>"><%= Array(s[:name]).map { |part| escape(part) }.join('<wbr>') %></p>
-                <p class="team-id">@<%= s[:github] || s[:x] %></p>
+                <p class="speaker-name<%= speaker[:speaker_label].ascii_only? ? '' : ' speaker-name-ja' %>"><%= speaker[:speaker] %></p>
+                <p class="team-id">@<%= speaker[:github] || speaker[:x] %></p>
                 <p class="team-links speaker-links">
-<%- if s[:github] -%>
-                  <a href="https://github.com/<%= s[:github] %>" target="_blank" rel="noopener" aria-label="GitHub"><svg><use href="#icon-github"/></svg></a>
-<%- end -%>
-<%- if s[:x] -%>
-                  <a href="https://x.com/<%= s[:x] %>" target="_blank" rel="noopener" aria-label="X"><svg><use href="#icon-x"/></svg></a>
-<%- end -%>
+    <%- if speaker[:github] -%>
+                  <a href="https://github.com/<%= speaker[:github] %>" target="_blank" rel="noopener" aria-label="GitHub"><svg><use href="#icon-github"/></svg></a>
+    <%- end -%>
+    <%- if speaker[:x] -%>
+                  <a href="https://x.com/<%= speaker[:x] %>" target="_blank" rel="noopener" aria-label="X"><svg><use href="#icon-x"/></svg></a>
+    <%- end -%>
                 </p>
               </div>
-<%- if s[:bio] -%>
-              <p class="speaker-bio"><%= escape(s[:bio]).gsub("\n", '<br>') %></p>
-<%- end -%>
+    <%- if speaker[:bio] -%>
+              <p class="speaker-bio"><%= escape(speaker[:bio]).gsub("\n", '<br>') %></p>
+    <%- end -%>
             </div>
           </li>
-<%- end -%>
+  <%- end -%>
         </ul>
       </section>
 <%- end -%>

@@ -24,7 +24,7 @@ BLOG_TEMPLATES = %w[templates/post.html.erb templates/index.html.erb].freeze
 def classify(path)
   return :full if REBUILD_ALL.include?(path)
   return :blog if path.start_with?('blog/posts/') || BLOG_TEMPLATES.include?(path)
-  return :pages if path.start_with?('templates/pages/') || path == 'templates/layout.html.erb'
+  return :pages if path.start_with?('templates/pages/', 'sessions/') || path == 'templates/layout.html.erb'
   return :full if path.start_with?('templates/')   # 共通部品はページにもブログにも効く
   return :skip if NOT_COPIED.include?(path) || path.end_with?('.md')
 

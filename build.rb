@@ -10,7 +10,7 @@ ROOT = Dir.pwd
 OUT = File.join(ROOT, 'dist')
 
 EXCLUDE = Set.new(%w[
-  node_modules dist design tools
+  node_modules dist design tools sessions
   package.json package-lock.json
   build.mjs build.rb minify.mjs blog_builder.rb page_builder.rb renderer.rb Gemfile Gemfile.lock templates
 ])

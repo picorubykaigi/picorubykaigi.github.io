@@ -1,0 +1,94 @@
+<%-
+slots = [
+  { time: '10:00', kind: :info, title: 'ドアオープン' },
+  { time: '10:30', kind: :info, title: 'オープニング' },
+  { time: '10:40', kind: :sponsor, title: 'スポンサーLT', speaker: 'ピクシブ株式会社' },
+  'matz',
+  'S-H-GAMELINKS',
+  'Suzune2741',
+  { time: '12:10', minutes: 70, kind: :break, title: '昼休み' },
+  { time: '13:20', minutes: 40, kind: :showcase, title: 'Showcase', works: %w[harukasan yancya tarosay kubo_token] },
+  'ydah',
+  { time: '14:25', minutes: 30, kind: :break, title: 'ひと休み' },
+  'khoriosk',
+  'youchan',
+  'yuuu',
+  { time: '16:15', kind: :sponsor, title: 'スポンサーLT', speaker: '株式会社Gaji-Labo' },
+  'hasumikin',
+  { time: '16:50', kind: :info, title: 'クロージング' },
+].map { |slot| slot.is_a?(String) ? sessions.fetch(slot) : slot }
+finish = lambda do |time, minutes|
+  hour, minute = time.split(':').map(&:to_i)
+  total = hour * 60 + minute + minutes
+  format('%d:%02d', total / 60, total % 60)
+end
+-%>
+  <svg width="0" height="0" aria-hidden="true" style="position:absolute">
+    <symbol id="icon-new-tab" viewBox="0 0 7 7">
+      <path d="M0 2h2v1H1v3h3V5h1v2H0zM3 0h4v4H6V2H5v1H4v1H3v1H2V4h1V3h1V2h1V1H3z"/>
+    </symbol>
+  </svg>
+
+  <main class="container container-wide">
+    <div class="panel">
+      <div class="team-header schedule-header">
+        <h1 class="team-title">Schedule</h1>
+        <div class="blog-dancers team-dancers" aria-hidden="true">
+          <div class="blog-dancer"><span class="blog-dancer-led"></span></div>
+          <div class="blog-dancer"><span class="blog-dancer-led"></span></div>
+          <div class="blog-dancer"><span class="blog-dancer-led"></span></div>
+          <div class="blog-dancer"><span class="blog-dancer-led"></span></div>
+        </div>
+      </div>
+
+      <section class="team-section">
+        <ol class="schedule">
+<%- slots.each do |slot| -%>
+          <li class="schedule-slot schedule-slot-<%= slot[:kind] %>">
+            <p class="schedule-time"><time><%= slot[:time] %></time><%- if slot[:minutes] -%><time><%= finish.call(slot[:time], slot[:minutes]) %></time><%- end -%></p>
+            <div class="schedule-body">
+  <%- if slot[:kind] == :showcase -%>
+              <div class="schedule-title-row">
+                <h3 class="schedule-title"><%= escape(slot[:title]) %></h3>
+                <p class="schedule-note"><a href="/blog/showcase.html" target="_blank" rel="noopener">ショーケースセッションとは<svg class="schedule-note-icon" aria-hidden="true"><use href="#icon-new-tab"/></svg></a></p>
+              </div>
+              <div class="showcase-floor">
+                <span class="showcase-walker" aria-hidden="true"></span>
+                <ul class="showcase">
+    <%- slot[:works].each do |handle| -%>
+      <%- work = sessions.fetch(handle) -%>
+                  <li class="showcase-work">
+                    <a class="schedule-link showcase-link" href="/schedule/<%= work[:handle] %>/">
+                      <img class="schedule-icon" src="/<%= Dir.glob("images/speakers/#{work[:handle]}.*").first %>" alt="" loading="lazy">
+                      <div>
+                        <h3 class="showcase-title"><%= work[:title] %></h3>
+                        <p class="showcase-presenter<%= work[:speaker_label].ascii_only? ? '' : ' schedule-speaker-ja' %>"><%= work[:speaker] %><span class="schedule-handle">@<%= work[:github] || work[:x] %></span></p>
+                      </div>
+                    </a>
+                  </li>
+    <%- end -%>
+                </ul>
+              </div>
+  <%- else -%>
+    <%- if slot[:handle] -%>
+              <a class="schedule-link schedule-session" href="/schedule/<%= slot[:handle] %>/">
+                <img class="schedule-icon" src="/<%= Dir.glob("images/speakers/#{slot[:handle]}.*").first %>" alt="" loading="lazy">
+                <div>
+                  <h3 class="schedule-title"><%= slot[:title] %></h3>
+                  <p class="schedule-speaker<%= slot[:speaker_label].ascii_only? ? '' : ' schedule-speaker-ja' %>"><%= slot[:speaker] %><span class="schedule-handle">@<%= slot[:github] || slot[:x] %></span></p>
+                </div>
+              </a>
+    <%- else -%>
+              <h3 class="schedule-title"><%= escape(slot[:title]) %></h3>
+      <%- if slot[:speaker] -%>
+              <p class="schedule-speaker"><%= escape(slot[:speaker]) %></p>
+      <%- end -%>
+    <%- end -%>
+  <%- end -%>
+            </div>
+          </li>
+<%- end -%>
+        </ol>
+      </section>
+    </div>
+  </main>
