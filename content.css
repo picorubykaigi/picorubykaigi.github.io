@@ -1145,7 +1145,7 @@ html.dark {
 
 @media (min-width: 561px) {
   .schedule-title-row {
-    height: var(--showcase-head);
+    min-height: var(--showcase-head);
   }
 
   .schedule-slot-showcase .schedule-time {
@@ -1767,6 +1767,27 @@ html.dark .logo .kaigi {
   }
 }
 
+@media (max-width: 840px) {
+  .showcase-floor {
+    padding: 28px 18px;
+  }
+  .showcase {
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-rows: auto;
+    gap: 30px;
+  }
+  .showcase-link {
+    padding: 14px 16px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+  .showcase-work:nth-child(2)::after,
+  .showcase-work:nth-child(3)::before,
+  .showcase-walker {
+    display: none;
+  }
+}
+
 @media (max-width: 560px) {
   .panel { padding: 24px 20px 32px; border-radius: 12px; }
   .blog-nav-title { display: none; }
@@ -1956,24 +1977,6 @@ html.dark .logo .kaigi {
   }
   .schedule-title {
     font-size: 17px;
-  }
-  .showcase-floor {
-    padding: 28px 18px;
-  }
-  .showcase {
-    grid-template-columns: minmax(0, 1fr);
-    grid-auto-rows: auto;
-    gap: 30px;
-  }
-  .showcase-link {
-    padding: 14px 16px;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 10px;
-  }
-  .showcase-work:nth-child(2)::after,
-  .showcase-work:nth-child(3)::before,
-  .showcase-walker {
-    display: none;
   }
   .logo-name { letter-spacing: .01em; }
   .logo .kaigi .kern-yk { margin-left: .01em; }
