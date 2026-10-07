@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>PicoRubyKaigi 2026 — Bullet markers</title>
+<link rel="stylesheet" href="slides.css">
+<style>
+  body {
+    background: none;
+  }
+
+  .marker {
+    position: absolute;
+    left: 40px;
+    color: transparent;
+  }
+
+  .marker-1 {
+    top: 40px;
+  }
+
+  .marker-2 {
+    top: 240px;
+  }
+
+  .marker-2 > li::before {
+    display: none;
+  }
+
+  .code.tile {
+    position: absolute;
+    left: 280px;
+    top: 40px;
+    width: 112px;
+    height: 112px;
+    padding: 0;
+    box-shadow: none;
+  }
+</style>
+</head>
+<body>
+  <ul class="bullets marker marker-1"><li>&nbsp;</li></ul>
+  <ul class="bullets marker marker-2"><li><ul><li>&nbsp;</li></ul></li></ul>
+  <div class="code tile"></div>
+</body>
+</html>
