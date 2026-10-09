@@ -1,8 +1,9 @@
 #!/bin/zsh
 # Build the Keynote template and the asset zip that the site hands out.
 #
-#   images/goodies/picorubykaigi2026-keynote.key         Keynote file (masters + sample slides)
-#   images/goodies/picorubykaigi2026-keynote-assets.zip  PNG parts and backgrounds
+#   images/goodies/picorubykaigi2026-keynote.key          Keynote file (masters + sample slides)
+#   images/goodies/picorubykaigi2026-keynote-assets.zip   PNG parts and backgrounds
+#   images/goodies/picorubykaigi2026-keynote-preview-*.png  sample slides as Keynote renders them
 #
 # Intermediate files go to out/ (not committed). Keynote and the fonts used by
 # the template must be installed on this Mac.
@@ -18,6 +19,9 @@ command rm -rf out/picorubykaigi2026.key out/keynote-check
 mkdir -p out/keynote-check
 osascript to_keynote.applescript "$HERE/out/picorubykaigi2026.pptx" "$HERE/out/picorubykaigi2026.key" "$HERE/out/keynote-check"
 command cp -f out/picorubykaigi2026.key "$GOODIES/picorubykaigi2026-keynote.key"
+command cp -f out/keynote-check/keynote-check.001.png "$GOODIES/picorubykaigi2026-keynote-preview-title.png"
+command cp -f out/keynote-check/keynote-check.002.png "$GOODIES/picorubykaigi2026-keynote-preview-about.png"
+command cp -f out/keynote-check/keynote-check.003.png "$GOODIES/picorubykaigi2026-keynote-preview-code.png"
 
 # The zip carries each part under a name that says what it is.
 PARTS=out/picorubykaigi2026-keynote-assets
@@ -31,6 +35,9 @@ command cp -f "$ASSETS/bullet-1.png" "$PARTS/bullet-1.png"
 command cp -f "$ASSETS/bullet-2.png" "$PARTS/bullet-2.png"
 command cp -f "$ASSETS/photo-frame.png" "$PARTS/photo-frame.png"
 command cp -f "$ASSETS/code-tile.png" "$PARTS/code-panel.png"
+command cp -f out/keynote-check/keynote-check.001.png "$PARTS/preview-title.png"
+command cp -f out/keynote-check/keynote-check.002.png "$PARTS/preview-about.png"
+command cp -f out/keynote-check/keynote-check.003.png "$PARTS/preview-code.png"
 command rm -f "$GOODIES/picorubykaigi2026-keynote-assets.zip"
 (cd out && zip -q -X -r "$GOODIES/picorubykaigi2026-keynote-assets.zip" picorubykaigi2026-keynote-assets)
 

@@ -844,6 +844,101 @@ html.dark .job-link a:hover .job-led {
   transform: none;
 }
 
+.goodies-template {
+  max-width: 880px;
+  margin: 0 auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 32px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 16px 24px;
+  font-size: 15px;
+  line-height: 1.95;
+}
+
+.goodies-template-previews {
+  list-style: none;
+  position: relative;
+  flex: 0 0 420px;
+  aspect-ratio: 420 / 258;
+}
+
+.goodies-template-previews li {
+  position: absolute;
+  width: 76%;
+  padding: 6px 6px 10px;
+  background: #fff;
+  border-radius: 10px;
+}
+
+.goodies-template-previews li:nth-child(1) {
+  left: 23.8%;
+  top: 25.6%;
+  z-index: 3;
+}
+
+.goodies-template-previews li:nth-child(2) {
+  left: 11.9%;
+  top: 12.8%;
+  z-index: 2;
+}
+
+.goodies-template-previews li:nth-child(3) {
+  left: 0;
+  top: 0;
+  z-index: 1;
+}
+
+.goodies-template-previews li:hover {
+  z-index: 4;
+  animation: goodies-template-hop .2s steps(1) forwards;
+}
+
+@keyframes goodies-template-hop {
+  0% {
+    transform: translateY(-4px);
+  }
+
+  50%,
+  100% {
+    transform: translateY(-2px);
+  }
+}
+
+.goodies-template-previews img {
+  width: 100%;
+  height: auto;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 4px 0 var(--line);
+}
+
+.goodies-template-body {
+  min-width: 0;
+}
+
+.goodies-template-info dt {
+  font-family: 'Jersey 10', sans-serif;
+  font-size: 18px;
+  letter-spacing: .06em;
+  color: var(--muted);
+}
+
+.goodies-template-info dd + dt {
+  margin-top: 14px;
+}
+
+.goodies-template-info ul {
+  list-style: none;
+  padding-left: 1em;
+}
+
+.goodies-template-info a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .goodies-license {
   max-width: 880px;
   margin: 0 auto;
@@ -1696,6 +1791,11 @@ html.dark .sponsor-card { background: #212838; }
 
 html.dark .goodies-list { background: #212838; }
 
+html.dark .goodies-template,
+html.dark .goodies-template-previews li {
+  background: #212838;
+}
+
 html.dark .blog-dancer-led {
   position: absolute;
   right: 5px;
@@ -1849,6 +1949,15 @@ html.dark .logo .kaigi {
   .goodies-list { gap: 14px; padding: 14px; }
   .goodies-plate:not(.goodies-plate-main) { padding: 22px 16px; }
   .goodies-item-wide .goodies-plate { padding-top: 30px; padding-bottom: 24px; }
+  .goodies-template {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 20px;
+    padding: 18px;
+  }
+  .goodies-template-previews {
+    flex-basis: auto;
+  }
   .events-header .team-title {
     font-size: clamp(30px, 8.5vw, 38px);
     letter-spacing: .08em;
