@@ -1011,9 +1011,7 @@ html.dark .job-link a:hover .job-led {
 }
 
 .event-item + .event-item {
-  margin-top: 32px;
-  padding-top: 32px;
-  border-top: 2px solid var(--line);
+  margin-top: 48px;
 }
 
 .event-thumb {
@@ -1045,6 +1043,11 @@ html.dark .job-link a:hover .job-led {
   letter-spacing: .04em;
 }
 
+.event-name-note {
+  font-size: .88em;
+  letter-spacing: .02em;
+}
+
 .event-name a:hover {
   text-decoration: underline;
   text-underline-offset: 3px;
@@ -1072,20 +1075,20 @@ html.dark .job-link a:hover .job-led {
 }
 
 .event-icon {
-  width: 13px;
-  height: 13px;
+  width: 14px;
+  height: 14px;
   fill: var(--muted);
   image-rendering: pixelated;
 }
 
 .event-icon-pin {
-  width: 11px;
-  height: 13px;
+  width: 10px;
+  height: 12px;
 }
 
 .event-icon-people {
-  width: 16px;
-  height: 11px;
+  width: 18px;
+  height: 12px;
 }
 
 .event-meta-label {
