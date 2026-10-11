@@ -1020,6 +1020,11 @@ html.dark .job-link a:hover .job-led {
   background: var(--card);
   border-radius: 8px;
   overflow: hidden;
+  transition: transform .15s ease;
+}
+
+.event-thumb:hover {
+  transform: scale(1.02);
 }
 
 .event-thumb img {
@@ -1038,6 +1043,11 @@ html.dark .job-link a:hover .job-led {
   font-weight: 700;
   line-height: 1.5;
   letter-spacing: .04em;
+}
+
+.event-name a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .event-meta {
@@ -1111,13 +1121,57 @@ html.dark .job-link a:hover .job-led {
 }
 
 a.event-cta {
+  position: relative;
   background: var(--red);
   border-color: var(--redd);
   color: #fff;
 }
 
+a.event-cta::before,
+a.event-cta::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+a.event-cta::before {
+  background:
+    radial-gradient(circle at 4px 2px, rgba(255, 255, 255, .35) 0 2px, transparent 2.5px) 0 0 / 8px 4px repeat-x,
+    radial-gradient(circle at 4px 2px, rgba(255, 255, 255, .35) 0 2px, transparent 2.5px) 0 100% / 8px 4px repeat-x,
+    radial-gradient(circle at 2px 4px, rgba(255, 255, 255, .35) 0 2px, transparent 2.5px) 0 0 / 4px 8px repeat-y,
+    radial-gradient(circle at 2px 4px, rgba(255, 255, 255, .35) 0 2px, transparent 2.5px) 100% 0 / 4px 8px repeat-y;
+}
+
+a.event-cta::after {
+  background:
+    radial-gradient(circle at 4px 2px, #fffdf2 0 1px, #ffd76a 1px 2px, transparent 2.5px) 0 0 / 24px 4px repeat-x,
+    radial-gradient(circle at 4px 2px, #fffdf2 0 1px, #ffd76a 1px 2px, transparent 2.5px) 0 100% / 24px 4px repeat-x,
+    radial-gradient(circle at 2px 4px, #fffdf2 0 1px, #ffd76a 1px 2px, transparent 2.5px) 0 0 / 4px 24px repeat-y,
+    radial-gradient(circle at 2px 4px, #fffdf2 0 1px, #ffd76a 1px 2px, transparent 2.5px) 100% 0 / 4px 24px repeat-y;
+}
+
 a.event-cta:hover {
-  background: var(--redd);
+  font-weight: 700;
+  text-shadow:
+    0 1px 0 #8f1528,
+    0 2px 0 #6a0e1e;
+}
+
+a.event-cta:hover::before,
+a.event-cta:hover::after {
+  opacity: 1;
+}
+
+a.event-cta:hover::after {
+  animation: event-cta-bulbs .45s steps(3) infinite;
+}
+
+@keyframes event-cta-bulbs {
+  to {
+    background-position: 24px 0, -24px 100%, 0 -24px, 100% 24px;
+  }
 }
 
 .schedule {
