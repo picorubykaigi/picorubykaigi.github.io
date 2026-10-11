@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>PicoRubyKaigi 2026 Assemble — Keynote template</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitcount+Single:ELSH,wght@0..100,100..900&family=Jersey+10&family=Micro+5&family=DotGothic16&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="slides.css">
+</head>
+<body>
+<main class="deck">
+
+  <section class="slide title-slide" data-name="01-title">
+    <div class="lockup">
+      <img class="lockup-ruby" src="../../images/ruby-1.png" alt="">
+      <div class="lockup-text">
+        <p class="lockup-name"><span class="lockup-pico">P<span class="kern-pi">i</span><span class="kern-ic">c</span>oRuby</span><span class="lockup-kaigi"><span class="kern-yk">K</span>ai<span class="kern-ig">g</span>i</span></p>
+        <p class="lockup-meta"><span class="lockup-year">2026</span><span class="lockup-assemble">Assemble</span></p>
+      </div>
+    </div>
+    <div class="title-body">
+      <h1 class="talk-title">Your slide title</h1>
+      <div class="talk-meta">
+        <p class="speaker-name">Your name here</p>
+        <p class="talk-date">2026.10.31.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide plain" data-name="02-about-me">
+    <header class="rails">
+      <h2 class="slide-title">About me</h2>
+    </header>
+    <div class="content content-columns">
+      <div>
+        <ul class="bullets">
+          <li>Your <em>name</em>
+            <ul>
+              <li>More profile</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+      <div class="photo">
+        <span class="photo-label">PHOTO</span>
+      </div>
+    </div>
+    <footer class="footer">
+      <span class="footer-logo"><span class="footer-logo-pico">P<span class="kern-pi">i</span><span class="kern-ic">c</span>oRuby</span><span class="footer-logo-kaigi"><span class="kern-yk">K</span>ai<span class="kern-ig">g</span>i</span><span class="footer-logo-meta"><span class="footer-logo-year">2026</span><span class="footer-logo-assemble">Assemble</span></span></span>
+      <span class="page-number">02</span>
+    </footer>
+  </section>
+
+  <section class="slide plain" data-name="03-code">
+    <header class="rails">
+      <h2 class="slide-title">L-chika</h2>
+    </header>
+    <div class="content">
+<pre class="code"><code><span class="code-keyword">require</span> <span class="code-string">'gpio'</span>
+
+led = <span class="code-constant">GPIO</span>.new(<span class="code-number">25</span>, <span class="code-constant">GPIO</span>::<span class="code-constant">OUT</span>)
+
+<span class="code-keyword">loop do</span>
+  led.write <span class="code-number">1</span>
+  sleep <span class="code-number">0.5</span>
+  led.write <span class="code-number">0</span>
+  sleep <span class="code-number">0.5</span>
+<span class="code-keyword">end</span></code></pre>
+    </div>
+    <footer class="footer">
+      <span class="footer-logo"><span class="footer-logo-pico">P<span class="kern-pi">i</span><span class="kern-ic">c</span>oRuby</span><span class="footer-logo-kaigi"><span class="kern-yk">K</span>ai<span class="kern-ig">g</span>i</span><span class="footer-logo-meta"><span class="footer-logo-year">2026</span><span class="footer-logo-assemble">Assemble</span></span></span>
+      <span class="page-number">03</span>
+    </footer>
+  </section>
+
+</main>
+<script>
+  const params = new URLSearchParams(location.search);
+  const only = params.get('only');
+  if (only) {
+    document.body.classList.add('only');
+    document.querySelectorAll('.slide').forEach(slide => {
+      if (slide.dataset.name !== only) slide.remove();
+    });
+  }
+  if (params.has('mode')) document.body.classList.add(`export-${params.get('mode')}`);
+  if (params.has('measure')) {
+    document.fonts.ready.then(() => {
+      const selectors = ['.lockup', '.talk-title', '.speaker-name', '.talk-date', '.slide-title', '.content', '.bullets', '.photo', '.code', '.footer-logo', '.page-number'];
+      const result = {};
+      document.querySelectorAll('.slide').forEach(slide => {
+        const origin = slide.getBoundingClientRect();
+        result[slide.dataset.name] = {};
+        selectors.forEach(selector => {
+          const element = slide.querySelector(selector);
+          if (!element) return;
+          const rect = element.getBoundingClientRect();
+          result[slide.dataset.name][selector] = [rect.left - origin.left, rect.top - origin.top, rect.width, rect.height];
+        });
+      });
+      const output = document.createElement('pre');
+      output.id = 'measure';
+      output.textContent = JSON.stringify(result);
+      document.body.appendChild(output);
+    });
+  }
+</script>
+</body>
+</html>
