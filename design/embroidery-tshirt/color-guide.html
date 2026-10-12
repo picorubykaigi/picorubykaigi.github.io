@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>PicoRubyKaigi 2026 Assemble 刺繍 色指示</title>
+<style>
+body {
+  margin: 0;
+  width: 1700px;
+  background: #fff;
+  font: 15px/1.5 -apple-system, "Hiragino Sans", sans-serif;
+  color: #222;
+  padding: 36px 48px;
+  box-sizing: border-box;
+}
+h1 {
+  font-size: 24px;
+  margin: 0 0 4px;
+}
+.sub {
+  color: #555;
+  margin: 0 0 22px;
+}
+.panel {
+  position: relative;
+  background: #d9d3c5;
+  border-radius: 12px;
+}
+.panel img {
+  position: absolute;
+  display: block;
+}
+.lab {
+  position: absolute;
+  background: #fff;
+  border: 1.5px solid #333;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 15px;
+  line-height: 1.35;
+  white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .15);
+}
+.lab b {
+  font-size: 16px;
+}
+svg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  overflow: visible;
+}
+.size {
+  position: absolute;
+  bottom: 14px;
+  font-size: 14px;
+  color: #333;
+}
+.row {
+  display: flex;
+  gap: 40px;
+  align-items: flex-start;
+  margin-top: 28px;
+}
+table {
+  border-collapse: collapse;
+  font-size: 15px;
+}
+td,
+th {
+  border: 1px solid #bbb;
+  padding: 7px 12px;
+  text-align: left;
+  vertical-align: middle;
+}
+th {
+  background: #f2f2f2;
+  font-weight: 600;
+}
+.sw {
+  display: inline-block;
+  width: 26px;
+  height: 18px;
+  border: 1px solid #888;
+  vertical-align: middle;
+  margin-right: 8px;
+  border-radius: 3px;
+}
+</style>
+</head>
+<body>
+<h1>PicoRubyKaigi 2026 Assemble — 刺繍 色指示</h1>
+<p class="sub">糸は 5 色です。糸番号は色見本の番号です。</p>
+
+<!-- 背中ロゴ: out/back-logo.png(3990x674)を幅 1300 で置く。引き出し線の点は文字の中に打つ -->
+<div class="panel" style="width: 1604px; height: 470px;">
+  <img src="out/back-logo.png" style="left: 152px; top: 150px; width: 1300px;">
+  <svg width="1604" height="470" stroke="#333" stroke-width="1.5" fill="none">
+    <line x1="556" y1="150" x2="556" y2="96"/>
+    <line x1="1214" y1="150" x2="1214" y2="96"/>
+    <line x1="800" y1="370" x2="800" y2="408"/>
+    <circle cx="556" cy="150" r="3" fill="#333"/>
+    <circle cx="1214" cy="150" r="3" fill="#333"/>
+    <circle cx="800" cy="370" r="3" fill="#333"/>
+  </svg>
+  <div class="lab" style="left: 430px; top: 40px;"><b>PicoRuby</b><br>塗り <b>14</b>(ピンク) / 縁 <b>320</b>(ローズ)</div>
+  <div class="lab" style="left: 1090px; top: 40px;"><b>Kaigi</b><br>塗り <b>8653</b>(白) / 縁 <b>1738</b>(濃紺)</div>
+  <div class="lab" style="left: 640px; top: 408px;"><b>2026 Assemble</b><br>塗り <b>8653</b>(白) / 縁 <b>22678</b>(シルバーグレー)</div>
+  <div class="size" style="right: 22px;">背中(肩甲骨の間): 約 25.4 × 4.3 cm / 縁取りはすべて 1 mm</div>
+</div>
+
+<div class="row">
+  <!-- 左胸 Ruby: out/chest-ruby.png(853x694)を幅 350 で置く。点はドットの中心(画像の (269,33) と (661,192) を 350/853 倍) -->
+  <div class="panel" style="width: 560px; height: 430px; flex: none;">
+    <img src="out/chest-ruby.png" style="left: 105px; top: 110px; width: 350px;">
+    <svg width="560" height="430" stroke="#333" stroke-width="1.5" fill="none">
+      <line x1="215" y1="124" x2="215" y2="78"/>
+      <line x1="376" y1="189" x2="398" y2="189"/>
+      <circle cx="215" cy="124" r="3" fill="#333"/>
+      <circle cx="376" cy="189" r="3" fill="#333"/>
+    </svg>
+    <div class="lab" style="left: 105px; top: 24px;"><b>Ruby(左胸)</b><br>暗いドット <b>320</b>(ローズ)</div>
+    <div class="lab" style="left: 400px; top: 166px;"><b>Ruby(左胸)</b><br>明るいドット <b>14</b>(ピンク)</div>
+    <div class="size" style="left: 22px;">左胸: 約 5.4 × 4.4 cm / 縁取りなし</div>
+  </div>
+  <table>
+    <tr><th>糸番号</th><th>色</th><th>使用箇所</th></tr>
+    <tr><td><span class="sw" style="background: #d12a62;"></span><b>320</b></td><td>ローズ</td><td>Ruby の暗いドット / PicoRuby の縁</td></tr>
+    <tr><td><span class="sw" style="background: #e58aa6;"></span><b>14</b></td><td>ピンク</td><td>Ruby の明るいドット / PicoRuby の塗り</td></tr>
+    <tr><td><span class="sw" style="background: #eeeeee;"></span><b>8653</b></td><td>白</td><td>Kaigi の塗り / 2026 Assemble の塗り</td></tr>
+    <tr><td><span class="sw" style="background: #303345;"></span><b>1738</b></td><td>濃紺</td><td>Kaigi の縁</td></tr>
+    <tr><td><span class="sw" style="background: #a5a7af;"></span><b>22678</b></td><td>シルバーグレー</td><td>2026 Assemble の縁</td></tr>
+  </table>
+</div>
+</body>
+</html>
