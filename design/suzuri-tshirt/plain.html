@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>PicoRubyKaigi 2026 Assemble SUZURI フルグラフィックTシャツ 枠線なし・キャプチャ用 (Mサイズ 7535x5882px / CSS 1507x1177 x5)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bitcount+Single:ELSH,wght@0..100,100..900&family=Micro+5&family=Jersey+10&family=DotGothic16&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #888;
+  font-family: 'DotGothic16', monospace;
+  padding: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: center;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.label {
+  width: 100%;
+  color: #eee;
+  font-size: 13px;
+  letter-spacing: .06em;
+  text-align: center;
+}
+
+/* プレビューは縮小表示。キャプチャモード(?capture=<face>)では対象面だけ原寸で左上に置く */
+.wrap {
+  zoom: .32;
+}
+.wrap::before {
+  content: attr(data-face);
+  display: block;
+  color: #eee;
+  font-size: 36px;
+  letter-spacing: .06em;
+  margin-bottom: 8px;
+}
+body.capture {
+  display: block;
+  background: none;
+  padding: 0;
+}
+body.capture .label {
+  display: none;
+}
+body.capture .wrap {
+  zoom: 1;
+}
+body.capture .wrap::before {
+  display: none;
+}
+
+/* ===================================================================
+   シート: SUZURI Mサイズ 7535x5882px = CSS 1507x1176.4px(x5キャプチャ)。
+   トルソーのセーフエリア(赤線) x 390-1117 / y 上144 下1030。
+   全面プリントなのでキャンバス全体を塗る(青線までシャツ形状でマスクされる)。
+   表裏の柄のつながり: 着用時は 表の左右端⇔裏の左右反対端 / 肩越しは左右ミラー。
+   そのため裏面(.mirror)はスモークと散らし柄を scaleX(-1) で反転して端を一致させる
+   =================================================================== */
+.sheet {
+  position: relative;
+  width: 1507px;
+  height: 1177px;
+  overflow: hidden;
+  --grid: 20px;  /* ブレッドボードの穴グリッド(実寸約7mm) */
+}
+
+/* ライト: LPの --bg/--ink とブレッドボード穴パターン */
+.sheet.light {
+  --ink: #26242f;
+  --halo: #eceade;  /* ロゴの周りの地色(ドットを消す) */
+  color: var(--ink);
+  background:
+    url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2724%27%3E%3Crect%20x=%279.5%27%20y=%279.5%27%20width=%275%27%20height=%275%27%20fill=%27%2339352b%27%20fill-opacity=%27.11%27/%3E%3Crect%20x=%2711%27%20y=%2711%27%20width=%275%27%20height=%275%27%20fill=%27%231c180e%27%20fill-opacity=%27.14%27/%3E%3C/svg%3E") 0 0 / var(--grid) var(--grid) repeat,
+    #eceade;
+}
+
+/* ダーク: LPダークモードの濃紺 + ティールグリーンの穴 */
+.sheet.dark {
+  --ink: #ece9df;
+  --halo: #10131c;
+  color: var(--ink);
+  background:
+    url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2724%27%3E%3Crect%20x=%279.5%27%20y=%279.5%27%20width=%275%27%20height=%275%27%20fill=%27%232e5247%27/%3E%3Crect%20x=%2711%27%20y=%2711%27%20width=%274%27%20height=%274%27%20fill=%27%2316302a%27/%3E%3C/svg%3E") 0 0 / var(--grid) var(--grid) repeat,
+    #10131c;
+}
+/* ライト/ダークで別の要素を出す(c の裏: ライトは中央ロゴ、ダークは Ruby の横の小さなロゴ) */
+.sheet.light .only-dark,
+.sheet.dark .only-light {
+  display: none !important;
+}
+/* 印刷(PDF): ダークの文字ロゴの発光(text-shadow)と Ruby の drop-shadow は、Chrome が PDF にすると
+   マスク付き画像になり、macOS のプレビューでは矩形の色面に化けるので、?print=1(big.html?print=1 から渡る)のときだけ切る。
+   @media print は iframe の中では効かなかった */
+body.print .dark .prk .picoruby,
+body.print .dark .prk .kaigi {
+  text-shadow: none;
+}
+body.print .dark .rubym {
+  filter: brightness(1.2);
+}
+/* セーフエリア確認用(?guide=1) */
+.sheet .guide {
+  display: none;
+  position: absolute;
+  left: 390px;
+  top: 144px;
+  width: 727px;
+  height: 886px;
+  border: 2px dashed rgba(255, 0, 0, .7);
+  pointer-events: none;
+  z-index: 999;
+}
+body.guide .sheet .guide {
+  display: block;
+}
+
+
+/* ===== ロゴ共通 ===== */
+.prk {
+  font-family: 'Bitcount Single', sans-serif;
+  font-size: 58px;
+  line-height: .98;
+  letter-spacing: .05em;
+  font-variation-settings: 'wght' 330, 'ELSH' 50;
+}
+.light .prk .picoruby {
+  color: #f64b5b;
+  -webkit-text-stroke: 3.5px #da1d3c;
+  paint-order: stroke fill;
+}
+.light .prk .kaigi {
+  color: #fff;
+  -webkit-text-stroke: 3.5px #454747;
+  paint-order: stroke fill;
+}
+/* ダーク: REPL風のリン光(LPダークの配色) */
+.dark .prk .picoruby {
+  color: #fb5479;
+  -webkit-text-stroke: 3.5px #97233a;
+  paint-order: stroke fill;
+  text-shadow: 0 0 4px rgba(251, 84, 121, .55), 0 0 12px rgba(251, 84, 121, .35);
+}
+.dark .prk .kaigi {
+  color: #6ef0a0;
+  -webkit-text-stroke: 3.5px #2c6b4a;
+  paint-order: stroke fill;
+  text-shadow: 0 0 4px rgba(110, 240, 160, .40), 0 0 10px rgba(110, 240, 160, .22);
+}
+.prk .picoruby,
+.prk .kaigi {
+  display: block;
+  white-space: nowrap;
+  position: relative;
+}
+/* Bitcountは字面が送り幅内で左に寄るため、中央寄せでもインクが左へずれる。実測して右へ補正 */
+.prk .picoruby {
+  left: 4.2px;
+}
+.prk .kaigi {
+  left: 4.5px;
+}
+/* 光学カーニング */
+.prk .k2 {
+  letter-spacing: .036em;
+}
+.prk .k3 {
+  letter-spacing: .029em;
+}
+.prk .k4 {
+  letter-spacing: .022em;
+}
+.prk .k5 {
+  letter-spacing: .015em;
+}
+.prk .kP {
+  letter-spacing: .036em;
+}
+/* Kaigi の対ごとの微調整(a→i は少し広く、i→g は少し詰める) */
+.prk .ai {
+  margin-right: .01em;
+}
+.prk .ig {
+  margin-right: -.01em;
+}
+.year {
+  font-family: 'Micro 5', sans-serif;
+  font-size: 36px;
+  line-height: .8;
+  letter-spacing: .12em;
+  text-indent: .12em;
+  position: relative;
+  left: 1.7px;
+}
+
+/* 胸ロゴ(b): ロゴがメイン。胸のあたり */
+.title-main {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 430px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+}
+.title-main .prk {
+  font-size: 78px;
+  line-height: 1.18;
+}
+.light .title-main .prk .picoruby,
+.light .title-main .prk .kaigi,
+.dark .title-main .prk .picoruby,
+.dark .title-main .prk .kaigi {
+  -webkit-text-stroke-width: 4.5px;
+}
+.title-main .prk .picoruby {
+  left: 5.7px;
+}
+.title-main .prk .kaigi {
+  left: 5.8px;
+}
+.title-main .year {
+  font-size: 44px;
+  left: 2.1px;
+  margin-top: -1px;  /* b でドットを 2px 下げたのに合わせて 2026 も 2px 下げ、2026 の上端にドット列がかからないようにする(Kaigi→2026 48px、2026→Assemble 44px) */
+}
+.title-main .assemble {
+  font-family: 'Jersey 10', sans-serif;
+  font-size: 36px;
+  letter-spacing: .18em;
+  text-indent: .18em;
+  margin-top: 10px;
+}
+
+/* c: 格子の下に置く1行ロゴ(PicoRubyKaigi だけ。2026 / Assemble は外した)。インク幅はパーツ4列の外幅より少しはみ出す程度 */
+.title-main.under {
+  top: 794px;
+  gap: 10px;
+}
+.title-main.under .prk {
+  font-size: 58px;  /* 字間 .10em。インク幅はパーツ4列の外幅(実測 446px)より少し広い約 480px */
+  line-height: 1.18;
+  letter-spacing: .10em;
+}
+.title-main.under .prk .picoruby,
+.title-main.under .prk .kaigi {
+  display: inline;
+}
+.light .title-main.under .prk .picoruby,
+.light .title-main.under .prk .kaigi,
+.dark .title-main.under .prk .picoruby,
+.dark .title-main.under .prk .kaigi {
+  -webkit-text-stroke-width: 3.5px;
+}
+.title-main.under .prk .picoruby {
+  left: 4.4px;
+}
+.title-main.under .prk .kaigi {
+  left: 4.5px;
+}
+.title-main.under .year {
+  font-size: 31px;
+  left: 1.5px;
+  margin-top: 0;
+}
+.title-main.under .assemble {
+  font-size: 25px;
+  margin-top: 4px;
+}
+/* 表の文字ロゴもにじませない(ダークの発光を切る) */
+.dark .title-main.under .prk .picoruby,
+.dark .title-main.under .prk .kaigi {
+  text-shadow: none;
+}
+
+/* c の裏ロゴ(ライト): b の胸ロゴ(78px)の 0.75 倍。線幅・字送り補正・間隔も同比。
+   縦位置(top 391.5)は、PicoRuby の下端と Kaigi の上端の隙間(10.5px)の中央に穴のドット列(20px 格子)が丸ごと入る位置。
+   半端にかかると縁で欠けたドットが並んで見える */
+.title-main.back {
+  gap: 12px;
+}
+.title-main.back .prk {
+  font-size: 58px;
+}
+.light .title-main.back .prk .picoruby,
+.light .title-main.back .prk .kaigi,
+.dark .title-main.back .prk .picoruby,
+.dark .title-main.back .prk .kaigi {
+  -webkit-text-stroke-width: 3.4px;
+}
+.title-main.back .prk .picoruby {
+  left: 4.3px;
+}
+.title-main.back .prk .kaigi {
+  left: 4.4px;
+}
+/* 裏ロゴの行間(インク実測): PicoRuby↔Kaigi は 10px に詰めてひとかたまりに見せ、
+   Kaigi↔2026 は 26px、2026↔Assemble は 24px、Ruby↔PicoRuby は 44px(全部 22px だとロゴが 2 語に割れて見えた) */
+.title-main.back .prk .kaigi {
+  margin-top: -5px;  /* ドットを 2.5px 下げた分、PicoRuby と Kaigi の間の列が中央に来るよう Kaigi を 5px 下げる(2026 以下は動かさない) */
+}
+.title-main.back .year {
+  font-size: 33px;
+  left: 1.6px;
+  margin-top: -10.5px;
+}
+.title-main.back .assemble {
+  font-size: 27px;
+  margin-top: -1px;
+}
+
+/* c の裏(ダーク): 襟下 Ruby の横の、ぎゅっと小さなワンポイントロゴ */
+.title-chest {
+  position: absolute;
+  left: 820px;
+  top: 292px;
+  width: 230px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  text-align: center;
+}
+.title-chest .prk {
+  font-size: 36px;
+}
+.light .title-chest .prk .picoruby,
+.light .title-chest .prk .kaigi,
+.dark .title-chest .prk .picoruby,
+.dark .title-chest .prk .kaigi {
+  -webkit-text-stroke-width: 2.2px;
+}
+.title-chest .prk .picoruby {
+  left: 2.6px;
+}
+.title-chest .prk .kaigi {
+  left: 2.8px;
+}
+.title-chest .year {
+  font-size: 20px;
+  left: 1px;
+  margin-top: 2px;  /* Kaigi→2026 と 2026→Assemble のインク間隔を16pxに揃える(実測補正) */
+}
+.title-chest .assemble {
+  font-family: 'Jersey 10', sans-serif;
+  font-size: 17px;
+  letter-spacing: .18em;
+  text-indent: .18em;
+  margin-top: 4px;
+}
+
+/* ===== Ruby(a・b・c の裏の襟下ワンポイント) ===== */
+.ruby {
+  position: absolute;
+  left: 50%;
+  top: 268px;
+  transform: translateX(-50%);
+  height: 96px;
+  aspect-ratio: 990 / 809;
+}
+.ruby::before,
+.ruby::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url('../../images/ruby-1.png') center / contain no-repeat;
+}
+.light .ruby::before {
+  filter: blur(1.4px);
+}
+/* 文字ロゴ(PicoRubyKaigi)の中のドット消し: JS(knockoutDots)が、各文字の字面の中に中心があるドットを
+   1 個単位で丸ごと地色(--halo)の四角で覆う。まわりの穴は残す */
+.sheet .knock {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  background: var(--halo);
+  pointer-events: none;
+}
+/* ダーク: LED版のRubyをスカーレットに滲ませる(LPの .ruby-led) */
+.dark .ruby::before,
+.dark .ruby::after {
+  background-image: url('../../images/ruby-2.png');
+}
+.dark .ruby::before {
+  filter: blur(1.6px) drop-shadow(0 0 6px rgba(255, 74, 46, .55)) drop-shadow(0 0 16px rgba(255, 74, 46, .3));
+}
+/* ロゴをにじませない(a の表裏の Ruby、c の裏): ライトの Ruby のぼかしも、ダークの文字の発光も切る */
+.ruby.flat::before {
+  display: none;
+}
+.ruby.flat::after {
+  image-rendering: pixelated;
+}
+.dark .title-chest.flat .prk .picoruby,
+.dark .title-chest.flat .prk .kaigi,
+.dark .title-main.flat .prk .picoruby,
+.dark .title-main.flat .prk .kaigi {
+  text-shadow: none;
+}
+/* 裏ロゴの PicoRuby↔Kaigi の行間(実測 5.5px)が Kaigi↔2026(18.5px)より詰まって見えるので少し広げる。e の胸ロゴには効かせない */
+.title-chest.flat .prk .kaigi {
+  margin-top: 6px;
+}
+/* A(プラレール)のRuby LEDは滲ませない */
+.dark .ruby.no-bleed::before {
+  filter: none;
+}
+
+/* ===== キットのパーツ(a の一列、b の左胸モーター、c の格子) ===== */
+.part {
+  position: absolute;
+  background: center / contain no-repeat;
+  image-rendering: pixelated;
+}
+.part.seg7 {
+  width: 85px;
+  aspect-ratio: 211 / 165;
+  background-image: url('../shopcard/7seg-88.png');
+}
+.part.speaker {
+  width: 62px;
+  aspect-ratio: 137 / 138;
+  background-image: url('../../images/spaeker.png');
+}
+.part.motor {
+  width: 59px;
+  aspect-ratio: 110 / 141;
+  background-image: url('../../images/motor.png');
+}
+.part.chip {
+  width: 75px;
+  aspect-ratio: 137 / 137;
+  background-image: url('../../images/chip.png');
+}
+.part.battery {
+  width: 37px;
+  aspect-ratio: 110 / 188;
+  background-image: url('../../images/battery.png');
+}
+/* ダークのパーツは少し明るくするだけ(白く光らせると U1・M1 が光って見える) */
+.dark .part {
+  filter: brightness(1.15);
+}
+
+/* ===== プラレール(b の表の左腰から裏へ続く)。ダークは窓だけ暖色で点灯(夜行電車) ===== */
+.prarail {
+  position: absolute;
+  background: url('../../images/prarail.png') center / contain no-repeat;
+  image-rendering: pixelated;
+}
+.dark .prarail {
+  filter: brightness(.92);
+}
+/* ダーク: ::before に点灯した窓(ぼかさない)と漏れる光、その上に ::after で輪郭線(assets/prarail-lines.png =
+   prarail.png の暗い線だけ)を重ねて、窓枠がドット絵のままくっきり残るようにする */
+.prarail::before,
+.prarail::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: center / contain no-repeat;
+  image-rendering: pixelated;
+  opacity: 0;
+}
+.prarail::before {
+  background-image: url('assets/prarail-glow-d.png');  /* 窓ガラス(外接矩形で塗り直し)+ 段階的な光の漏れ */
+}
+.prarail::after {
+  background-image: url('assets/prarail-lines.png');
+}
+.dark .prarail::before {
+  opacity: 1;
+  /* 光の漏れは画像側に段階(絵の 1 ドット = 5px ごと)で焼き込んである(assets/prarail-glow-*.png)。
+     ぼかしだと枠の外の滲みと窓の間の滲みの釣り合いが取れず、ドット絵とも合わなかった */
+}
+.dark .prarail::after {
+  opacity: 1;
+  filter: brightness(.92);
+}
+
+/* ===== A (main-visual): メインビジュアル(images/goodies/main-visual-simple.png)の構図をそのまま着る ===== */
+/* ロゴはビジュアルどおり1行(PicoRubyKaigi)。安全エリア幅727pxに収まる字サイズ */
+.title-main.oneline {
+  top: 392px;
+  gap: 14px;
+}
+.title-main.oneline .prk {
+  font-size: 68px;
+  line-height: 1.18;
+  letter-spacing: .075em;  /* 既定 .05em より少し広く */
+}
+.title-main.oneline .prk .picoruby,
+.title-main.oneline .prk .kaigi {
+  display: inline;
+}
+.title-main.oneline .year {
+  font-size: 40px;
+  margin-top: 11px;  /* ロゴ→2026、2026→Assemble のインク間隔を48pxに揃える(実測補正) */
+}
+.title-main.oneline .assemble {
+  font-size: 32px;
+  margin-top: 18px;
+}
+
+
+/* ===== c パーツの格子 ===== */
+
+/* パーツの記号(DS1 / SP1 / M1 …) */
+.step {
+  position: absolute;
+  font-family: 'Micro 5', sans-serif;
+  font-size: 22px;
+  line-height: 1;
+  letter-spacing: .08em;
+  color: #26242f;
+  opacity: .75;
+}
+.dark .step {
+  color: #ece9df;
+}
+/* 小さな吹き出し(3語の吹き出しはすべてこのサイズ) */
+.bubble.sm {
+  padding: 4px 11px 3px;  /* 二重線にしたぶん少し広げる */
+  border-width: 2px;
+  box-shadow: inset 0 0 0 1.5px #fff;
+  border-radius: 6px;  /* 丸すぎるとカプセルに見えるので控えめに */
+  font-size: 16px;
+}
+.bubble.sm::after {
+  left: 9px;
+  bottom: -8px;
+  border: 5px solid transparent;
+  border-top: 7px solid #34323d;
+  border-bottom: 0;
+}
+.dark .bubble.sm::after {
+  border-top-color: #ece9df;
+}
+
+/* 尻尾も二重に: ::after が外側の墨、::before が内側の白(白の内線から続けて出す)。小さい吹き出しの3方向ぶん */
+.bubble.sm::before {
+  content: "";
+  position: absolute;
+  z-index: 1;  /* 後から描かれる ::after(墨の三角)の上に白を出す */
+  left: 10.5px;
+  bottom: -4.5px;
+  border: 3.5px solid transparent;
+  border-top: 5px solid #fff;
+  border-bottom: 0;
+}
+.bubble.sm.tail-right::before {
+  left: auto;
+  right: -5px;
+  bottom: 9.5px;
+  border: 3.5px solid transparent;
+  border-left: 5.5px solid #fff;
+  border-right: 0;
+  border-top-color: transparent;
+}
+.bubble.sm.tail-left::before {
+  left: -5px;
+  bottom: 9.5px;
+  border: 3.5px solid transparent;
+  border-right: 5.5px solid #fff;
+  border-left: 0;
+  border-top-color: transparent;
+}
+
+
+/* 完成品と Pico 基板: goodies の絵(images/goodies/{rocket,nui,keyboard,penlight}.png、パーツと同じドット絵) */
+.goodie {
+  position: absolute;
+  background: center / contain no-repeat;
+  image-rendering: pixelated;
+}
+.goodie.rocket   { aspect-ratio: 349 / 499; background-image: url('../../images/goodies/rocket.png'); }
+.goodie.nui      { aspect-ratio: 407 / 477; background-image: url('../../images/goodies/nui.png'); }
+.goodie.keyboard { aspect-ratio: 523 / 365; background-image: url('../../images/goodies/keyboard.png'); }
+.goodie.penlight { aspect-ratio: 261 / 552; background-image: url('../../images/goodies/penlight.png'); }
+.goodie.pico     { aspect-ratio: 810 / 409; background-image: url('../../images/goodies/pico.png'); }  /* パーツと同じ描き方の Pico 基板(幅56で置く) */
+.goodie.breadboard { aspect-ratio: 687 / 568; background-image: url('../../images/goodies/breadboard.png'); }  /* c: ブレッドボード(幅54で置く) */
+.dark .goodie {
+  filter: brightness(1.1);
+}
+
+/* 吹き出し */
+.bubble {
+  position: absolute;
+  padding: 6px 14px 5px;
+  border: 3px solid #34323d;  /* 墨は Assemble の文字と同じ #34323d */
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 2px #fff;  /* 外は墨の枠、内側に白の線(ライト・ダーク共通)。尻尾は外側の墨だけ */
+  background: #f6f4ea;  /* サイトの --card */
+  font-family: 'Jersey 10', sans-serif;
+  font-size: 22px;
+  line-height: 1;
+  letter-spacing: .06em;
+  color: #34323d;
+  white-space: nowrap;
+}
+/* 吹き出しの中の文字をロゴと同じ配色に(c): PicoRuby はロゴの赤、Kaigi は白。
+   字間は LP トップのロゴの光学カーニングを土台に、Jersey 10 向けに広げたもの(基本 .04em + 文字対ごとの補正を <i> の margin-left で。
+   Bitcount 用の ic/ig のマイナスは Jersey 10 だと詰まりすぎるのでプラスに、Pi/yK/Kaigi 全体も広め) */
+.bubble .pr,
+.bubble .kg {
+  letter-spacing: .04em;
+}
+.bubble .pr i,
+.bubble .kg i {
+  font-style: normal;
+}
+.bubble .pr {
+  color: #da1d3c;
+}
+.bubble .kg {
+  color: #fff;
+}
+/* 名前(PicoRubyKaigi)だけソケットと同じ濃いピンク。ピンクが基調、差し色は別途 */
+.bubble.name {
+  background: #ff96b9;  /* 最初の薄いピンク。濃いピンク(#f2607a)や P1〜L4 の赤系は墨の文字でにごって見えた */
+  color: #34323d;
+}
+.bubble::after {
+  content: "";
+  position: absolute;
+  left: 18px;
+  bottom: -11px;
+  border: 8px solid transparent;
+  border-top: 10px solid #34323d;
+  border-bottom: 0;
+}
+/* 2行の吹き出し */
+.bubble.two {
+  text-align: center;
+  line-height: 1.05;
+}
+.bubble.tail-left::after {
+  left: -12px;
+  bottom: 12px;
+  border: 8px solid transparent;
+  border-right: 11px solid #34323d;
+  border-left: 0;
+}
+.dark .bubble.tail-left::after {
+  border-top-color: transparent;
+  border-right-color: #34323d;
+}
+.bubble.tail-right::after {
+  left: auto;
+  right: -12px;
+  bottom: 12px;
+  border: 8px solid transparent;
+  border-left: 11px solid #34323d;
+  border-right: 0;
+}
+.dark .bubble {
+  background: #191d28;  /* ダークの --card */
+  border-color: #34323d;  /* ダークでも外は墨、内側の白線が形を作る */
+  color: #ece9df;
+}
+.dark .bubble.name {
+  background: #ff96b9;  /* 最初の薄いピンク。濃いピンク(#f2607a)や P1〜L4 の赤系は墨の文字でにごって見えた */
+  color: #34323d;
+}
+.dark .bubble::after {
+  border-top-color: #34323d;
+}
+.dark .bubble.tail-right::after {
+  border-top-color: transparent;
+  border-left-color: #34323d;
+}
+/* 小さい吹き出しの右向き尻尾(.sm の下向き尻尾の設定と混ざらないよう明示) */
+.bubble.sm.tail-right::after {
+  left: auto;
+  right: -9px;
+  bottom: 8px;
+  border: 5px solid transparent;
+  border-left: 8px solid #34323d;
+  border-right: 0;
+  border-top-color: transparent;
+}
+/* 尻尾を右上に出す。上辺の右寄りから、右へ傾けて上に */
+.bubble.sm.tail-up-right::after {
+  left: auto;
+  right: 14px;
+  top: -8px;
+  bottom: auto;
+  border: 5px solid transparent;
+  border-bottom: 7px solid #34323d;
+  border-top: 0;
+  transform: skewX(-35deg);
+  transform-origin: 50% 100%;
+}
+.bubble.sm.tail-up-right::before {
+  left: auto;
+  right: 15.5px;
+  top: -4.5px;
+  bottom: auto;
+  border: 3.5px solid transparent;
+  border-bottom: 5px solid #fff;
+  border-top: 0;
+  transform: skewX(-35deg);
+  transform-origin: 50% 100%;
+}
+.dark .bubble.sm.tail-right::after {
+  border-left-color: #34323d;
+}
+.bubble.sm.tail-left::after {
+  left: -9px;
+  bottom: 8px;
+  border: 5px solid transparent;
+  border-right: 8px solid #34323d;
+  border-left: 0;
+  border-top-color: transparent;
+}
+.dark .bubble.sm.tail-left::after {
+  border-right-color: #34323d;
+}
+/* ダークの尻尾: 外の墨は地に溶けるので、外側を白線(#ece9df)・内側を吹き出しの地色にして、
+   本体と同じ「白い線で縁取られた形」に見せる(白い三角だけだと矢印に見えた)。
+   白線は外枠の 2px 内側にあるので、尻尾も 2px 本体側に寄せて白線とつなげる */
+.dark .bubble.sm::after {
+  bottom: -6px;
+}
+.dark .bubble.sm::before {
+  bottom: -2.5px;
+}
+.dark .bubble.sm.tail-right::after {
+  right: -7px;
+  bottom: 8px;
+}
+.dark .bubble.sm.tail-right::before {
+  right: -3px;
+  bottom: 9.5px;
+}
+.dark .bubble.sm.tail-left::after {
+  left: -7px;
+  bottom: 8px;
+}
+.dark .bubble.sm.tail-left::before {
+  left: -3px;
+  bottom: 9.5px;
+}
+.dark .bubble.sm.tail-up-right::after {
+  top: -6px;
+  bottom: auto;
+}
+.dark .bubble.sm.tail-up-right::before {
+  top: -2.5px;
+  bottom: auto;
+}
+.dark .bubble.sm.tail-right::after {
+  border-left-color: #ece9df;
+}
+.dark .bubble.sm.tail-left::after {
+  border-right-color: #ece9df;
+}
+.dark .bubble.sm.tail-up-right::after {
+  border-bottom-color: #ece9df;
+}
+.dark .bubble.sm::before {
+  border-top-color: #191d28;
+}
+.dark .bubble.sm.name::before {
+  border-top-color: #ff96b9;
+}
+.dark .bubble.sm.tail-right::before {
+  border-top-color: transparent;
+  border-left-color: #191d28;
+}
+.dark .bubble.sm.tail-left::before {
+  border-top-color: transparent;
+  border-right-color: #191d28;
+}
+.dark .bubble.sm.tail-up-right::before {
+  border-top-color: transparent;
+  border-bottom-color: #191d28;
+}
+
+/* 小さなRuby(散らし柄の差し色。サイズはJSがインラインで揺らす) */
+.rubym {
+  position: absolute;
+  background: url('../../images/ruby-mini.png') center / contain no-repeat;
+}
+.dark .rubym {
+  filter: brightness(1.2) drop-shadow(0 0 4px rgba(255, 74, 46, .5));
+}
+
+</style>
+</head>
+<body>
+
+  <div class="label">SUZURI フルグラフィックTシャツ M (7535x5882px): a=main-visual / b=prarail / c=parts(パーツの 4×3 格子+Assemble!)</div>
+
+  <!-- ===== b (prarail): 胸ロゴ + 左胸のモーター、左腰から裏へ続く電車。裏は襟下に小さな Ruby ===== -->
+  <template id="proto-b-front">
+    <!-- 穴のドットを 2px 下げて、胸ロゴの上(PicoRuby の上端)と下(Assemble の下端)のドット列との間隔を揃える -->
+    <div class="sheet" style="background-position: 0 2px;">
+      <div class="guide"></div>
+      <div class="title-main">
+        <div class="prk"><span class="picoruby"><span class="kP">P</span><span class="k4">ic</span>oRu<span class="k2">b</span>y</span><span class="kaigi"><span class="k4">K</span><span class="k3 ai">a</span><span class="k5 ig">i</span><span class="k3">g</span>i</span></div>
+        <div class="year">2026</div>
+        <div class="assemble">Assemble</div>
+      </div>
+      <!-- 左胸(着用者の左=正面視では右側)はモーターひとつだけ(電車を走らせる動力) -->
+      <div class="part motor" style="left: 938px; top: 302px; width: 44px;"></div>
+      <!-- 左腰(正面視では右下)を電車がチラ見せで走る: 脇の黒線の縫い目(実測x=1161)が 1 両目の中ほど、
+           2 つ目の窓と 2 つ目のドアの間の何もない車体(絵の x=347/2178 → 70px)に来るように置く。窓もドアも縫い目にかからず、
+           表には 1 両目の前半分(窓まで)、裏にはドアからの続きが出る -->
+      <div class="prarail" style="left: 1091px; top: 915px; width: 440px; aspect-ratio: 2178 / 310;"></div>
+    </div>
+  </template>
+
+  <template id="proto-b-back">
+    <div class="sheet mirror">
+      <div class="guide"></div>
+      <div class="ruby no-bleed flat"></div>
+      <!-- 表からチラ見せした電車の続き(1 両目の後ろ半分から): 着用者の左脇は背面視では左端。
+           黒線の縫い目(実測x=345)が表と同じ車体の位置(絵の 70px)になる位置に、反転せずそのまま置く
+           (筒状に巻き付く紙面は背面から見ても反転しない)。2 つ目のドアは縫い目から 4px 離れる -->
+      <div class="prarail" style="left: 275px; top: 915px; width: 440px; aspect-ratio: 2178 / 310;"></div>
+    </div>
+  </template>
+
+
+  <!-- ===== a (main-visual): メインビジュアルの構図を縦に組み替えたもの。胸に1行ロゴ+2026+- Assemble -、
+       その下にキットのパーツ一列(7seg・スピーカー・Ruby・モーター・チップ)。
+       パーツの間隔はビジュアルの相対位置(中心から -560/-305/0/+300/+540)を0.48倍。
+       ロゴ→2026→Assemble のインク間隔(48px)より Assemble→パーツ(72px)を広くとって、ロゴのかたまりとパーツ列を分ける。
+       裏は襟下に小さなRuby(b と同じ) ===== -->
+  <template id="proto-a-front">
+    <div class="sheet">
+      <div class="guide"></div>
+      <div class="title-main oneline">
+        <div class="prk"><span class="picoruby"><span class="kP">P</span><span class="k4">ic</span>oRu<span class="k2">b</span>y</span><span class="kaigi"><span class="k4">K</span><span class="k3 ai">a</span><span class="k5 ig">i</span><span class="k3">g</span>i</span></div>
+        <div class="year">2026</div>
+        <div class="assemble">- Assemble -</div>
+      </div>
+      <!-- パーツ一列(中心 y=708)。Rubyだけビジュアルどおり大きい -->
+      <div class="part seg7"    style="left: 453px; top: 683px; width: 64px;"></div>
+      <div class="part speaker" style="left: 583px; top: 684px; width: 48px;"></div>
+      <div class="ruby no-bleed flat" style="top: 658px; height: 100px;"></div>
+      <div class="part motor"   style="left: 875px; top: 678px; width: 44px;"></div>
+      <div class="part chip"    style="left: 985px; top: 680px; width: 56px;"></div>
+    </div>
+  </template>
+
+  <template id="proto-a-back">
+    <div class="sheet mirror">
+      <div class="guide"></div>
+      <div class="ruby no-bleed flat"></div>
+    </div>
+  </template>
+
+
+  <!-- ===== c (parts: パーツの 4x3 格子・12個)。ソケットは置かず、全パーツ置いた枠だけ(DS1 / SP1 / M1 / U1 / BT1)。
+       モーターのソケットだった枠には Pico 基板(PICO)。「PicoRubyKaigi」はロケットの上の小さな吹き出し。
+       格子の下に1行の文字ロゴ(PicoRubyKaigi だけ、字間広め、幅はパーツ4列に合わせる) ===== -->
+  <template id="proto-c-front">
+    <!-- 穴のドットを 3px 下げて、1 行ロゴの上下(P の上端・ベースライン)とドット列の間隔を揃える -->
+    <div class="sheet" style="background-position: 0 3px;">
+      <div class="guide"></div>
+      <!-- 左下に電池、右下にモーター。赤いパーツは 1 列目(7セグ・スピーカー・電池)と 3 列目の Pico・Ruby、右下のモーター。モーターはブレッドボードと隣り合わせない -->
+      <div class="step" style="left: 504px; top: 378px;">DS1</div>
+      <div class="part seg7" style="left: 526px; top: 405px; width: 64px;"></div>
+      <div class="step" style="left: 634px; top: 378px;">FLY</div>
+      <div class="goodie rocket" style="left: 668px; top: 401px; width: 40px;"></div>
+      <div class="bubble sm name" style="left: 646px; top: 344px; transform: rotate(-4deg);"><span class="pr"><i>P</i><i style="margin-left: 0.05em;">i</i><i style="margin-left: 0.03em;">c</i><i style="margin-left: 0.02em;">o</i><i style="margin-left: 0.04em;">R</i><i style="margin-left: 0.04em;">u</i><i style="margin-left: 0.04em;">b</i><i style="margin-left: 0.02em;">y</i></span><span class="kg"><i style="margin-left: 0.12em;">K</i><i style="margin-left: 0.03em;">a</i><i style="margin-left: 0.07em;">i</i><i style="margin-left: 0.05em;">g</i><i style="margin-left: 0.04em;">i</i></span></div>
+      <div class="step" style="left: 764px; top: 378px;">PICO</div>
+      <div class="goodie pico" style="left: 790px; top: 416px; width: 56px;"></div>
+      <div class="step" style="left: 894px; top: 378px;">HUG</div>
+      <div class="goodie nui" style="left: 923px; top: 401px; width: 50px;"></div>
+      <div class="step" style="left: 504px; top: 508px;">SP1</div>
+      <div class="part speaker" style="left: 532px; top: 534px; width: 52px;"></div>
+      <div class="step" style="left: 634px; top: 508px;">U1</div>
+      <div class="part chip" style="left: 662px; top: 534px; width: 52px;"></div>
+      <div class="step" style="left: 764px; top: 508px;">PLAY</div>
+      <div class="goodie keyboard" style="left: 786px; top: 538px; width: 64px;"></div>
+      <div class="step" style="left: 894px; top: 508px;">WAVE</div>
+      <div class="goodie penlight" style="left: 933px; top: 529px; width: 30px; transform: rotate(35deg);"></div>
+      <div class="bubble sm" style="left: 964px; top: 487px; transform: rotate(12deg);">2026</div>
+      <div class="step" style="left: 504px; top: 638px;">BT1</div>
+      <div class="part battery" style="left: 543px; top: 664px; width: 30px;"></div>
+      <div class="step" style="left: 634px; top: 638px;">BB1</div>
+      <div class="goodie breadboard" style="left: 661px; top: 668px; width: 54px;"></div>
+      <div class="bubble sm tail-up-right" style="left: 728px; top: 727px; transform: rotate(3deg);">Assemble!</div>
+      <div class="step" style="left: 764px; top: 638px;">GLOW</div>
+      <div class="rubym" style="left: 788px; top: 668px; width: 60px; height: 48px;"></div>
+      <div class="step" style="left: 894px; top: 638px;">M1</div>
+      <div class="part motor" style="left: 926px; top: 662px; width: 44px;"></div>
+      <!-- 格子の下に1行ロゴ(PicoRubyKaigi だけ) -->
+      <div class="title-main under">
+        <div class="prk"><span class="picoruby"><span class="kP">P</span><span class="k4">ic</span>oRu<span class="k2">b</span>y</span><span class="kaigi"><span class="k4">K</span><span class="k3 ai">a</span><span class="k5 ig">i</span><span class="k3">g</span>i</span></div>
+      </div>
+    </div>
+  </template>
+
+  <template id="proto-c-back">
+    <!-- 穴のドットを 2.5px 下げて、裏ロゴの上(PicoRuby の上端)と下(Assemble の下端)のドット列との間隔を揃える -->
+    <div class="sheet mirror" style="background-position: 0 2.5px;">
+      <div class="guide"></div>
+      <!-- ライト: 襟下 Ruby の下に中央揃えのロゴ(58px、にじみなし) -->
+      <div class="ruby no-bleed flat only-light"></div>
+      <div class="title-main flat back only-light" style="top: 391.5px;">
+        <div class="prk"><span class="picoruby"><span class="kP">P</span><span class="k4">ic</span>oRu<span class="k2">b</span>y</span><span class="kaigi"><span class="k4">K</span><span class="k3 ai">a</span><span class="k5 ig">i</span><span class="k3">g</span>i</span></div>
+        <div class="year">2026</div>
+        <div class="assemble">Assemble</div>
+      </div>
+      <!-- ダーク: 元の c の裏。襟下 Ruby の横に小さなロゴ -->
+      <div class="ruby no-bleed flat only-dark"></div>
+      <div class="title-chest flat only-dark">
+        <div class="prk"><span class="picoruby"><span class="kP">P</span><span class="k4">ic</span>oRu<span class="k2">b</span>y</span><span class="kaigi"><span class="k4">K</span><span class="k3 ai">a</span><span class="k5 ig">i</span><span class="k3">g</span>i</span></div>
+        <div class="year">2026</div>
+        <div class="assemble">Assemble</div>
+      </div>
+    </div>
+  </template>
+
+<script>
+
+  const FACES = ['a-front', 'a-back', 'b-front', 'b-back', 'c-front', 'c-back'];
+  const MODES = ['light', 'dark'];
+  const params = new URLSearchParams(location.search);
+  const captureTarget = params.get('capture');
+  for (const face of FACES) {
+    for (const mode of MODES) {
+      // キャプチャ時(iframe埋め込み含む)は対象の1面だけ組み立てる(20面全部作ると重い)
+      if (captureTarget && captureTarget !== `${face}-${mode}`) continue;
+      const wrap = document.createElement('div');
+      wrap.className = 'wrap';
+      wrap.dataset.face = `${face}-${mode}`;
+      const sheet = document.getElementById(`proto-${face}`).content.firstElementChild.cloneNode(true);
+      sheet.classList.add(mode);
+      wrap.appendChild(sheet);
+      document.body.appendChild(wrap);
+    }
+  }
+  if (captureTarget) document.body.classList.add('capture');
+
+  // 文字ロゴの「中」にかかる穴のドットだけを 1 個単位で消す(まわりの穴は残す)。
+  // 各文字の字面の外接矩形(縁取り込み)の中に中心があって字画に囲われているドット(20px 格子のセル内 7.9〜13.3px)と、
+  // 字画に半分近く隠れるドットを、地色の四角(.knock)で丸ごと覆う。
+  // 「囲われている」= 同じ文字の中で、上下とも字画(P の懐、c の口、i の点と軸の間、K の腕の間)か、左右とも字画(u・y の腕の間、カウンター)。
+  // b の右上や P の懐の下のような角のドットと、文字の外側で縁に触れるだけのドットは残す(部品が穴の上に載っているのと同じ見え方)。
+  // ロゴの周りを矩形に抜くと四角い穴に見えるので、ドット単位で判定する。
+  // ?knock=rect なら文字ごとでなくロゴ全体の外接矩形(+6px)で判定する(比較用)
+  async function knockoutDots() {
+    if (params.get('knock') === 'off') return;  // 比較用: ドットを消さない
+    await document.fonts.ready;
+    const G = 20, D0 = 7.9, D1 = 13.4, LW = 6;
+    const rectMode = params.get('knock') === 'rect';
+    for (const sheet of document.querySelectorAll('.sheet')) {
+      const sr = sheet.getBoundingClientRect();
+      const oy = parseFloat(getComputedStyle(sheet).backgroundPositionY) || 0;  // 穴の格子を縦にずらした面(c)のぶん
+      const cv = document.createElement('canvas');
+      cv.width = 1507; cv.height = 1177;
+      const ctx = cv.getContext('2d', { willReadFrequently: true });
+      ctx.lineWidth = LW; ctx.lineJoin = 'miter'; ctx.lineCap = 'butt';
+      ctx.strokeStyle = '#000'; ctx.fillStyle = '#000'; ctx.textBaseline = 'alphabetic';
+      const boxes = [];
+      const glyphBoxes = [];  // 文字ごとの字面の外接矩形(縁取りぶん 2px 広げる)
+      for (const prk of sheet.querySelectorAll('.prk')) {
+        if (!prk.getBoundingClientRect().width) continue;  // display:none(only-light/only-dark)は飛ばす
+        let bx0 = Infinity, by0 = Infinity, bx1 = -Infinity, by1 = -Infinity;
+        for (const span of prk.querySelectorAll('.picoruby, .kaigi')) {
+          const cs = getComputedStyle(span);
+          const font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+          await document.fonts.load(font, span.textContent);  // fonts.ready だけだと Web フォント読み込み前に測ってしまうことがある
+          ctx.font = font;
+          ctx.lineWidth = parseFloat(cs.webkitTextStrokeWidth) || LW;  // 判定用の字画の太さは実際の縁取り(text-stroke)と同じに。太いと縁に触れるだけのドットまで「隠れている」と数えてしまう
+          const asc = ctx.measureText('H').fontBoundingBoxAscent;
+          const walker = document.createTreeWalker(span, NodeFilter.SHOW_TEXT);
+          let node;
+          while ((node = walker.nextNode())) {
+            const text = node.nodeValue;
+            for (let i = 0; i < text.length; i++) {
+              const ch = text[i];
+              if (ch.trim() === '') continue;
+              const range = document.createRange();
+              range.setStart(node, i); range.setEnd(node, i + 1);
+              const r = range.getBoundingClientRect();
+              const x = r.left - sr.left, base = r.top - sr.top + asc;
+              if (rectMode) {
+                bx0 = Math.min(bx0, r.left - sr.left); bx1 = Math.max(bx1, r.right - sr.left);
+                by0 = Math.min(by0, r.top - sr.top); by1 = Math.max(by1, r.bottom - sr.top);
+              } else {
+                ctx.strokeText(ch, x, base);
+                ctx.fillText(ch, x, base);
+                const m = ctx.measureText(ch);
+                glyphBoxes.push([x - m.actualBoundingBoxLeft - 1.5, base - m.actualBoundingBoxAscent - 1.5,
+                                 x + m.actualBoundingBoxRight + 1.5, base + m.actualBoundingBoxDescent + 1.5]);
+              }
+            }
+          }
+        }
+        if (rectMode && isFinite(bx0)) boxes.push([bx0 - 6, by0 - 6, bx1 + 6, by1 + 6]);
+      }
+      if (rectMode) for (const [x0, y0, x1, y1] of boxes) ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+      const data = ctx.getImageData(0, 0, cv.width, cv.height).data;
+      const hit = (px0, py0, px1, py1) => {
+        for (let y = Math.floor(py0); y < Math.ceil(py1); y++)
+          for (let x = Math.floor(px0); x < Math.ceil(px1); x++)
+            if (data[(y * cv.width + x) * 4 + 3] > 0) return true;
+        return false;
+      };
+      if (params.get('dbg')) sheet.dataset.glyphs = JSON.stringify(glyphBoxes.map(b => b.map(v => Math.round(v * 10) / 10)));
+      // 軸に平行な線分上に字画(canvas のインク)があるか(1 本)
+      const inkOnLine = (x0, y0, x1, y1) => {
+        const dx = Math.sign(x1 - x0), dy = Math.sign(y1 - y0);
+        const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
+        for (let i = 0; i <= n; i++) {
+          const x = Math.round(x0 + dx * i), y = Math.round(y0 + dy * i);
+          if (x < 0 || y < 0 || x >= cv.width || y >= cv.height) continue;
+          if (data[(y * cv.width + x) * 4 + 3] > 0) return true;
+        }
+        return false;
+      };
+      // ドットの幅ぶん(中心 ±2px)の 3 本全部に字画があるか = そのドットの真上/真下/左/右が字画でふさがれている
+      const inkOn = (x0, y0, x1, y1) => [-2, 0, 2].every(o => (y0 === y1) ? inkOnLine(x0, y0 + o, x1, y1 + o) : inkOnLine(x0 + o, y0, x1 + o, y1));
+      // u・y の腕の口のすぐ上(字面の上端から 4px 以内)に乗るドットも、口の高さで左右を腕に挟まれていれば消す
+      const enclosed = (px, py) => glyphBoxes.some(([x0, y0, x1, y1]) => {
+        if (!(px >= x0 && px <= x1 && py >= y0 - 4 && py <= y1)) return false;
+        if (py < y0) return !inkOnLine(px, y0 + 2, px, y0 + 2) && inkOnLine(px - 4, y0 + 2, x0, y0 + 2) && inkOnLine(px + 4, y0 + 2, x1, y0 + 2);  // 真下が空いていて左右が腕
+        // 上下は 5px 以内(1 マス分)に字画があるときだけ。y の腕の下のように離れた字画は数えない
+        const above = inkOn(px, py - 4, px, Math.max(y0, py - 9));
+        const below = inkOn(px, py + 4, px, Math.min(y1, py + 9));
+        const left = inkOn(px - 4, py, x0, py), right = inkOn(px + 4, py, x1, py);
+        // 囲われている = 上下とも字画(i の点と軸の間、c の口、K の腕の間、P の懐)か、左右とも字画(u・y の腕の間、カウンター)。
+        // b の右上や P の懐の下のように、片側と上下どちらかだけのところ(角)は外とみなして残す
+        return (above && below) || (left && right);
+      });
+      // 字画に半分近く(45%)隠れるドットも消す。
+      // 横画の縁に半端にかかって欠けたドットが並ぶのを防ぐ。縁に触れるだけのものは残す(部品が穴の上に載っているのと同じ見え方)
+      const covered = (px0, py0, px1, py1) => {
+        let ink = 0, all = 0;
+        for (let y = Math.floor(py0); y < Math.ceil(py1); y++)
+          for (let x = Math.floor(px0); x < Math.ceil(px1); x++) {
+            all++;
+            if (data[(y * cv.width + x) * 4 + 3] > 127) ink++;  // 縁のアンチエイリアスは数えない(半分以上塗られた画素だけ)
+          }
+        return ink / all;
+      };
+      const frag = document.createDocumentFragment();
+      for (let cy = 0; cy * G < cv.height; cy++) {
+        for (let cx = 0; cx * G < cv.width; cx++) {
+          const c = (D0 + D1) / 2, gy = cy * G + oy;
+          if (rectMode ? !hit(cx * G + D0, gy + D0, cx * G + D1, gy + D1)
+                       : !(enclosed(cx * G + c, gy + c) || covered(cx * G + D0, gy + D0, cx * G + D1, gy + D1) >= .45)) continue;
+          const k = document.createElement('div');
+          k.className = 'knock';
+          k.style.left = `${cx * G + 7}px`;
+          k.style.top = `${gy + 7}px`;
+          frag.appendChild(k);
+        }
+      }
+      // Ruby の LED マトリクス(.ruby / .rubym)の内側のドットも消す。
+      // 画像のシルエット(縦 24 帯ごとの x 範囲、画像から実測)の中に中心があるドットが対象
+      const RUBY_SIL = [[0.277,0.723],[0.276,0.723],[0.2,0.8],[0.184,0.815],[0.184,0.816],[0.1,0.9],[0.093,0.908],[0.093,0.906],[0.002,0.997],[0,1],[0.006,0.994],[0.093,0.906],[0.093,0.906],[0.105,0.894],[0.184,0.816],[0.185,0.815],[0.276,0.723],[0.276,0.724],[0.284,0.722],[0.368,0.633],[0.368,0.633],[0.38,0.623],[0.46,0.541],[0.46,0.541]];
+      const RUBYM_SIL = [[0.221,0.781],[0.205,0.795],[0.205,0.795],[0.205,0.795],[0.217,0.781],[0.235,0.742],[0.027,0.97],[0.011,0.986],[0,1],[0,1],[0.014,0.986],[0.027,0.97],[0.258,0.74],[0.219,0.781],[0.205,0.795],[0.205,0.795],[0.205,0.795],[0.228,0.769],[0.466,0.537],[0.427,0.573],[0.413,0.589],[0.413,0.589],[0.413,0.589],[0.427,0.573]];
+      for (const el of sheet.querySelectorAll('.ruby, .rubym')) {
+        const mini = el.classList.contains('rubym');
+        const sil = mini ? RUBYM_SIL : RUBY_SIL, aspect = mini ? 438 / 353 : 990 / 809;
+        const r = el.getBoundingClientRect();
+        if (!r.width) continue;
+        // background-size: contain で描かれる範囲
+        let w = r.width, h = r.width / aspect;
+        if (h > r.height) { h = r.height; w = h * aspect; }
+        const x0 = r.left - sr.left + (r.width - w) / 2, y0 = r.top - sr.top + (r.height - h) / 2;
+        const c = (D0 + D1) / 2;
+        for (let cy = Math.floor(y0 / G); cy * G < y0 + h; cy++) {
+          for (let cx = Math.floor(x0 / G); cx * G < x0 + w; cx++) {
+            const u = (cx * G + c - x0) / w, v = (cy * G + oy + c - y0) / h;
+            if (u < 0 || u > 1 || v < 0 || v > 1) continue;
+            const [a, b] = sil[Math.min(sil.length - 1, Math.floor(v * sil.length))];
+            if (u < a + 0.02 || u > b - 0.02) continue;
+            const k = document.createElement('div');
+            k.className = 'knock';
+            k.style.left = `${cx * G + 7}px`;
+            k.style.top = `${cy * G + oy + 7}px`;
+            frag.appendChild(k);
+          }
+        }
+      }
+      const guide = sheet.querySelector('.guide');
+      if (guide) guide.after(frag); else sheet.prepend(frag);
+    }
+  }
+  knockoutDots();
+  const zoom = params.get('zoom');
+  if (zoom) document.body.style.zoom = zoom;  // 白抜け対策の代替キャプチャパス
+  const shift = params.get('shift');
+  if (shift) document.body.style.marginTop = `-${shift}px`;  // 分割キャプチャ用の縦オフセット
+  if (params.get('guide')) document.body.classList.add('guide');
+  if (params.get('print')) document.body.classList.add('print');
+</script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>PicoRubyKaigi 2026 Assemble SUZURI フルグラフィックTシャツ できあがりイメージ</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #b9b9b3;
+  font-family: monospace;
+  padding: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: center;
+}
+h1 {
+  width: 100%;
+  color: #333;
+  font-size: 13px;
+  font-weight: normal;
+  letter-spacing: .06em;
+  text-align: center;
+}
+
+.card {
+  width: 483px;
+}
+.card .name {
+  color: #333;
+  font-size: 12px;
+  letter-spacing: .06em;
+  margin-bottom: 6px;
+}
+/* できあがりイメージ: デザイン(plain.htmlのキャプチャ表示)の上に
+   「黒ボディ線の外側+襟ぐりをページ地色で覆うPNG」と「黒線だけのPNG」を重ねる。
+   CSSマスクは file:// の画像を受け付けない(CORS)ため <img> 重ねで抜いている */
+.stagebox {
+  position: relative;
+  width: 483px;
+  height: 377px;
+  overflow: hidden;
+}
+.stagebox iframe {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1507px;
+  height: 1177px;
+  border: 0;
+  transform: scale(.3205);
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+.stagebox .cover,
+.stagebox .line {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 483px;
+  height: 377px;
+  pointer-events: none;
+}
+/* ダークのシャツでは黒い縫い線が沈むので少し明るいグレーに(カバーは反転しない) */
+.card.dark .line {
+  filter: invert(.45);
+}
+</style>
+</head>
+<body>
+  <h1>SUZURI フルグラフィックTシャツ できあがりイメージ (a=main-visual / b=prarail / c=parts(パーツの 4×3 格子+Assemble!))。ガイド線つきは index.html</h1>
+<script>
+  const params = new URLSearchParams(location.search);
+  const extra = params.get('guide') ? '&guide=1' : '';
+  for (const face of ['a-front', 'a-back', 'b-front', 'b-back', 'c-front', 'c-back']) {
+    for (const mode of ['light', 'dark']) {
+      const side = face.split('-')[1];
+      const card = document.createElement('div');
+      card.className = `card ${mode}`;
+      card.innerHTML = `
+        <div class="name">${face}-${mode}</div>
+        <div class="stagebox ${side}">
+          <iframe src="plain.html?capture=${face}-${mode}${extra}" scrolling="no"></iframe>
+          <img class="cover" src="assets/body_cover_${side}.png" alt="">
+          <img class="line" src="assets/blackline_${side}.png" alt="">
+        </div>`;
+      document.body.appendChild(card);
+    }
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,2973 @@
+<!DOCTYPE html>
+<!--
+  不採用になったパターン(a2=speaker / b1=random-dancers / b1s=小サイズ版 / b1d=高密度の群れ /
+  d=パーツの 4x4 格子 / e=dancers の45度の斜めライン / c2=c の肩に 2026 / d-emb・dnr=刺繍 T シャツの派生)の保管用。
+  CSS と生成ロジックはこの 1 ファイルで完結する(plain.html は読まない)。build.sh の対象外。
+  そのまま開くと finished.html と同じできあがりイメージ(自分自身を ?capture=<面> で iframe 表示し、
+  assets/ の黒線・カバーを重ねる)。?capture=<面> を付けると plain.html と同じく1面だけ原寸表示。
+-->
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>PicoRubyKaigi 2026 Assemble SUZURI フルグラフィックTシャツ 不採用案(a2 speaker / b1・b1s・b1d dancers / d パーツ格子4x4 / e dancers-in-line / c2 / d-emb・dnr 刺繍) (Mサイズ 7535x5882px / CSS 1507x1177 x5)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bitcount+Single:ELSH,wght@0..100,100..900&family=Micro+5&family=Jersey+10&family=DotGothic16&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #888;
+  font-family: 'DotGothic16', monospace;
+  padding: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: center;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.label {
+  width: 100%;
+  color: #eee;
+  font-size: 13px;
+  letter-spacing: .06em;
+  text-align: center;
+}
+
+/* プレビューは縮小表示。キャプチャモード(?capture=<face>)では対象面だけ原寸で左上に置く */
+.wrap {
+  zoom: .32;
+}
+.wrap::before {
+  content: attr(data-face);
+  display: block;
+  color: #eee;
+  font-size: 36px;
+  letter-spacing: .06em;
+  margin-bottom: 8px;
+}
+body.capture {
+  display: block;
+  background: none;
+  padding: 0;
+}
+body.capture .label {
+  display: none;
+}
+body.capture .wrap {
+  zoom: 1;
+}
+body.capture .wrap::before {
+  display: none;
+}
+
+/* ===================================================================
+   シート: SUZURI Mサイズ 7535x5882px = CSS 1507x1176.4px(x5キャプチャ)。
+   トルソーのセーフエリア(赤線) x 390-1117 / y 上144 下1030。
+   全面プリントなのでキャンバス全体を塗る(青線までシャツ形状でマスクされる)。
+   表裏の柄のつながり: 着用時は 表の左右端⇔裏の左右反対端 / 肩越しは左右ミラー。
+   そのため裏面(.mirror)はスモークと散らし柄を scaleX(-1) で反転して端を一致させる
+   =================================================================== */
+.sheet {
+  position: relative;
+  width: 1507px;
+  height: 1177px;
+  overflow: hidden;
+  --grid: 20px;  /* ブレッドボードの穴グリッド(実寸約7mm) */
+}
+
+/* ライト: LPの --bg/--ink とブレッドボード穴パターン */
+.sheet.light {
+  --ink: #26242f;
+  color: var(--ink);
+  background:
+    url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2724%27%3E%3Crect%20x=%279.5%27%20y=%279.5%27%20width=%275%27%20height=%275%27%20fill=%27%2339352b%27%20fill-opacity=%27.11%27/%3E%3Crect%20x=%2711%27%20y=%2711%27%20width=%275%27%20height=%275%27%20fill=%27%231c180e%27%20fill-opacity=%27.14%27/%3E%3C/svg%3E") 0 0 / var(--grid) var(--grid) repeat,
+    #eceade;
+}
+
+/* ダーク: LPダークモードの濃紺 + ティールグリーンの穴 */
+.sheet.dark {
+  --ink: #ece9df;
+  color: var(--ink);
+  background:
+    url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2724%27%3E%3Crect%20x=%279.5%27%20y=%279.5%27%20width=%275%27%20height=%275%27%20fill=%27%232e5247%27/%3E%3Crect%20x=%2711%27%20y=%2711%27%20width=%274%27%20height=%274%27%20fill=%27%2316302a%27/%3E%3C/svg%3E") 0 0 / var(--grid) var(--grid) repeat,
+    #10131c;
+}
+
+/* セーフエリア確認用(?guide=1) */
+.sheet .guide {
+  display: none;
+  position: absolute;
+  left: 390px;
+  top: 144px;
+  width: 727px;
+  height: 886px;
+  border: 2px dashed rgba(255, 0, 0, .7);
+  pointer-events: none;
+  z-index: 999;
+}
+body.guide .sheet .guide {
+  display: block;
+}
+
+/* ===== スモーク(ダークのみ): カラーウォッシュの煙のプルーム。ピンクは右下から、ブルーは左中から立ちのぼり、
+   上空にパープルとアンバーの薄い霞。裏面は .mirror で左右反転して
+   脇の縫い目・肩越しで柄がつながる ===== */
+.fx {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background:
+    radial-gradient(640px 760px at 88% 96%, rgba(255, 128, 150, .34) 0%, transparent 70%),
+    radial-gradient(420px 520px at 76% 72%, rgba(255, 128, 150, .20) 0%, transparent 70%),
+    radial-gradient(300px 380px at 68% 52%, rgba(255, 128, 150, .11) 0%, transparent 70%),
+    radial-gradient(560px 700px at 4% 58%, rgba(110, 200, 255, .30) 0%, transparent 70%),
+    radial-gradient(380px 480px at 14% 38%, rgba(110, 200, 255, .16) 0%, transparent 70%),
+    radial-gradient(480px 420px at 66% 4%, rgba(190, 140, 255, .18) 0%, transparent 65%),
+    radial-gradient(420px 500px at 30% 20%, rgba(255, 200, 110, .13) 0%, transparent 65%);
+}
+/* 川に沿って流れる水彩(b1dのライトのみ)。生成は fillDense。
+   他のパターンのライトはスモークなし(下の display:none)。ダークは従来の .fx */
+.riverfx {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+.sheet.dark .riverfx {
+  display: none;
+}
+/* 裏面は .scatter と同じく反転させて、脇の縫い目で流れがつながるようにする */
+.sheet.mirror .riverfx {
+  transform: scaleX(-1);
+}
+.sheet.light .fx {
+  display: none;
+}
+/* nofx(b1): ダークでもスモークなし・RubyLEDのにじみなし */
+.sheet.nofx .fx {
+  display: none;
+}
+.dark.nofx .rubym {
+  filter: brightness(1.2);
+}
+.sheet.mirror .fx {
+  transform: scaleX(-1);
+}
+.sheet.light .only-dark {
+  display: none;
+}
+
+/* ===== ロゴ共通 ===== */
+.prk {
+  font-family: 'Bitcount Single', sans-serif;
+  font-size: 58px;
+  line-height: .98;
+  letter-spacing: .05em;
+  font-variation-settings: 'wght' 330, 'ELSH' 50;
+}
+.light .prk .picoruby {
+  color: #f64b5b;
+  -webkit-text-stroke: 3.5px #da1d3c;
+  paint-order: stroke fill;
+}
+.light .prk .kaigi {
+  color: #fff;
+  -webkit-text-stroke: 3.5px #454747;
+  paint-order: stroke fill;
+}
+/* ダーク: REPL風のリン光(LPダークの配色) */
+.dark .prk .picoruby {
+  color: #fb5479;
+  -webkit-text-stroke: 3.5px #97233a;
+  paint-order: stroke fill;
+  text-shadow: 0 0 4px rgba(251, 84, 121, .55), 0 0 12px rgba(251, 84, 121, .35);
+}
+.dark .prk .kaigi {
+  color: #6ef0a0;
+  -webkit-text-stroke: 3.5px #2c6b4a;
+  paint-order: stroke fill;
+  text-shadow: 0 0 4px rgba(110, 240, 160, .40), 0 0 10px rgba(110, 240, 160, .22);
+}
+.prk .picoruby,
+.prk .kaigi {
+  display: block;
+  white-space: nowrap;
+  position: relative;
+}
+/* Bitcountは字面が送り幅内で左に寄るため、中央寄せでもインクが左へずれる。実測して右へ補正 */
+.prk .picoruby {
+  left: 4.2px;
+}
+.prk .kaigi {
+  left: 4.5px;
+}
+/* 光学カーニング */
+.prk .k2 {
+  letter-spacing: .036em;
+}
+.prk .k3 {
+  letter-spacing: .029em;
+}
+.prk .k4 {
+  letter-spacing: .022em;
+}
+.prk .k5 {
+  letter-spacing: .015em;
+}
+.prk .kP {
+  letter-spacing: .026em;
+}
+.year {
+  font-family: 'Micro 5', sans-serif;
+  font-size: 36px;
+  line-height: .8;
+  letter-spacing: .12em;
+  text-indent: .12em;
+  position: relative;
+  left: 1.7px;
+}
+
+/* 胸ロゴ: ロゴがメイン。胸のあたり */
+.title-main {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 430px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+}
+.title-main .prk {
+  font-size: 78px;
+  line-height: 1.18;
+}
+.light .title-main .prk .picoruby,
+.light .title-main .prk .kaigi,
+.dark .title-main .prk .picoruby,
+.dark .title-main .prk .kaigi {
+  -webkit-text-stroke-width: 4.5px;
+}
+.title-main .prk .picoruby {
+  left: 5.7px;
+}
+.title-main .prk .kaigi {
+  left: 5.8px;
+}
+.title-main .year {
+  font-size: 44px;
+  left: 2.1px;
+  margin-top: -3px;  /* Kaigi→2026 と 2026→Assemble のインク間隔を46pxに揃える(実測補正) */
+}
+.title-main .assemble {
+  font-family: 'Jersey 10', sans-serif;
+  font-size: 36px;
+  letter-spacing: .18em;
+  text-indent: .18em;
+  margin-top: 12px;
+}
+
+/* 左胸(着用者の左=正面視では右側)のぎゅっと小さなワンポイントロゴ */
+.title-chest {
+  position: absolute;
+  left: 820px;
+  top: 292px;
+  width: 230px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  text-align: center;
+}
+.title-chest .prk {
+  font-size: 36px;
+}
+.light .title-chest .prk .picoruby,
+.light .title-chest .prk .kaigi,
+.dark .title-chest .prk .picoruby,
+.dark .title-chest .prk .kaigi {
+  -webkit-text-stroke-width: 2.2px;
+}
+.title-chest .prk .picoruby {
+  left: 2.6px;
+}
+.title-chest .prk .kaigi {
+  left: 2.8px;
+}
+.title-chest .year {
+  font-size: 20px;
+  left: 1px;
+  margin-top: 2px;  /* Kaigi→2026 と 2026→Assemble のインク間隔を16pxに揃える(実測補正) */
+}
+.title-chest .assemble {
+  font-family: 'Jersey 10', sans-serif;
+  font-size: 17px;
+  letter-spacing: .18em;
+  text-indent: .18em;
+  margin-top: 4px;
+}
+
+/* ===== Ruby(裏の襟下ワンポイント) ===== */
+.ruby {
+  position: absolute;
+  left: 50%;
+  top: 268px;
+  transform: translateX(-50%);
+  height: 96px;
+  aspect-ratio: 990 / 809;
+}
+.ruby::before,
+.ruby::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url('../../images/ruby-1.png') center / contain no-repeat;
+}
+.light .ruby::before {
+  filter: blur(1.4px);
+}
+/* ダーク: LED版のRubyをスカーレットに滲ませる(LPの .ruby-led) */
+.dark .ruby::before,
+.dark .ruby::after {
+  background-image: url('../../images/ruby-2.png');
+}
+.dark .ruby::before {
+  filter: blur(1.6px) drop-shadow(0 0 6px rgba(255, 74, 46, .55)) drop-shadow(0 0 16px rgba(255, 74, 46, .3));
+}
+/* A(プラレール)のRuby LEDは滲ませない */
+.dark .ruby.no-bleed::before {
+  filter: none;
+}
+
+/* ===== キットのパーツ ===== */
+.part {
+  position: absolute;
+  background: center / contain no-repeat;
+  image-rendering: pixelated;
+}
+.part.seg7 {
+  width: 85px;
+  aspect-ratio: 211 / 165;
+  background-image: url('../shopcard/7seg-88.png');
+}
+.part.speaker {
+  width: 62px;
+  aspect-ratio: 137 / 138;
+  background-image: url('../../images/spaeker.png');
+}
+.part.motor {
+  width: 59px;
+  aspect-ratio: 110 / 141;
+  background-image: url('../../images/motor.png');
+}
+.part.chip {
+  width: 75px;
+  aspect-ratio: 137 / 137;
+  background-image: url('../../images/chip.png');
+}
+.part.battery {
+  width: 37px;
+  aspect-ratio: 110 / 188;
+  background-image: url('../../images/battery.png');
+}
+.dark .part {
+  filter: brightness(1.15) drop-shadow(0 0 5px rgba(255, 255, 255, .14));
+}
+
+/* ===== プラレール(表の左腰)。ダークは窓だけ暖色で点灯(夜行電車) ===== */
+.prarail {
+  position: absolute;
+  background: url('../../images/prarail.png') center / contain no-repeat;
+  image-rendering: pixelated;
+}
+.dark .prarail {
+  filter: brightness(.92);
+}
+.prarail::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url('../../images/prarail-windows.png') center / contain no-repeat;
+  image-rendering: pixelated;
+  opacity: 0;
+}
+.dark .prarail::after {
+  opacity: 1;
+  filter: blur(.4px)
+          drop-shadow(0 0 3px rgba(255, 224, 170, .85))
+          drop-shadow(0 0 7px rgba(255, 190, 120, .6))
+          drop-shadow(0 0 13px rgba(255, 165, 90, .35));
+}
+
+/* ===== ダンサー(散らし柄。サイズはJSがインラインで揺らす) ===== */
+.dancer {
+  position: absolute;
+  background: center / contain no-repeat;
+  image-rendering: pixelated;
+}
+.dancer.d1 {
+  background-image: url('../../images/dancer1.png');
+}
+.dancer.d2 {
+  background-image: url('../../images/dancer2.png');
+}
+.dancer.d3 {
+  background-image: url('../../images/dancer3.png');
+}
+.dancer.d4 {
+  background-image: url('../../images/dancer4.png');
+}
+/* ダークはオンボードLED点灯 + ネオン発光。
+   .led-on のシート(b1d)はライトでもLEDだけ点灯する。
+   LEDパッド位置はドット絵(30x14)の x23-24, y4-5 を%で追従 */
+.dancer.d1 {
+  --glow: #ff5566;
+}
+.dancer.d2 {
+  --glow: #44e58a;
+}
+.dancer.d3 {
+  --glow: #ffb733;
+}
+.dancer.d4 {
+  --glow: #55d6f2;
+}
+.led-on .dancer::after,
+.dark .dancer::after {
+  content: "";
+  position: absolute;
+  right: 20%;
+  top: 28%;
+  width: 2px;
+  height: 2px;
+  background: #fff;
+  box-shadow: 0 0 2px #fff, 0 0 6px var(--glow, #ffd152);
+}
+.dark .dancer.d1 {
+  --glow: #ff5566;
+  filter: brightness(1.4) saturate(1.3) drop-shadow(0 0 1.5px #fff) drop-shadow(0 0 5px #ff5566);
+}
+.dark .dancer.d2 {
+  --glow: #44e58a;
+  filter: brightness(1.4) saturate(1.3) drop-shadow(0 0 1.5px #fff) drop-shadow(0 0 5px #44e58a);
+}
+.dark .dancer.d3 {
+  --glow: #ffb733;
+  filter: brightness(1.4) saturate(1.3) drop-shadow(0 0 1.5px #fff) drop-shadow(0 0 5px #ffb733);
+}
+.dark .dancer.d4 {
+  --glow: #55d6f2;
+  filter: brightness(1.4) saturate(1.3) drop-shadow(0 0 1.5px #fff) drop-shadow(0 0 5px #55d6f2);
+}
+
+/* 小さなRuby(散らし柄の差し色。サイズはJSがインラインで揺らす) */
+.rubym {
+  position: absolute;
+  background: url('../../images/ruby-mini.png') center / contain no-repeat;
+}
+.dark .rubym {
+  filter: brightness(1.2) drop-shadow(0 0 4px rgba(255, 74, 46, .5));
+}
+
+/* 散らし柄に斜めに混ぜる文字列 */
+.word {
+  position: absolute;
+  font-family: 'Jersey 10', sans-serif;
+  font-size: 27px;
+  letter-spacing: .14em;
+  white-space: nowrap;
+}
+.word {
+  transform: rotate(var(--rot, 0deg));
+}
+/* ミラー面(裏)では文字が鏡文字になるので、文字だけ再反転して読める向きに戻す。
+   傾きは符号を反転してミラー配置の向きに合わせる */
+.sheet.mirror .scatter .word {
+  transform: scaleX(-1) rotate(calc(-1 * var(--rot, 0deg)));
+}
+.light .word {
+  color: rgba(38, 36, 47, .72);
+}
+.dark .word {
+  color: rgba(110, 240, 160, .78);
+  text-shadow: 0 0 5px rgba(110, 240, 160, .35);
+}
+
+/* 紙吹雪(散らし柄の埋め草)。ライトでは主張しすぎるので基本ダークのみ。
+   b1d(.led-on)のライトだけは水彩と合うので、小さく・薄くして散らす */
+.confetti {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+}
+.light .confetti {
+  display: none;
+}
+.light.led-on .confetti {
+  display: block;
+  width: 6px;
+  height: 6px;
+  opacity: .72;
+}
+
+/* ピクセルの十字光(ダークのみ) */
+.spark {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: #fff;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  box-shadow:
+    0 -6px #fff, 0 6px #fff, -6px 0 #fff, 6px 0 #fff,
+    0 -12px var(--tint), 0 12px var(--tint), -12px 0 var(--tint), 12px 0 var(--tint);
+}
+.spark.s-pink {
+  --tint: #ff96b9;
+}
+.spark.s-green {
+  --tint: #56f096;
+}
+.spark.s-blue {
+  --tint: #8ad9ff;
+}
+
+
+/* a2 の襟・袖・裾のトリム dancers(標準サイズ) */
+.dancer.trim {
+  width: 42px;
+  height: 19.6px;
+}
+
+/* b1 系の散らし柄コンテナ。裏面はミラーで表と脇・肩がつながる */
+.scatter {
+  position: absolute;
+  inset: 0;
+}
+.sheet.mirror .scatter {
+  transform: scaleX(-1);
+}
+
+/* ===== d (4x4 のパーツ格子) が使う CSS ===== */
+
+/* パーツの記号と、LP の部品ソケット(images/<part>-slot.svg、黄の破線)をうっすら敷く */
+.step {
+  position: absolute;
+  font-family: 'Micro 5', sans-serif;
+  font-size: 22px;
+  line-height: 1;
+  letter-spacing: .08em;
+  color: #26242f;
+  opacity: .75;
+}
+.dark .step {
+  color: #ece9df;
+}
+.slot {
+  position: absolute;
+  background: center / contain no-repeat;
+}
+/* LPのソケットSVGは viewBox 単位で線幅が固定で、表示倍率がパーツごとに違うと太さがばらつく。
+   assets/*-{pink,yellow}.svg は表示 3.0px・破線 3.5/3.0px になるよう倍率で逆算した線幅にしたコピー。
+   ライトは濃いピンク(#f2607a)、ダークは薄いピンク(#ff96b9、名前の吹き出しと同じ)。ダークの黄色は文字ロゴを置いたら浮いたのでやめた。
+   7セグは2桁用のソケット(部品 211x165 と同じ縦横比)。
+   チップのソケットは使わない(角丸の四角はよかったが、破線の足の形が何通り描いても決まらなかった) */
+.dark .slot.seg7    { background-image: url('assets/seg7-slot-2-pinkdark.svg'); }
+.dark .slot.speaker { background-image: url('assets/speaker-slot-pinkdark.svg'); }
+.dark .slot.motor   { background-image: url('assets/motor-slot-pinkdark.svg'); }
+.dark .slot.battery { background-image: url('assets/battery-slot-pinkdark.svg'); }
+.light .slot.seg7    { background-image: url('assets/seg7-slot-2-pink.svg'); }
+.light .slot.speaker { background-image: url('assets/speaker-slot-pink.svg'); }
+.light .slot.motor   { background-image: url('assets/motor-slot-pink.svg'); }
+.light .slot.battery { background-image: url('assets/battery-slot-pink.svg'); }
+/* 小さな吹き出し(3語の吹き出しはすべてこのサイズ) */
+.bubble.sm {
+  padding: 3px 8px 2px;
+  border-width: 2px;
+  border-radius: 6px;  /* 丸すぎるとカプセルに見えるので控えめに */
+  font-size: 16px;
+}
+.bubble.sm::after {
+  left: 9px;
+  bottom: -8px;
+  border: 5px solid transparent;
+  border-top: 7px solid #26242f;
+  border-bottom: 0;
+}
+.dark .bubble.sm::after {
+  border-top-color: #ece9df;
+}
+
+/* 完成品と Pico 基板: goodies の絵(images/goodies/{rocket,nui,keyboard,penlight}.png、パーツと同じドット絵) */
+.goodie {
+  position: absolute;
+  background: center / contain no-repeat;
+  image-rendering: pixelated;
+}
+.goodie.rocket   { aspect-ratio: 349 / 499; background-image: url('../../images/goodies/rocket.png'); }
+.goodie.nui      { aspect-ratio: 407 / 477; background-image: url('../../images/goodies/nui.png'); }
+.goodie.keyboard { aspect-ratio: 523 / 365; background-image: url('../../images/goodies/keyboard.png'); }
+.goodie.penlight { aspect-ratio: 261 / 552; background-image: url('../../images/goodies/penlight.png'); }
+.goodie.pico     { aspect-ratio: 810 / 409; background-image: url('../../images/goodies/pico.png'); }  /* パーツと同じ描き方の Pico 基板(幅56で置く) */
+.dark .goodie {
+  filter: brightness(1.1);
+}
+
+/* 吹き出し */
+.bubble {
+  position: absolute;
+  padding: 5px 12px 4px;
+  border: 3px solid #26242f;
+  border-radius: 10px;
+  background: #f6f4ea;  /* サイトの --card */
+  font-family: 'Jersey 10', sans-serif;
+  font-size: 22px;
+  line-height: 1;
+  letter-spacing: .06em;
+  color: #26242f;
+  white-space: nowrap;
+}
+/* 名前(PicoRubyKaigi)だけソケットと同じ濃いピンク。ピンクが基調、差し色は別途 */
+.bubble.name {
+  background: #ff96b9;  /* 最初の薄いピンク。濃いピンク(#f2607a)や P1〜L4 の赤系は墨の文字でにごって見えた */
+  color: #26242f;
+}
+.bubble::after {
+  content: "";
+  position: absolute;
+  left: 18px;
+  bottom: -11px;
+  border: 8px solid transparent;
+  border-top: 10px solid #26242f;
+  border-bottom: 0;
+}
+/* 2行の吹き出し */
+.bubble.two {
+  text-align: center;
+  line-height: 1.05;
+}
+.bubble.tail-left::after {
+  left: -12px;
+  bottom: 12px;
+  border: 8px solid transparent;
+  border-right: 11px solid #26242f;
+  border-left: 0;
+}
+.dark .bubble.tail-left::after {
+  border-top-color: transparent;
+  border-right-color: #ece9df;
+}
+.bubble.tail-right::after {
+  left: auto;
+  right: -12px;
+  bottom: 12px;
+  border: 8px solid transparent;
+  border-left: 11px solid #26242f;
+  border-right: 0;
+}
+.dark .bubble {
+  background: #191d28;  /* ダークの --card */
+  border-color: #ece9df;
+  color: #ece9df;
+}
+.dark .bubble.name {
+  background: #ff96b9;  /* 最初の薄いピンク。濃いピンク(#f2607a)や P1〜L4 の赤系は墨の文字でにごって見えた */
+  color: #26242f;
+}
+.dark .bubble::after {
+  border-top-color: #ece9df;
+}
+.dark .bubble.tail-right::after {
+  border-top-color: transparent;
+  border-left-color: #ece9df;
+}
+/* 小さい吹き出しの右向き尻尾(.sm の下向き尻尾の設定と混ざらないよう明示) */
+.bubble.sm.tail-right::after {
+  left: auto;
+  right: -9px;
+  bottom: 8px;
+  border: 5px solid transparent;
+  border-left: 8px solid #26242f;
+  border-right: 0;
+  border-top-color: transparent;
+}
+.dark .bubble.sm.tail-right::after {
+  border-left-color: #ece9df;
+}
+.bubble.sm.tail-left::after {
+  left: -9px;
+  bottom: 8px;
+  border: 5px solid transparent;
+  border-right: 8px solid #26242f;
+  border-left: 0;
+  border-top-color: transparent;
+}
+.dark .bubble.sm.tail-left::after {
+  border-right-color: #ece9df;
+}
+/* c: 格子の下に置く1行ロゴ(PicoRubyKaigi だけ。2026 / Assemble は外した)。インク幅はパーツ4列の外幅より少しはみ出す程度 */
+.title-main.under {
+  top: 794px;
+  gap: 10px;
+}
+.title-main.under .prk {
+  font-size: 58px;  /* 字間 .10em。インク幅はパーツ4列の外幅(実測 446px)より少し広い約 480px */
+  line-height: 1.18;
+  letter-spacing: .10em;
+}
+.title-main.under .prk .picoruby,
+.title-main.under .prk .kaigi {
+  display: inline;
+}
+.light .title-main.under .prk .picoruby,
+.light .title-main.under .prk .kaigi,
+.dark .title-main.under .prk .picoruby,
+.dark .title-main.under .prk .kaigi {
+  -webkit-text-stroke-width: 3.5px;
+}
+.title-main.under .prk .picoruby {
+  left: 4.4px;
+}
+.title-main.under .prk .kaigi {
+  left: 4.5px;
+}
+.title-main.under .year {
+  font-size: 31px;
+  left: 1.5px;
+  margin-top: 0;
+}
+.title-main.under .assemble {
+  font-size: 25px;
+  margin-top: 4px;
+}
+/* 表の文字ロゴもにじませない(ダークの発光を切る) */
+.dark .title-main.under .prk .picoruby,
+.dark .title-main.under .prk .kaigi {
+  text-shadow: none;
+}
+/* ロゴをにじませない(a の表裏の Ruby、c の裏): ライトの Ruby のぼかしも、ダークの文字の発光も切る */
+.light .ruby.flat::before {
+  filter: none;
+}
+.dark .title-chest.flat .prk .picoruby,
+.dark .title-chest.flat .prk .kaigi {
+  text-shadow: none;
+}
+/* 裏ロゴの PicoRuby↔Kaigi の行間(実測 5.5px)が Kaigi↔2026(18.5px)より詰まって見えるので少し広げる。e の胸ロゴには効かせない */
+.title-chest.flat .prk .kaigi {
+  margin-top: 6px;
+}
+
+/* ===== できあがりイメージ表示(?capture なしで開いたとき。finished.html と同じ) ===== */
+body.gallery {
+  background: #b9b9b3;
+}
+body.gallery .label {
+  color: #333;
+}
+.card {
+  width: 483px;
+}
+.card .name {
+  color: #333;
+  font-size: 12px;
+  letter-spacing: .06em;
+  margin-bottom: 6px;
+}
+.stagebox {
+  position: relative;
+  width: 483px;
+  height: 377px;
+  overflow: hidden;
+}
+.stagebox iframe {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1507px;
+  height: 1177px;
+  border: 0;
+  transform: scale(.3205);
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+.stagebox .cover,
+.stagebox .line {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 483px;
+  height: 377px;
+  pointer-events: none;
+}
+.card.dark .line {
+  filter: invert(.45);
+}
+
+/* ===== c2(c の肩に 2026 を足した版): c の CSS 一式を .c2 にスコープして転記 ===== */
+.sheet.c2 * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+.sheet.c2 /* プレビューは縮小表示。キャプチャモード(?capture=<face>)では対象面だけ原寸で左上に置く */
+.wrap {
+  zoom: .32;
+}
+.sheet.c2 /* ===================================================================
+   シート: SUZURI Mサイズ 7535x5882px = CSS 1507x1176.4px(x5キャプチャ)。
+   トルソーのセーフエリア(赤線) x 390-1117 / y 上144 下1030。
+   全面プリントなのでキャンバス全体を塗る(青線までシャツ形状でマスクされる)。
+   表裏の柄のつながり: 着用時は 表の左右端⇔裏の左右反対端 / 肩越しは左右ミラー。
+   そのため裏面(.mirror)はスモークと散らし柄を scaleX(-1) で反転して端を一致させる
+   =================================================================== */
+.sheet {
+  position: relative;
+  width: 1507px;
+  height: 1177px;
+  overflow: hidden;
+  --grid: 20px;  /* ブレッドボードの穴グリッド(実寸約7mm) */
+}
+.sheet.c2 /* ライト: LPの --bg/--ink とブレッドボード穴パターン */
+.sheet.light {
+  --ink: #26242f;
+  --halo: #eceade;  /* ロゴの周りの地色(ドットを消す) */
+  color: var(--ink);
+  background:
+    url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2724%27%3E%3Crect%20x=%279.5%27%20y=%279.5%27%20width=%275%27%20height=%275%27%20fill=%27%2339352b%27%20fill-opacity=%27.11%27/%3E%3Crect%20x=%2711%27%20y=%2711%27%20width=%275%27%20height=%275%27%20fill=%27%231c180e%27%20fill-opacity=%27.14%27/%3E%3C/svg%3E") 0 0 / var(--grid) var(--grid) repeat,
+    #eceade;
+}
+.sheet.c2 /* ダーク: LPダークモードの濃紺 + ティールグリーンの穴 */
+.sheet.dark {
+  --ink: #ece9df;
+  --halo: #10131c;
+  color: var(--ink);
+  background:
+    url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2724%27%3E%3Crect%20x=%279.5%27%20y=%279.5%27%20width=%275%27%20height=%275%27%20fill=%27%232e5247%27/%3E%3Crect%20x=%2711%27%20y=%2711%27%20width=%274%27%20height=%274%27%20fill=%27%2316302a%27/%3E%3C/svg%3E") 0 0 / var(--grid) var(--grid) repeat,
+    #10131c;
+}
+.sheet.c2 /* セーフエリア確認用(?guide=1) */
+.sheet .guide {
+  display: none;
+  position: absolute;
+  left: 390px;
+  top: 144px;
+  width: 727px;
+  height: 886px;
+  border: 2px dashed rgba(255, 0, 0, .7);
+  pointer-events: none;
+  z-index: 999;
+}
+.sheet.c2 /* ===== ロゴ共通 ===== */
+.prk {
+  font-family: 'Bitcount Single', sans-serif;
+  font-size: 58px;
+  line-height: .98;
+  letter-spacing: .05em;
+  font-variation-settings: 'wght' 330, 'ELSH' 50;
+}
+.c2.light .prk .picoruby {
+  color: #f64b5b;
+  -webkit-text-stroke: 3.5px #da1d3c;
+  paint-order: stroke fill;
+}
+.c2.light .prk .kaigi {
+  color: #fff;
+  -webkit-text-stroke: 3.5px #454747;
+  paint-order: stroke fill;
+}
+.sheet.c2 /* ダーク: REPL風のリン光(LPダークの配色) */
+.dark .prk .picoruby {
+  color: #fb5479;
+  -webkit-text-stroke: 3.5px #97233a;
+  paint-order: stroke fill;
+  text-shadow: 0 0 4px rgba(251, 84, 121, .55), 0 0 12px rgba(251, 84, 121, .35);
+}
+.c2.dark .prk .kaigi {
+  color: #6ef0a0;
+  -webkit-text-stroke: 3.5px #2c6b4a;
+  paint-order: stroke fill;
+  text-shadow: 0 0 4px rgba(110, 240, 160, .40), 0 0 10px rgba(110, 240, 160, .22);
+}
+.sheet.c2 .prk .picoruby,
+.sheet.c2 .prk .kaigi {
+  display: block;
+  white-space: nowrap;
+  position: relative;
+}
+.sheet.c2 /* Bitcountは字面が送り幅内で左に寄るため、中央寄せでもインクが左へずれる。実測して右へ補正 */
+.prk .picoruby {
+  left: 4.2px;
+}
+.sheet.c2 .prk .kaigi {
+  left: 4.5px;
+}
+.sheet.c2 /* 光学カーニング */
+.prk .k2 {
+  letter-spacing: .036em;
+}
+.sheet.c2 .prk .k3 {
+  letter-spacing: .029em;
+}
+.sheet.c2 .prk .k4 {
+  letter-spacing: .022em;
+}
+.sheet.c2 .prk .k5 {
+  letter-spacing: .015em;
+}
+.sheet.c2 .prk .kP {
+  letter-spacing: .026em;
+}
+.sheet.c2 .year {
+  font-family: 'Micro 5', sans-serif;
+  font-size: 36px;
+  line-height: .8;
+  letter-spacing: .12em;
+  text-indent: .12em;
+  position: relative;
+  left: 1.7px;
+}
+.sheet.c2 /* 胸ロゴ: ロゴがメイン。胸のあたり */
+.title-main {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 430px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+}
+.sheet.c2 .title-main .prk {
+  font-size: 78px;
+  line-height: 1.18;
+}
+.c2.light .title-main .prk .picoruby,
+.c2.light .title-main .prk .kaigi,
+.c2.dark .title-main .prk .picoruby,
+.c2.dark .title-main .prk .kaigi {
+  -webkit-text-stroke-width: 4.5px;
+}
+.sheet.c2 .title-main .prk .picoruby {
+  left: 5.7px;
+}
+.sheet.c2 .title-main .prk .kaigi {
+  left: 5.8px;
+}
+.sheet.c2 .title-main .year {
+  font-size: 44px;
+  left: 2.1px;
+  margin-top: -3px;  /* Kaigi→2026 と 2026→Assemble のインク間隔を46pxに揃える(実測補正) */
+}
+.sheet.c2 .title-main .assemble {
+  font-family: 'Jersey 10', sans-serif;
+  font-size: 36px;
+  letter-spacing: .18em;
+  text-indent: .18em;
+  margin-top: 12px;
+}
+.sheet.c2 /* c: 格子の下に置く1行ロゴ(PicoRubyKaigi だけ。2026 / Assemble は外した)。インク幅はパーツ4列の外幅より少しはみ出す程度 */
+.title-main.under {
+  top: 794px;
+  gap: 10px;
+}
+.sheet.c2 .title-main.under .prk {
+  font-size: 58px;  /* 字間 .10em。インク幅はパーツ4列の外幅(実測 446px)より少し広い約 480px */
+  line-height: 1.18;
+  letter-spacing: .10em;
+}
+.sheet.c2 .title-main.under .prk .picoruby,
+.sheet.c2 .title-main.under .prk .kaigi {
+  display: inline;
+}
+.c2.light .title-main.under .prk .picoruby,
+.c2.light .title-main.under .prk .kaigi,
+.c2.dark .title-main.under .prk .picoruby,
+.c2.dark .title-main.under .prk .kaigi {
+  -webkit-text-stroke-width: 3.5px;
+}
+.sheet.c2 .title-main.under .prk .picoruby {
+  left: 4.4px;
+}
+.sheet.c2 .title-main.under .prk .kaigi {
+  left: 4.5px;
+}
+.sheet.c2 .title-main.under .year {
+  font-size: 31px;
+  left: 1.5px;
+  margin-top: 0;
+}
+.sheet.c2 .title-main.under .assemble {
+  font-size: 25px;
+  margin-top: 4px;
+}
+.sheet.c2 /* c2: 格子の下の小さな Assemble。b の胸ロゴの Assemble と同じ Jersey 10 を小さく、字間を広く空けて
+   面積は小さいまま横幅だけ格子に寄せる */
+.title-main.big-assemble {
+  top: 802px;
+}
+.sheet.c2 .title-main.big-assemble .assemble {
+  font-size: 34px;
+  letter-spacing: .3em;
+  text-indent: .3em;
+  margin-top: 0;
+}
+.sheet.c2 /* Assemble: ライトは墨をほんの少し明るくした #34323d(真っ黒だと強い)、
+   ダークはソケットと同じピンク #f2607a(文字サイズはライトと同じ 34px。くすませた #c9647a はにごって見えた) */
+.light .title-main.big-assemble .assemble {
+  color: #34323d;
+}
+.c2.dark .title-main.big-assemble .assemble {
+  color: #f2607a;
+}
+.sheet.c2 /* 表の文字ロゴもにじませない(ダークの発光を切る) */
+.dark .title-main.under .prk .picoruby,
+.c2.dark .title-main.under .prk .kaigi {
+  text-shadow: none;
+}
+.sheet.c2 /* c2: 左袖(着用者の左=正面視では右袖)に 2026 を、表に 20・裏に 26 と肩(折り目)をまたいで載せる。
+   文字の進行方向は折り目(14度)に垂直(表 -76度で下から折り目へ、裏 +76度で折り目から下へ)。袖口(69.6度)とは6度ずれるが、
+   折り目をまたいで一直線につながることを優先。折り目からの隙間は 3px ずつ(縫い代で隠れる分を見込んで字間 3px より広め)、
+   横位置は折り目に接する行のインク重心を表裏で一致させる(描画して実測、位置は下の値) */
+.shoulder {
+  position: absolute;
+  font-family: 'Micro 5', sans-serif;
+  font-size: 30px;
+  line-height: 1;
+  letter-spacing: .2em;  /* 折り目をまたぐ隙間(3px+3px)と同じ 6px にして、2026 が等間隔に読める */
+  color: var(--ink);
+  transform-origin: 0 0;
+}
+.sheet.c2 /* c2 の裏ロゴ: b の胸ロゴ(78px)の 0.75 倍。線幅・字送り補正・間隔も同比 */
+.title-main.back {
+  gap: 12px;
+}
+.sheet.c2 .title-main.back .prk {
+  font-size: 58px;
+}
+.c2.light .title-main.back .prk .picoruby,
+.c2.light .title-main.back .prk .kaigi,
+.c2.dark .title-main.back .prk .picoruby,
+.c2.dark .title-main.back .prk .kaigi {
+  -webkit-text-stroke-width: 3.4px;
+}
+.sheet.c2 .title-main.back .prk .picoruby {
+  left: 4.3px;
+}
+.sheet.c2 .title-main.back .prk .kaigi {
+  left: 4.4px;
+}
+.sheet.c2 /* 裏ロゴの行間(インク実測): PicoRuby↔Kaigi は 10px に詰めてひとかたまりに見せ、
+   Kaigi↔2026 は 26px、2026↔Assemble は 24px、Ruby↔PicoRuby は 44px(全部 22px だとロゴが 2 語に割れて見えた) */
+.title-main.back .prk .kaigi {
+  margin-top: -10px;
+}
+.sheet.c2 .title-main.back .year {
+  font-size: 33px;
+  left: 1.6px;
+  margin-top: -5.5px;
+}
+.sheet.c2 .title-main.back .assemble {
+  font-size: 27px;
+  margin-top: -1px;
+}
+.sheet.c2 /* 左胸(着用者の左=正面視では右側)のぎゅっと小さなワンポイントロゴ */
+.title-chest {
+  position: absolute;
+  left: 820px;
+  top: 292px;
+  width: 230px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  text-align: center;
+}
+.sheet.c2 .title-chest .prk {
+  font-size: 36px;
+}
+.c2.light .title-chest .prk .picoruby,
+.c2.light .title-chest .prk .kaigi,
+.c2.dark .title-chest .prk .picoruby,
+.c2.dark .title-chest .prk .kaigi {
+  -webkit-text-stroke-width: 2.2px;
+}
+.sheet.c2 .title-chest .prk .picoruby {
+  left: 2.6px;
+}
+.sheet.c2 .title-chest .prk .kaigi {
+  left: 2.8px;
+}
+.sheet.c2 .title-chest .year {
+  font-size: 20px;
+  left: 1px;
+  margin-top: 2px;  /* Kaigi→2026 と 2026→Assemble のインク間隔を16pxに揃える(実測補正) */
+}
+.sheet.c2 .title-chest .assemble {
+  font-family: 'Jersey 10', sans-serif;
+  font-size: 17px;
+  letter-spacing: .18em;
+  text-indent: .18em;
+  margin-top: 4px;
+}
+.sheet.c2 /* ===== Ruby(裏の襟下ワンポイント) ===== */
+.ruby {
+  position: absolute;
+  left: 50%;
+  top: 268px;
+  transform: translateX(-50%);
+  height: 96px;
+  aspect-ratio: 990 / 809;
+}
+.sheet.c2 .ruby::before,
+.sheet.c2 .ruby::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url('../../images/ruby-1.png') center / contain no-repeat;
+}
+.c2.light .ruby::before {
+  filter: blur(1.4px);
+}
+.sheet.c2 /* 文字ロゴ(PicoRubyKaigi)の中のドット消し: JS(knockoutDots)が、各文字の字面の中に中心があるドットを
+   1 個単位で丸ごと地色(--halo)の四角で覆う。まわりの穴は残す */
+.sheet .knock {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  background: var(--halo);
+  pointer-events: none;
+}
+.sheet.c2 /* ダーク: LED版のRubyをスカーレットに滲ませる(LPの .ruby-led) */
+.dark .ruby::before,
+.c2.dark .ruby::after {
+  background-image: url('../../images/ruby-2.png');
+}
+.c2.dark .ruby::before {
+  filter: blur(1.6px) drop-shadow(0 0 6px rgba(255, 74, 46, .55)) drop-shadow(0 0 16px rgba(255, 74, 46, .3));
+}
+.sheet.c2 /* ロゴをにじませない(a の表裏の Ruby、c の裏): ライトの Ruby のぼかしも、ダークの文字の発光も切る */
+.ruby.flat::before {
+  display: none;
+}
+.sheet.c2 .ruby.flat::after {
+  image-rendering: pixelated;
+}
+.c2.dark .title-chest.flat .prk .picoruby,
+.c2.dark .title-chest.flat .prk .kaigi,
+.c2.dark .title-main.flat .prk .picoruby,
+.c2.dark .title-main.flat .prk .kaigi {
+  text-shadow: none;
+}
+.sheet.c2 /* 裏ロゴの PicoRuby↔Kaigi の行間(実測 5.5px)が Kaigi↔2026(18.5px)より詰まって見えるので少し広げる。e の胸ロゴには効かせない */
+.title-chest.flat .prk .kaigi {
+  margin-top: 6px;
+}
+.sheet.c2 /* A(プラレール)のRuby LEDは滲ませない */
+.dark .ruby.no-bleed::before {
+  filter: none;
+}
+.sheet.c2 /* ===== キットのパーツ ===== */
+.part {
+  position: absolute;
+  background: center / contain no-repeat;
+  image-rendering: pixelated;
+}
+.sheet.c2 .part.seg7 {
+  width: 85px;
+  aspect-ratio: 211 / 165;
+  background-image: url('../shopcard/7seg-88.png');
+}
+.sheet.c2 .part.speaker {
+  width: 62px;
+  aspect-ratio: 137 / 138;
+  background-image: url('../../images/spaeker.png');
+}
+.sheet.c2 .part.motor {
+  width: 59px;
+  aspect-ratio: 110 / 141;
+  background-image: url('../../images/motor.png');
+}
+.sheet.c2 .part.chip {
+  width: 75px;
+  aspect-ratio: 137 / 137;
+  background-image: url('../../images/chip.png');
+}
+.sheet.c2 .part.battery {
+  width: 37px;
+  aspect-ratio: 110 / 188;
+  background-image: url('../../images/battery.png');
+}
+.sheet.c2 /* ダークのパーツは少し明るくするだけ(白く光らせると U1・M1 が光って見える) */
+.dark .part {
+  filter: brightness(1.15);
+}
+.sheet.c2 /* ===== プラレール(表の左腰)。ダークは窓だけ暖色で点灯(夜行電車) ===== */
+.prarail {
+  position: absolute;
+  background: url('../../images/prarail.png') center / contain no-repeat;
+  image-rendering: pixelated;
+}
+.c2.dark .prarail {
+  filter: brightness(.92);
+}
+.sheet.c2 /* ダーク: ::before に点灯した窓(ぼかさない)と漏れる光、その上に ::after で輪郭線(assets/prarail-lines.png =
+   prarail.png の暗い線だけ)を重ねて、窓枠がドット絵のままくっきり残るようにする */
+.prarail::before,
+.sheet.c2 .prarail::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: center / contain no-repeat;
+  image-rendering: pixelated;
+  opacity: 0;
+}
+.sheet.c2 .prarail::before {
+  background-image: url('assets/prarail-windows-clean.png');  /* images/prarail-windows.png の窓ガラスを外接矩形で塗り直したもの(縁のギザギザなし) */
+}
+.sheet.c2 .prarail::after {
+  background-image: url('assets/prarail-lines.png');
+}
+.c2.dark .prarail::before {
+  opacity: 1;
+  filter: drop-shadow(0 0 3px rgba(255, 224, 170, .85))
+          drop-shadow(0 0 7px rgba(255, 190, 120, .6))
+          drop-shadow(0 0 13px rgba(255, 165, 90, .35));
+}
+.c2.dark .prarail::after {
+  opacity: 1;
+  filter: brightness(.92);
+}
+.sheet.c2 /* ===== A (main-visual): メインビジュアル(images/goodies/main-visual-simple.png)の構図をそのまま着る ===== */
+/* ロゴはビジュアルどおり1行(PicoRubyKaigi)。安全エリア幅727pxに収まる字サイズ */
+.title-main.oneline {
+  top: 392px;
+  gap: 14px;
+}
+.sheet.c2 .title-main.oneline .prk {
+  font-size: 68px;
+  line-height: 1.18;
+  letter-spacing: .075em;  /* 既定 .05em より少し広く */
+}
+.sheet.c2 .title-main.oneline .prk .picoruby,
+.sheet.c2 .title-main.oneline .prk .kaigi {
+  display: inline;
+}
+.sheet.c2 .title-main.oneline .year {
+  font-size: 40px;
+  margin-top: 11px;  /* ロゴ→2026、2026→Assemble のインク間隔を48pxに揃える(実測補正) */
+}
+.sheet.c2 .title-main.oneline .assemble {
+  font-size: 32px;
+  margin-top: 18px;
+}
+.sheet.c2 /* ===== パーツの格子 ===== */
+
+/* パーツの記号と、LP の部品ソケット(images/<part>-slot.svg、黄の破線)をうっすら敷く */
+.step {
+  position: absolute;
+  font-family: 'Micro 5', sans-serif;
+  font-size: 22px;
+  line-height: 1;
+  letter-spacing: .08em;
+  color: #26242f;
+  opacity: .75;
+}
+.c2.dark .step {
+  color: #ece9df;
+}
+.sheet.c2 .slot {
+  position: absolute;
+  background: center / contain no-repeat;
+}
+.sheet.c2 /* LPのソケットSVGは viewBox 単位で線幅が固定で、表示倍率がパーツごとに違うと太さがばらつく。
+   assets/*- {pink,yellow}
+.sheet.c2 .svg は表示 3.0px・破線 3.5/3.0px になるよう倍率で逆算した線幅にしたコピー。
+   ライトは濃いピンク(#f2607a)、ダークは薄いピンク(#ff96b9、名前の吹き出しと同じ)。ダークの黄色は文字ロゴを置いたら浮いたのでやめた。
+   7セグは2桁用のソケット(部品 211x165 と同じ縦横比)。
+   チップのソケットは使わない(角丸の四角はよかったが、破線の足の形が何通り描いても決まらなかった) */
+.dark .slot.seg7 { background-image: url('assets/seg7-slot-2-pinkdark.svg'); }
+.c2.dark .slot.speaker { background-image: url('assets/speaker-slot-pinkdark.svg'); }
+.c2.dark .slot.motor { background-image: url('assets/motor-slot-pinkdark.svg'); }
+.c2.dark .slot.battery { background-image: url('assets/battery-slot-pinkdark.svg'); }
+.c2.light .slot.seg7 { background-image: url('assets/seg7-slot-2-pink.svg'); }
+.c2.light .slot.speaker { background-image: url('assets/speaker-slot-pink.svg'); }
+.c2.light .slot.motor { background-image: url('assets/motor-slot-pink.svg'); }
+.c2.light .slot.battery { background-image: url('assets/battery-slot-pink.svg'); }
+.sheet.c2 /* 小さな吹き出し(3語の吹き出しはすべてこのサイズ) */
+.bubble.sm {
+  padding: 4px 11px 3px;  /* 二重線にしたぶん少し広げる */
+  border-width: 2px;
+  box-shadow: inset 0 0 0 1.5px #fff;
+  border-radius: 6px;  /* 丸すぎるとカプセルに見えるので控えめに */
+  font-size: 16px;
+}
+.sheet.c2 .bubble.sm::after {
+  left: 9px;
+  bottom: -8px;
+  border: 5px solid transparent;
+  border-top: 7px solid #34323d;
+  border-bottom: 0;
+}
+.c2.dark .bubble.sm::after {
+  border-top-color: #ece9df;
+}
+.sheet.c2 /* 尻尾も二重に: ::after が外側の墨、::before が内側の白(白の内線から続けて出す)。小さい吹き出しの3方向ぶん */
+.bubble.sm::before {
+  content: "";
+  position: absolute;
+  z-index: 1;  /* 後から描かれる ::after(墨の三角)の上に白を出す */
+  left: 10.5px;
+  bottom: -4.5px;
+  border: 3.5px solid transparent;
+  border-top: 5px solid #fff;
+  border-bottom: 0;
+}
+.sheet.c2 .bubble.sm.tail-right::before {
+  left: auto;
+  right: -5px;
+  bottom: 9.5px;
+  border: 3.5px solid transparent;
+  border-left: 5.5px solid #fff;
+  border-right: 0;
+  border-top-color: transparent;
+}
+.sheet.c2 .bubble.sm.tail-left::before {
+  left: -5px;
+  bottom: 9.5px;
+  border: 3.5px solid transparent;
+  border-right: 5.5px solid #fff;
+  border-left: 0;
+  border-top-color: transparent;
+}
+.sheet.c2 /* 尻尾なしの札(c2): 吹き出しの見た目のまま尻尾だけない */
+.bubble.notail::before,
+.sheet.c2 .bubble.notail::after {
+  display: none;
+}
+.sheet.c2 /* 完成品と Pico 基板: goodies の絵(images/goodies/ {rocket,nui,keyboard,penlight}
+.sheet.c2 .png、パーツと同じドット絵) */
+.goodie {
+  position: absolute;
+  background: center / contain no-repeat;
+  image-rendering: pixelated;
+}
+.sheet.c2 .goodie.rocket { aspect-ratio: 349 / 499; background-image: url('../../images/goodies/rocket.png'); }
+.sheet.c2 .goodie.nui { aspect-ratio: 407 / 477; background-image: url('../../images/goodies/nui.png'); }
+.sheet.c2 .goodie.keyboard { aspect-ratio: 523 / 365; background-image: url('../../images/goodies/keyboard.png'); }
+.sheet.c2 .goodie.penlight { aspect-ratio: 261 / 552; background-image: url('../../images/goodies/penlight.png'); }
+.sheet.c2 .goodie.pico { aspect-ratio: 810 / 409; background-image: url('../../images/goodies/pico.png'); }
+.sheet.c2 /* パーツと同じ描き方の Pico 基板(幅56で置く) */
+.goodie.breadboard { aspect-ratio: 687 / 568; background-image: url('../../images/goodies/breadboard.png'); }
+.sheet.c2 /* c: ブレッドボード(幅54で置く) */
+.dark .goodie {
+  filter: brightness(1.1);
+}
+.sheet.c2 /* 吹き出し */
+.bubble {
+  position: absolute;
+  padding: 6px 14px 5px;
+  border: 3px solid #34323d;  /* 墨は Assemble の文字と同じ #34323d */
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 2px #fff;  /* 外は墨の枠、内側に白の線(ライト・ダーク共通)。尻尾は外側の墨だけ */
+  background: #f6f4ea;  /* サイトの --card */
+  font-family: 'Jersey 10', sans-serif;
+  font-size: 22px;
+  line-height: 1;
+  letter-spacing: .06em;
+  color: #34323d;
+  white-space: nowrap;
+}
+.sheet.c2 /* 吹き出しの中の文字をロゴと同じ配色に(c / c2): PicoRuby はロゴの赤、Kaigi は白。
+   字間は LP トップのロゴの光学カーニングを土台に、Jersey 10 向けに広げたもの(基本 .04em + 文字対ごとの補正を <i> の margin-left で。
+   Bitcount 用の ic/ig のマイナスは Jersey 10 だと詰まりすぎるのでプラスに、Pi/yK/Kaigi 全体も広め) */
+.bubble .pr,
+.sheet.c2 .bubble .kg {
+  letter-spacing: .04em;
+}
+.sheet.c2 .bubble .pr i,
+.sheet.c2 .bubble .kg i {
+  font-style: normal;
+}
+.sheet.c2 .bubble .pr {
+  color: #da1d3c;
+}
+.sheet.c2 .bubble .kg {
+  color: #fff;
+}
+.sheet.c2 /* 名前(PicoRubyKaigi)だけソケットと同じ濃いピンク。ピンクが基調、差し色は別途 */
+.bubble.name {
+  background: #ff96b9;  /* 最初の薄いピンク。濃いピンク(#f2607a)や P1〜L4 の赤系は墨の文字でにごって見えた */
+  color: #34323d;
+}
+.sheet.c2 .bubble::after {
+  content: "";
+  position: absolute;
+  left: 18px;
+  bottom: -11px;
+  border: 8px solid transparent;
+  border-top: 10px solid #34323d;
+  border-bottom: 0;
+}
+.sheet.c2 /* 2行の吹き出し */
+.bubble.two {
+  text-align: center;
+  line-height: 1.05;
+}
+.sheet.c2
+.bubble.tail-left::after {
+  left: -12px;
+  bottom: 12px;
+  border: 8px solid transparent;
+  border-right: 11px solid #34323d;
+  border-left: 0;
+}
+.c2.dark .bubble.tail-left::after {
+  border-top-color: transparent;
+  border-right-color: #34323d;
+}
+.sheet.c2
+.bubble.tail-right::after {
+  left: auto;
+  right: -12px;
+  bottom: 12px;
+  border: 8px solid transparent;
+  border-left: 11px solid #34323d;
+  border-right: 0;
+}
+.c2.dark .bubble {
+  background: #191d28;  /* ダークの --card */
+  border-color: #34323d;  /* ダークでも外は墨、内側の白線が形を作る */
+  color: #ece9df;
+}
+.c2.dark .bubble.name {
+  background: #ff96b9;  /* 最初の薄いピンク。濃いピンク(#f2607a)や P1〜L4 の赤系は墨の文字でにごって見えた */
+  color: #34323d;
+}
+.c2.dark .bubble::after {
+  border-top-color: #34323d;
+}
+.c2.dark .bubble.tail-right::after {
+  border-top-color: transparent;
+  border-left-color: #34323d;
+}
+.sheet.c2 /* 小さい吹き出しの右向き尻尾(.sm の下向き尻尾の設定と混ざらないよう明示) */
+.bubble.sm.tail-right::after {
+  left: auto;
+  right: -9px;
+  bottom: 8px;
+  border: 5px solid transparent;
+  border-left: 8px solid #34323d;
+  border-right: 0;
+  border-top-color: transparent;
+}
+.sheet.c2 /* 尻尾を右上に出す。上辺の右寄りから、右へ傾けて上に */
+.bubble.sm.tail-up-right::after {
+  left: auto;
+  right: 14px;
+  top: -8px;
+  bottom: auto;
+  border: 5px solid transparent;
+  border-bottom: 7px solid #34323d;
+  border-top: 0;
+  transform: skewX(-35deg);
+  transform-origin: 50% 100%;
+}
+.sheet.c2 .bubble.sm.tail-up-right::before {
+  left: auto;
+  right: 15.5px;
+  top: -4.5px;
+  bottom: auto;
+  border: 3.5px solid transparent;
+  border-bottom: 5px solid #fff;
+  border-top: 0;
+  transform: skewX(-35deg);
+  transform-origin: 50% 100%;
+}
+.c2.dark .bubble.sm.tail-right::after {
+  border-left-color: #34323d;
+}
+.sheet.c2 .bubble.sm.tail-left::after {
+  left: -9px;
+  bottom: 8px;
+  border: 5px solid transparent;
+  border-right: 8px solid #34323d;
+  border-left: 0;
+  border-top-color: transparent;
+}
+.c2.dark .bubble.sm.tail-left::after {
+  border-right-color: #34323d;
+}
+.sheet.c2 /* 小さなRuby(散らし柄の差し色。サイズはJSがインラインで揺らす) */
+.rubym {
+  position: absolute;
+  background: url('../../images/ruby-mini.png') center / contain no-repeat;
+}
+.c2.dark .rubym {
+  filter: brightness(1.2) drop-shadow(0 0 4px rgba(255, 74, 46, .5));
+}
+
+/* ===== d-emb / dnr: 左胸 Ruby + 背中ロゴの刺繍 T シャツ(design/embroidery-tshirt)の派生。
+   d-emb-front = 縁取りなしの丸で描き直した Ruby(assets/ruby-1-flat.png、元画像の各ドットの色のまま)。
+   dnr-back = 文字ロゴに縁取りなし・2026 Assemble を同じ行。生地はオートミール、ダークのみ ===== */
+.sheet.demb {
+  background: #d9d3c5;
+}
+.sheet.demb .ruby {
+  left: 891px;
+  top: 290px;
+  transform: none;
+  height: 70px;
+}
+.sheet.demb .ruby::before {
+  display: none;
+}
+.sheet.demb .ruby::after {
+  background-image: url('assets/ruby-1-flat.png');
+  image-rendering: pixelated;
+  filter: none;
+}
+.sheet.demb .title-main {
+  top: 345px;
+  gap: 6px;
+}
+.sheet.demb .title-main .prk {
+  font-size: 43.5px;
+  line-height: 1.18;
+  letter-spacing: .15em;
+}
+.sheet.demb .prk .picoruby,
+.sheet.demb .prk .kaigi {
+  display: inline;
+  margin-top: 0;
+  text-shadow: none;
+}
+.sheet.demb .prk .picoruby {
+  color: #fb5479;
+  -webkit-text-stroke: 2.9px #fb5479;
+}
+.sheet.demb .prk .kaigi {
+  color: #fff;
+  -webkit-text-stroke: 2.9px #fff;
+}
+.sheet.demb .prk .k2 {
+  letter-spacing: .108em;
+}
+.sheet.demb .prk .k3 {
+  letter-spacing: .087em;
+}
+.sheet.demb .prk .k4 {
+  letter-spacing: .086em;
+}
+.sheet.demb .prk .k5 {
+  letter-spacing: .045em;
+}
+.sheet.demb .prk .kP {
+  letter-spacing: .128em;
+}
+.sheet.demb .prk .ic {
+  margin-right: .01em;
+}
+.sheet.demb .prk .gi {
+  margin-right: .02em;
+}
+.sheet.demb .prk .co {
+  margin-right: .04em;
+}
+.sheet.demb .prk .oR,
+.sheet.demb .prk .Ru {
+  margin-right: -.02em;
+}
+.sheet.demb .row2 {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+  margin-top: -12px;
+}
+.sheet.demb .year {
+  font-size: 35px;
+  margin-top: 0;
+  color: #fff;
+}
+.sheet.demb .assemble {
+  font-size: 29px;
+  margin-top: 0;
+  color: #fff;
+}
+</style>
+</head>
+<body>
+
+  <div class="label">SUZURI フルグラフィックTシャツ 不採用案 できあがりイメージ (a2=speaker / b1=random-dancers / b1s=小サイズ版 / b1d=高密度の群れ / d=パーツ格子4x4 / e=dancers斜めライン / c2=cの肩に2026 / d-emb・dnr=刺繍の派生)</div>
+
+  <!-- ===== a2 (speaker): 胸ロゴ + 左胸スピーカー、襟・袖・裾に dancers のトリム ===== -->
+  <template id="proto-a2-front">
+    <div class="sheet led-on">
+      <div class="guide"></div>
+      <div class="fx"></div>
+      <div class="title-main">
+        <div class="prk"><span class="picoruby"><span class="kP">P</span><span class="k4">ic</span>oRu<span class="k2">b</span>y</span><span class="kaigi"><span class="k4">K</span><span class="k3">a</span><span class="k5">i</span><span class="k3">g</span>i</span></div>
+        <div class="year">2026</div>
+        <div class="assemble">Assemble</div>
+      </div>
+      <!-- 左胸(着用者の左=正面視では右側)はスピーカーひとつだけ(モーターと同じ大きさ感) -->
+      <div class="part speaker" style="left: 938px; top: 314px; width: 44px;"></div>
+      <!-- 左袖口: 黒線と平行(実測・4体) -->
+      <div class="dancer d1 trim" style="left: 91px; top: 239px; transform: rotate(69deg);"></div>
+      <div class="dancer d2 trim" style="left: 115px; top: 303px; transform: rotate(69deg);"></div>
+      <div class="dancer d3 trim" style="left: 139px; top: 367px; transform: rotate(69deg);"></div>
+      <div class="dancer d4 trim" style="left: 163px; top: 431px; transform: rotate(69deg);"></div>
+      <!-- 右袖口: 黒線と平行(実測・4体) -->
+      <div class="dancer d4 trim" style="left: 1373px; top: 239px; transform: rotate(-69deg);"></div>
+      <div class="dancer d1 trim" style="left: 1349px; top: 303px; transform: rotate(-69deg);"></div>
+      <div class="dancer d2 trim" style="left: 1325px; top: 367px; transform: rotate(-69deg);"></div>
+      <div class="dancer d3 trim" style="left: 1301px; top: 431px; transform: rotate(-69deg);"></div>
+      <!-- 裾の少し上の一列(両端近くから・左下が口の-45度) -->
+      <div class="dancer d1 trim" style="left: 359px; top: 1040px; transform: rotate(-45deg);"></div>
+      <div class="dancer d2 trim" style="left: 453px; top: 1040px; transform: rotate(-45deg);"></div>
+      <div class="dancer d3 trim" style="left: 547px; top: 1040px; transform: rotate(-45deg);"></div>
+      <div class="dancer d4 trim" style="left: 641px; top: 1040px; transform: rotate(-45deg);"></div>
+      <div class="dancer d1 trim" style="left: 735px; top: 1040px; transform: rotate(-45deg);"></div>
+      <div class="dancer d2 trim" style="left: 829px; top: 1040px; transform: rotate(-45deg);"></div>
+      <div class="dancer d3 trim" style="left: 923px; top: 1040px; transform: rotate(-45deg);"></div>
+      <div class="dancer d4 trim" style="left: 1017px; top: 1040px; transform: rotate(-45deg);"></div>
+      <div class="dancer d1 trim" style="left: 1111px; top: 1040px; transform: rotate(-45deg);"></div>
+      <div class="spark s-pink only-dark"  style="left: 1010px; top: 470px;"></div>
+      <div class="spark s-blue only-dark"  style="left: 450px; top: 800px;"></div>
+      <div class="spark s-green only-dark" style="left: 455px; top: 320px;"></div>
+    </div>
+  </template>
+
+  <template id="proto-a2-back">
+    <div class="sheet mirror led-on">
+      <div class="guide"></div>
+      <div class="fx"></div>
+      <div class="ruby"></div>
+      <!-- 左袖口: 黒線と平行(実測・4体) -->
+      <div class="dancer d1 trim" style="left: 91px; top: 238px; transform: rotate(69deg);"></div>
+      <div class="dancer d2 trim" style="left: 115px; top: 302px; transform: rotate(69deg);"></div>
+      <div class="dancer d3 trim" style="left: 139px; top: 366px; transform: rotate(69deg);"></div>
+      <div class="dancer d4 trim" style="left: 163px; top: 430px; transform: rotate(69deg);"></div>
+      <!-- 右袖口: 黒線と平行(実測・4体) -->
+      <div class="dancer d4 trim" style="left: 1372px; top: 238px; transform: rotate(-69deg);"></div>
+      <div class="dancer d1 trim" style="left: 1348px; top: 302px; transform: rotate(-69deg);"></div>
+      <div class="dancer d2 trim" style="left: 1324px; top: 366px; transform: rotate(-69deg);"></div>
+      <div class="dancer d3 trim" style="left: 1300px; top: 430px; transform: rotate(-69deg);"></div>
+      <!-- 裾の少し上の一列(両端近くから・左下が口の-45度) -->
+      <div class="dancer d1 trim" style="left: 359px; top: 1040px; transform: rotate(-45deg);"></div>
+      <div class="dancer d2 trim" style="left: 453px; top: 1040px; transform: rotate(-45deg);"></div>
+      <div class="dancer d3 trim" style="left: 547px; top: 1040px; transform: rotate(-45deg);"></div>
+      <div class="dancer d4 trim" style="left: 641px; top: 1040px; transform: rotate(-45deg);"></div>
+      <div class="dancer d1 trim" style="left: 735px; top: 1040px; transform: rotate(-45deg);"></div>
+      <div class="dancer d2 trim" style="left: 829px; top: 1040px; transform: rotate(-45deg);"></div>
+      <div class="dancer d3 trim" style="left: 923px; top: 1040px; transform: rotate(-45deg);"></div>
+      <div class="dancer d4 trim" style="left: 1017px; top: 1040px; transform: rotate(-45deg);"></div>
+      <div class="dancer d1 trim" style="left: 1111px; top: 1040px; transform: rotate(-45deg);"></div>
+      <div class="spark s-blue only-dark"  style="left: 1040px; top: 560px;"></div>
+      <div class="spark s-pink only-dark"  style="left: 480px; top: 400px;"></div>
+      <div class="spark s-green only-dark" style="left: 720px; top: 820px;"></div>
+    </div>
+  </template>
+
+  <!-- ===== b1 (random-dancers): dancersの散らし柄。小さなモチーフを
+       サイズ・傾きを揺らして肩・袖まで散らし、文字列を斜めに混ぜる(JSで生成)。
+       表は左胸にぎゅっと小さなロゴ(散らしはロゴ周りを避ける)。
+       裏面はミラーで表と同じレイアウト=脇・肩で柄がつながる ===== -->
+  <template id="proto-b1-front">
+    <div class="sheet nofx">
+      <div class="guide"></div>
+      <div class="fx"></div>
+      <div class="scatter" data-exclude="820,285,230,140"></div>
+      <div class="title-chest">
+        <div class="prk"><span class="picoruby"><span class="kP">P</span><span class="k4">ic</span>oRu<span class="k2">b</span>y</span><span class="kaigi"><span class="k4">K</span><span class="k3">a</span><span class="k5">i</span><span class="k3">g</span>i</span></div>
+        <div class="year">2026</div>
+        <div class="assemble">Assemble</div>
+      </div>
+    </div>
+  </template>
+
+  <template id="proto-b1-back">
+    <div class="sheet mirror nofx">
+      <div class="guide"></div>
+      <div class="fx"></div>
+      <div class="scatter"></div>
+    </div>
+  </template>
+
+  <!-- b1s: 2〜3体グループをほぼ直立で散らした版 -->
+  <template id="proto-b1s-front">
+    <div class="sheet">
+      <div class="guide"></div>
+      <div class="fx"></div>
+      <div class="scatter" data-fill="groups" data-exclude="820,285,230,140"></div>
+      <div class="title-chest">
+        <div class="prk"><span class="picoruby"><span class="kP">P</span><span class="k4">ic</span>oRu<span class="k2">b</span>y</span><span class="kaigi"><span class="k4">K</span><span class="k3">a</span><span class="k5">i</span><span class="k3">g</span>i</span></div>
+        <div class="year">2026</div>
+        <div class="assemble">Assemble</div>
+      </div>
+    </div>
+  </template>
+
+  <!-- b1d: b1sの高密度版(流れ場に沿った群れ) -->
+  <template id="proto-b1d-front">
+    <div class="sheet">
+      <div class="guide"></div>
+      <div class="fx"></div>
+      <div class="scatter" data-fill="dense" data-exclude="820,285,230,140"></div>
+      <div class="title-chest">
+        <div class="prk"><span class="picoruby"><span class="kP">P</span><span class="k4">ic</span>oRu<span class="k2">b</span>y</span><span class="kaigi"><span class="k4">K</span><span class="k3">a</span><span class="k5">i</span><span class="k3">g</span>i</span></div>
+        <div class="year">2026</div>
+        <div class="assemble">Assemble</div>
+      </div>
+    </div>
+  </template>
+
+  <template id="proto-b1s-back">
+    <div class="sheet mirror">
+      <div class="guide"></div>
+      <div class="fx"></div>
+      <div class="scatter" data-fill="groups"></div>
+    </div>
+  </template>
+
+  <!-- b1d: b1sの高密度版(流れ場に沿った群れ) -->
+  <template id="proto-b1d-back">
+    <div class="sheet mirror">
+      <div class="guide"></div>
+      <div class="fx"></div>
+      <div class="scatter" data-fill="dense"></div>
+    </div>
+  </template>
+
+  <!-- ===== d (4x4 のパーツ格子・16個)。パーツは置いた5 + 空きソケット4(7セグ・スピーカー・モーター・電池)、
+       チップのソケットだった枠には Pico 基板(PICO)。完成品4・Ruby・Assemble!、格子の下の1行ロゴは c と同じ ===== -->
+  <template id="proto-d-front">
+    <div class="sheet">
+      <div class="guide"></div>
+      <!-- 4x4 の格子(列 558/688/818/948、行 370/500/630/760) -->
+      <div class="step" style="left: 504px; top: 318px;">DS1</div>
+      <div class="part seg7" style="left: 526px; top: 345px; width: 64px;"></div>
+      <div class="step" style="left: 634px; top: 318px;">FLY</div>
+      <div class="goodie rocket" style="left: 668px; top: 341px; width: 40px;"></div>
+      <div class="bubble sm name" style="left: 646px; top: 284px; transform: rotate(-4deg);">PicoRubyKaigi</div>
+      <div class="step" style="left: 764px; top: 318px;">SP1</div>
+      <div class="slot speaker" style="left: 788px; top: 340px; width: 60px; height: 60px;"></div>
+      <div class="step" style="left: 894px; top: 318px;">M1</div>
+      <div class="slot motor" style="left: 922px; top: 336px; width: 52px; height: 67px;"></div>
+      <div class="step" style="left: 504px; top: 448px;">HUG</div>
+      <div class="goodie nui" style="left: 533px; top: 471px; width: 50px;"></div>
+      <div class="step" style="left: 634px; top: 448px;">U1</div>
+      <div class="part chip" style="left: 662px; top: 474px; width: 52px;"></div>
+      <div class="step" style="left: 764px; top: 448px;">BT1</div>
+      <div class="slot battery" style="left: 800px; top: 470px; width: 36px; height: 61px;"></div>
+      <div class="step" style="left: 894px; top: 448px;">PLAY</div>
+      <div class="goodie keyboard" style="left: 916px; top: 478px; width: 64px;"></div>
+      <div class="step" style="left: 504px; top: 578px;">DS2</div>
+      <div class="slot seg7" style="left: 522px; top: 602px; width: 72px; height: 56px;"></div>
+      <div class="step" style="left: 634px; top: 578px;">WAVE</div>
+      <div class="goodie penlight" style="left: 673px; top: 598px; width: 30px; transform: rotate(35deg);"></div>
+      <div class="bubble sm" style="left: 706px; top: 566px; transform: rotate(5deg);">2026</div>
+      <div class="step" style="left: 764px; top: 578px;">SP2</div>
+      <div class="part speaker" style="left: 792px; top: 604px; width: 52px;"></div>
+      <div class="step" style="left: 894px; top: 578px;">M2</div>
+      <div class="part motor" style="left: 926px; top: 602px; width: 44px;"></div>
+      <div class="step" style="left: 504px; top: 708px;">PICO</div>
+      <div class="goodie pico" style="left: 530px; top: 746px; width: 56px;"></div>
+      <div class="bubble sm tail-right" style="left: 642px; top: 747px; transform: rotate(-3deg);">Assemble!</div>
+      <div class="step" style="left: 764px; top: 708px;">GLOW</div>
+      <div class="rubym" style="left: 788px; top: 738px; width: 60px; height: 48px;"></div>
+      <div class="step" style="left: 894px; top: 708px;">BT2</div>
+      <div class="part battery" style="left: 933px; top: 734px; width: 30px;"></div>
+      <!-- 格子の下に1行ロゴ(4段あるので c より下、安全エリア下端 1030 に収める) -->
+      <div class="title-main under" style="top: 846px;">
+        <div class="prk"><span class="picoruby"><span class="kP">P</span><span class="k4">ic</span>oRu<span class="k2">b</span>y</span><span class="kaigi"><span class="k4">K</span><span class="k3">a</span><span class="k5">i</span><span class="k3">g</span>i</span></div>
+      </div>
+    </div>
+  </template>
+
+  <template id="proto-d-back">
+    <div class="sheet mirror">
+      <div class="guide"></div>
+      <div class="ruby no-bleed flat"></div>
+      <div class="title-chest flat">
+        <div class="prk"><span class="picoruby"><span class="kP">P</span><span class="k4">ic</span>oRu<span class="k2">b</span>y</span><span class="kaigi"><span class="k4">K</span><span class="k3">a</span><span class="k5">i</span><span class="k3">g</span>i</span></div>
+        <div class="year">2026</div>
+        <div class="assemble">Assemble</div>
+      </div>
+    </div>
+  </template>
+
+
+  <!-- ===== e (dancers-in-line): dancersの規則配置。行ごとにずらして斜めラインをつくる ===== -->
+  <template id="proto-c2-front">
+    <div class="sheet c2">
+      <div class="guide"></div>
+      <!-- 右袖(着用者の左)の 20。折り目に垂直(-76度)に下から折り目へ向かって読み、インクは折り目の 1.5px 手前で終わる -->
+      <div class="shoulder" style="left: 1373.4px; top: 238.3px; transform: rotate(-76.0deg);">20</div>
+      <!-- c と同じ 4x3 の格子。1段目2列目は吹き出しの見た目のまま尻尾なし(札)。PICO は3段目2列目(Assemble! のあった枠)へ。2026 の吹き出しはなし -->
+      <!-- 1段目2列目: 吹き出しの見た目のまま尻尾なし(札) -->
+      <div class="bubble sm name notail" style="left: 630px; top: 417px; transform: rotate(-3deg);"><span class="pr"><i>P</i><i style="margin-left: 0.05em;">i</i><i style="margin-left: 0.03em;">c</i><i style="margin-left: 0.02em;">o</i><i style="margin-left: 0.04em;">R</i><i style="margin-left: 0.04em;">u</i><i style="margin-left: 0.04em;">b</i><i style="margin-left: 0.02em;">y</i></span><span class="kg"><i style="margin-left: 0.12em;">K</i><i style="margin-left: 0.03em;">a</i><i style="margin-left: 0.07em;">i</i><i style="margin-left: 0.05em;">g</i><i style="margin-left: 0.04em;">i</i></span></div>
+      <div class="step" style="left: 504px; top: 378px;">DS1</div>
+      <div class="part seg7" style="left: 526px; top: 405px; width: 64px;"></div>
+      <div class="step" style="left: 764px; top: 378px;">FLY</div>
+      <div class="goodie rocket" style="left: 798px; top: 401px; width: 40px;"></div>
+      <div class="step" style="left: 634px; top: 638px;">PICO</div>
+      <div class="goodie pico" style="left: 660px; top: 676px; width: 56px;"></div>
+      <div class="step" style="left: 894px; top: 378px;">HUG</div>
+      <div class="goodie nui" style="left: 923px; top: 401px; width: 50px;"></div>
+      <div class="step" style="left: 504px; top: 508px;">U1</div>
+      <div class="part chip" style="left: 532px; top: 534px; width: 52px;"></div>
+      <div class="step" style="left: 634px; top: 508px;">PLAY</div>
+      <div class="goodie keyboard" style="left: 656px; top: 538px; width: 64px;"></div>
+      <div class="step" style="left: 764px; top: 508px;">SP1</div>
+      <div class="part speaker" style="left: 792px; top: 534px; width: 52px;"></div>
+      <div class="step" style="left: 894px; top: 508px;">WAVE</div>
+      <div class="goodie penlight" style="left: 933px; top: 529px; width: 30px; transform: rotate(35deg);"></div>
+      <div class="step" style="left: 504px; top: 638px;">M1</div>
+      <div class="part motor" style="left: 536px; top: 662px; width: 44px;"></div>
+      <div class="step" style="left: 764px; top: 638px;">GLOW</div>
+      <div class="rubym" style="left: 788px; top: 668px; width: 60px; height: 48px;"></div>
+      <div class="step" style="left: 894px; top: 638px;">BT1</div>
+      <div class="part battery" style="left: 933px; top: 664px; width: 30px;"></div>
+      <!-- 格子の下は小さな Assemble。吹き出しは PicoRubyKaigi だけ(Assemble! の枠に置く) -->
+      <div class="title-main under big-assemble">
+        <div class="assemble">Assemble</div>
+      </div>
+    </div>
+  </template>
+
+  <template id="proto-c2-back">
+    <div class="sheet mirror c2">
+      <div class="guide"></div>
+      <!-- 裏: 同じ袖(裏では左端)。折り目の 1.5px 先から折り目に垂直(+76度)に下へ続く 26。横位置は表の 20 と実測で一致 -->
+      <div class="shoulder" style="left: 128.2px; top: 213.8px; transform: rotate(76.0deg);">26</div>
+      <div class="ruby no-bleed flat"></div>
+      <!-- 裏は襟下 Ruby の下に、中央揃えのロゴ(b の胸ロゴの 0.75 倍 = 58px、にじみなし) -->
+      <div class="title-main flat back" style="top: 402px;">
+        <div class="prk"><span class="picoruby"><span class="kP">P</span><span class="k4">ic</span>oRu<span class="k2">b</span>y</span><span class="kaigi"><span class="k4">K</span><span class="k3">a</span><span class="k5">i</span><span class="k3">g</span>i</span></div>
+        <div class="year">2026</div>
+        <div class="assemble">Assemble</div>
+      </div>
+    </div>
+  </template>
+
+  <template id="proto-e-front">
+    <div class="sheet">
+      <div class="guide"></div>
+      <div class="fx"></div>
+      <div class="scatter" data-exclude="820,285,230,140"></div>
+      <div class="title-chest">
+        <div class="prk"><span class="picoruby"><span class="kP">P</span><span class="k4">ic</span>oRu<span class="k2">b</span>y</span><span class="kaigi"><span class="k4">K</span><span class="k3">a</span><span class="k5">i</span><span class="k3">g</span>i</span></div>
+        <div class="year">2026</div>
+        <div class="assemble">Assemble</div>
+      </div>
+    </div>
+  </template>
+
+
+  <template id="proto-e-back">
+    <div class="sheet mirror">
+      <div class="guide"></div>
+      <div class="fx"></div>
+      <div class="scatter"></div>
+    </div>
+  </template>
+
+
+  <!-- ===== d-emb / dnr: 刺繍 T シャツの不採用派生(CSS の .sheet.demb を参照) ===== -->
+  <template id="proto-d-emb-front">
+    <div class="sheet demb">
+      <div class="ruby"></div>
+    </div>
+  </template>
+
+  <template id="proto-dnr-back">
+    <div class="sheet demb">
+      <div class="title-main">
+        <div class="prk"><span class="picoruby"><span class="kP">P</span><span class="k4 ic">i</span><span class="k4 co">c</span><span class="oR">o</span><span class="Ru">R</span>u<span class="k2">b</span>y</span><span class="kaigi"><span class="k4">K</span><span class="k3">a</span><span class="k5">i</span><span class="k3 gi">g</span>i</span></div>
+        <div class="row2"><div class="year">2026</div><div class="assemble">Assemble</div></div>
+      </div>
+    </div>
+  </template>
+
+<script>
+  // 小花柄の散らし: シード付き乱数でジッターグリッドに配置。
+  // 表と裏で同じシード=同じレイアウトを使い、裏はCSSのミラーで端を一致させる
+  function lcg(seed) {
+    let s = seed;
+    return () => ((s = s * 48271 % 2147483647) / 2147483647);
+  }
+
+  const CONFETTI_COLORS = ['#fb5479', '#55d6f2', '#6ef0a0', '#ffc12e'];
+  const SPARK_TINTS = ['s-pink', 's-green', 's-blue'];
+  const WORD = 'Assemble';  // 散らしに織り込む文字列(ロゴと重複するのでPicoRubyは使わない)
+
+  // 散らし柄の生成: 小さなモチーフを
+  // サイズと傾きを揺らして散らし、文字列を斜めに織り込む。
+  // step="x,y" で間隔を変えられる。exclude="x,y,w,h" のセルは飛ばす(ロゴまわり用)
+  function fillScatter(container, seed) {
+    const r = lcg(seed);
+    const exclude = (container.dataset.exclude || '').split(',').map(Number);
+    const [stepX, stepY] = (container.dataset.step || '172,168').split(',').map(Number);
+    const dancerW = parseFloat(container.dataset.dancerW || '42');
+    let cell = 0;
+    for (let y = 20; y < 1177; y += stepY) {
+      for (let x = 16; x < 1507; x += stepX) {
+        cell++;
+        if (r() < .10) continue;  // 抜けをつくって規則感を消す
+        const px = x + (r() * 110 - 55);
+        const py = y + (r() * 90 - 45);
+        const roll = r();
+        const rot = r();
+        if (exclude.length === 4 &&
+            px > exclude[0] - 90 && px < exclude[0] + exclude[2] + 20 &&
+            py > exclude[1] - 40 && py < exclude[1] + exclude[3] + 20) continue;
+        const el = document.createElement('div');
+        if (roll < .60) {
+          r();  // かつてサイズ揺らぎに使っていた乱数。配置を変えないため消費だけ残す
+          el.className = `dancer d${cell % 4 + 1}`;
+          el.style.height = `${(dancerW * 14 / 30).toFixed(1)}px`;
+          el.style.width = `${dancerW}px`;
+          el.style.transform = `rotate(${(rot * 60 - 30).toFixed(1)}deg)`;
+        } else if (roll < .65) {
+          const w = 34 + r() * 14;
+          el.className = 'rubym';
+          el.style.width = `${w.toFixed(1)}px`;
+          el.style.height = `${(w * 353 / 438).toFixed(1)}px`;
+          el.style.transform = `rotate(${(rot * 30 - 15).toFixed(1)}deg)`;
+        } else if (roll < .77) {
+          el.className = 'word';
+          el.textContent = WORD;
+          el.style.setProperty('--rot', `${(rot < .5 ? -40 - rot * 16 : 32 + rot * 16).toFixed(1)}deg`);
+        } else if (roll < .93) {
+          el.className = 'confetti';
+          el.style.background = CONFETTI_COLORS[cell % 4];
+          if (rot < .5) el.style.transform = 'rotate(45deg)';
+        } else {
+          el.className = `spark only-dark ${SPARK_TINTS[cell % 3]}`;
+        }
+        el.style.left = `${px.toFixed(1)}px`;
+        el.style.top = `${py.toFixed(1)}px`;
+        container.appendChild(el);
+      }
+    }
+  }
+
+  // C: dancersを45度の斜めライン(右肩上がり「/」)に規則的に並べる。
+  // 行が下がるごとに同じ量だけ左へずらす=隣り合う点の(dx,dy)が(-88,+88)で45度。
+  // dancers自身も-45度に傾け、ラインを結んだ向きと揃える。
+  // 色は1ラインにつき1色(x+yが同じ点は同じライン)。ときどきRubyを差す
+  function fillRegular(container) {
+    const exclude = (container.dataset.exclude || '').split(',').map(Number);
+    const w = parseFloat(container.dataset.dancerW || '22');
+    const stepX = 200;  // ライン同士の間隔(垂直距離 200/√2 ≒ 141px)
+    const stepY = 56;   // ライン上のdancer間隔(56√2 ≒ 79px)。同系色を近づけて線として読ませる
+    let row = 0;
+    for (let y = 24; y < 1177; y += stepY, row++) {
+      const xbase = ((-row * stepY) % stepX + stepX) % stepX;
+      for (let x = xbase - stepX; x < 1507; x += stepX) {
+        if (exclude.length === 4 &&
+            x > exclude[0] - 30 && x < exclude[0] + exclude[2] + 8 &&
+            y > exclude[1] - 16 && y < exclude[1] + exclude[3] + 8) continue;
+        // 斜めラインの通し番号: 同一ライン上の点は x+y が等しく、隣のラインとは stepX 差。
+        // stepY で割ると隣のラインと2ずつ増えて %4 が2色に固定されるので stepX で割る
+        const d = Math.round((x + y - 24) / stepX);
+        const el = document.createElement('div');
+        if ((d * 3 + row) % 8 === 5) {
+          el.className = 'rubym';
+          el.style.width = '16px';
+          el.style.height = '12.9px';
+          el.style.left = `${x + 3}px`;
+          el.style.top = `${y + 4}px`;
+        } else {
+          el.className = `dancer d${((d % 4) + 4) % 4 + 1}`;
+          el.style.height = `${(w * 14 / 30).toFixed(1)}px`;
+          el.style.width = `${w}px`;
+          el.style.left = `${x}px`;
+          el.style.top = `${y}px`;
+          el.style.transform = 'rotate(-45deg)';
+        }
+        container.appendChild(el);
+      }
+    }
+  }
+
+  // プロトタイプの散らしを先に埋めてから light/dark に複製(レイアウト共有)。
+  // 表裏で同じシード=同じレイアウト。裏はCSSミラーで脇・肩の柄がつながる
+  const SCATTER_SEED = 20261031;
+
+  // RubyLEDマトリクスが脇の縫い目(黒線: x=345/1161)をまたぐと前後で印刷を
+  // 合わせるのが難しいので、またぐものは前身頃側へ全部入るように寄せる
+  function pullRubymOffSeams(container) {
+    for (const el of container.children) {
+      if (!el.classList.contains('rubym')) continue;
+      const x = parseFloat(el.style.left);
+      const w = parseFloat(el.style.width);
+      if (x < 1161 && x + w > 1151) el.style.left = `${(1151 - w).toFixed(1)}px`;
+      if (x < 355 && x + w > 345) el.style.left = '375px';
+    }
+  }
+
+  // 肩の折り目(黒線の実測: y = 242.5 - 0.2497x, 右肩は左右対称)
+  function foldY(x) {
+    return x < 753.5 ? 242.5 - 0.2497 * x : 242.5 - 0.2497 * (1507 - x);
+  }
+
+  // 肩の折り目をまたぐ文字は、裏面では折り目を軸に180度回した位置に置き換える。
+  // 表で折り目から上にはみ出た部分が、着たとき肩越しに裏へつながって読める
+  function foldShoulderWords(container) {
+    for (const el of container.children) {
+      if (!el.classList.contains('word')) continue;
+      const x = parseFloat(el.style.left);
+      const y = parseFloat(el.style.top);
+      const cx = x + 60;
+      const cy = y + 13;
+      const yf = foldY(cx);
+      if (Math.abs(cy - yf) > 55) continue;
+      el.style.top = `${(2 * yf - cy - 13).toFixed(1)}px`;
+      const rot = parseFloat(el.style.getPropertyValue('--rot'));
+      el.style.setProperty('--rot', `${(-(rot + 180)).toFixed(1)}deg`);
+    }
+  }
+
+
+  // b1s: 2〜3体の小グループをほぼ直立(±8度)で散らす(おしゃべりしてる群れ感)。
+  // RubyマトリクスはランダムでなくFront右裾(着用者の右)に1つだけ・傾きなし
+  // ボディ(表裏共通)の内側を28px侵食した安全マップ(16pxグリッド、1=安全)。
+  // dancerがどの黒い輪郭線(肩の折り目・袖端・裾・脇)でも切れないための判定に使う
+  const SAFE_MAP = [
+    '00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+    '00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+    '00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+    '00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+    '00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+    '00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+    '00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+    '00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+    '00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+    '00000000000000000000000000000000011100000000000000000000000111000000000000000000000000000000000',
+    '00000000000000000000000000000011111110000000000000000000001111111000000000000000000000000000000',
+    '00000000000000000000000000011111111110000000000000000000001111111110000000000000000000000000000',
+    '00000000000000000000000000001111111111000000000000000000011111111110000000000000000000000000000',
+    '00000000000000000011110000001111111111100000000000000000111111111110000001111000000000000000000',
+    '00000000000001111111110000001111111111111000000000000011111111111110000001111111110000000000000',
+    '00000000011111111111110000001111111111111110000000001111111111111110000001111111111111000000000',
+    '00000000111111111111110000001111111111111111111111111111111111111110000001111111111111100000000',
+    '00000000111111111111110000001111111111111111111111111111111111111110000001111111111111100000000',
+    '00000000011111111111110000001111111111111111111111111111111111111110000001111111111111000000000',
+    '00000000011111111111110000001111111111111111111111111111111111111110000001111111111111000000000',
+    '00000000011111111111110000001111111111111111111111111111111111111110000001111111111111000000000',
+    '00000000001111111111110000001111111111111111111111111111111111111110000001111111111110000000000',
+    '00000000001111111111110000011111111111111111111111111111111111111111000001111111111110000000000',
+    '00000000001111111111110000011111111111111111111111111111111111111111000001111111111110000000000',
+    '00000000000111111111100000011111111111111111111111111111111111111111000000111111111100000000000',
+    '00000000000111111111100000011111111111111111111111111111111111111111000000111111111100000000000',
+    '00000000000111111111000000111111111111111111111111111111111111111111100000011111111000000000000',
+    '00000000000000000000000000111111111111111111111111111111111111111111100000000000000000000000000',
+    '00000000000000000000000001111111111111111111111111111111111111111111110000000000000000000000000',
+    '00000000000000000000000001111111111111111111111111111111111111111111110000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000011111111111111111111111111111111111111111111111000000000000000000000000',
+    '00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+    '00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+    '00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+    '00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+    '00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+    '00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'
+  ];
+  function safeAt(x0, y0) {
+    const col = Math.floor(x0 / 1507 * 95);
+    const row = Math.floor(y0 / 1177 * 74);
+    if (col < 0 || col >= 95 || row < 0 || row >= 74) return false;
+    return SAFE_MAP[row][col] === '1';
+  }
+
+  // b1d: dancersを流れ場(ゆるいうねり)に沿って高密度に並べる。
+  // 隣り合う個体の向きが少しずつずれるので、目で追うと群れが流れて見える(錯視)
+  function fillDense(container, seed, withMatrix) {
+    const r = lcg(seed);
+    // ロゴまわりは矩形だと四角い空白が見えるので、楕円で縁をぼかして空ける。
+    // ただし楕円そのままだと輪郭が見えてしまうので、角度でうねらせて溶かす。
+    // 戻り値=配置される確率(0=完全に空ける, 1=通常)
+    const LOGO_C = [935, 352];
+    const LOGO_R = [152, 114];
+    // 文字そのものに重なるのだけは絶対に避ける。dancerは left/top 基準で
+    // 22x10 の広がりがあるので、その分(回転を見込んで26px)手前で弾く
+    const LOGO_BOX = [812, 278, 1058, 432];
+    const overLogo = (x0, y0) =>
+      x0 > LOGO_BOX[0] - 26 && x0 < LOGO_BOX[2] &&
+      y0 > LOGO_BOX[1] - 26 && y0 < LOGO_BOX[3];
+    function logoFade(x0, y0) {
+      const dx = (x0 - LOGO_C[0]) / LOGO_R[0];
+      const dy = (y0 - LOGO_C[1]) / LOGO_R[1];
+      const a = Math.atan2(dy, dx);
+      const wob = 1 + .17 * Math.sin(a * 3 + 1.1) + .09 * Math.sin(a * 5 - .4);
+      const nd = Math.hypot(dx, dy) / wob;
+      if (nd < .72) return 0;
+      if (nd > 1.45) return 1;
+      // 二乗でじわっと立ち上げる(境目がぱたっと切り替わらない)
+      const k = (nd - .72) / .73;
+      return k * k;
+    }
+    // なぎのゾーン: 川と反対側(ロゴ下の右胴)を疎にして、流れとの対比をつくる
+    const CALM = [[960, 600, 215, 135]];
+    function calmFactor(x0, y0) {
+      for (const [cx, cy, rx, ry] of CALM) {
+        const dx = (x0 - cx) / rx;
+        const dy = (y0 - cy) / ry;
+        const a = Math.atan2(dy, dx);
+        const nd = Math.hypot(dx, dy) / (1 + .22 * Math.sin(a * 2 - .6));
+        if (nd < 1) return .22 + .78 * nd * nd;
+      }
+      return 1;
+    }
+    // ロゴもマトリクスも裏面にはないので、抜きは表だけ。裏は一面の群れにする
+    const placeOk = withMatrix
+      ? (x0, y0) => !overLogo(x0, y0) && r() < logoFade(x0, y0) * calmFactor(x0, y0)
+      : () => true;
+    // 群れはロゴへ向かって進む。dancerのUSBの口はドット絵の-x側にあるので、
+    // 角度の180度の曖昧さを「-x側がロゴを向く」ほうに解く(線の傾きは変わらない)
+    function faceLogo(ang, x0, y0) {
+      const a = ang * Math.PI / 180;
+      const dot = -Math.cos(a) * (LOGO_C[0] - x0) - Math.sin(a) * (LOGO_C[1] - y0);
+      return dot < 0 ? ang + 180 : ang;
+    }
+    // 地の密度ムラ: ゆるい波で全体に濃いところ・薄いところをつくる(緩急)
+    function ambientDensity(x0, y0) {
+      return 1 + .5 * Math.sin(x0 / 300 + y0 / 250) * Math.cos(y0 / 350 - x0 / 520);
+    }
+    let prevC = 0;
+    function pickColor() {
+      let c = 1 + Math.floor(r() * 4);
+      if (c === prevC) c = c % 4 + 1;
+      prevC = c;
+      return c;
+    }
+    // マトリクス(397,993)からロゴ(935,315)へ大きくうねる「川」(S字の3次ベジェ)。
+    // 川の近くのdancersほど接線方向に強く整列し、遠いほど地のうねりに戻る
+    const BZ = [[397, 993], [1020, 930], [300, 420], [935, 315]];
+    // 川の緩急: [位置t, 幅倍率, 密度倍率] を線形補間する。
+    // 細く速い(マトリクス) → 広がってゆるむ → 絞って急流 → ゆるむ → 収束(ロゴ)
+    const FLOW_PROFILE = [[0, .5, 1.9], [.28, 2, .25], [.55, .35, 2.5], [.8, 1.6, .35], [1, .45, 1.9]];
+    function profileAt(t) {
+      for (let i = 1; i < FLOW_PROFILE.length; i++) {
+        if (t <= FLOW_PROFILE[i][0]) {
+          const [t0, w0, d0] = FLOW_PROFILE[i - 1];
+          const [t1, w1, d1] = FLOW_PROFILE[i];
+          const k = (t - t0) / (t1 - t0);
+          return [w0 + (w1 - w0) * k, d0 + (d1 - d0) * k];
+        }
+      }
+      const last = FLOW_PROFILE[FLOW_PROFILE.length - 1];
+      return [last[1], last[2]];
+    }
+    const river = [];
+    for (let i = 0; i <= 60; i++) {
+      const t = i / 60;
+      const u = 1 - t;
+      const bx = u * u * u * BZ[0][0] + 3 * u * u * t * BZ[1][0] + 3 * u * t * t * BZ[2][0] + t * t * t * BZ[3][0];
+      const by = u * u * u * BZ[0][1] + 3 * u * u * t * BZ[1][1] + 3 * u * t * t * BZ[2][1] + t * t * t * BZ[3][1];
+      const dx = 3 * u * u * (BZ[1][0] - BZ[0][0]) + 6 * u * t * (BZ[2][0] - BZ[1][0]) + 3 * t * t * (BZ[3][0] - BZ[2][0]);
+      const dy = 3 * u * u * (BZ[1][1] - BZ[0][1]) + 6 * u * t * (BZ[2][1] - BZ[1][1]) + 3 * t * t * (BZ[3][1] - BZ[2][1]);
+      river.push([bx, by, Math.atan2(dy, dx) * 180 / Math.PI, t]);
+    }
+    function riverPull(x0, y0) {
+      let bd = Infinity;
+      let bang = 0;
+      let bt = 0;
+      for (const [bx, by, bang2, t] of river) {
+        const d = Math.hypot(x0 - bx, y0 - by);
+        if (d < bd) {
+          bd = d;
+          bang = bang2;
+          bt = t;
+        }
+      }
+      // 幅の緩急ぶんだけ影響半径を伸縮させる(絞るところは効きが鋭くなる)
+      const [wf, df] = profileAt(bt);
+      return [Math.exp(-bd / (240 * wf)), bang, df];
+    }
+    const STEP_X = 46;
+    const STEP_Y = 40;
+    let row = 0;
+    for (let y = 12; y < 1177; y += STEP_Y, row++) {
+      for (let x = 12 + (row % 2) * (STEP_X / 2); x < 1507; x += STEP_X) {
+        // ジッターを大きくとり、ランダムな抜けも入れて格子の規則性を溶かす。
+        // このデザインは縁で切れてよい(群れが端まで続く方が勢いが出る)ので
+        // 黒線ぎわの安全マップ判定はかけない
+        const px = x + (r() * 48 - 24);
+        const py = y + (r() * 42 - 21);
+        if (!placeOk(px, py)) continue;
+        if (withMatrix && Math.hypot(px - 397, py - 993) < 70) continue;
+        // 流れ場: 地のうねりと川の接線を距離でブレンドし、個体差を足す
+        const ambient = Math.sin(px / 250) * 26 + Math.cos(py / 200) * 20 +
+          Math.sin((px + py) / 430) * 14;
+        const [w, rang, df] = riverPull(px, py);
+        // 地のムラに川の緩急を重ねて間引く。急流のそばは詰まり、ゆるむところは抜ける
+        // 川がゆるむ区間(df<1)と地のムラが重なると群れが途切れて見えるので、下限を敷く
+        const dens = 1.12 * ambientDensity(px, py) * (1 + (df - 1) * w);
+        if (r() > Math.min(1, Math.max(.45, dens))) continue;
+        let flow = rang;
+        if (flow > 90) flow -= 180;
+        if (flow < -90) flow += 180;
+        // 川ぎわほど個体ノイズを絞って整列を際立たせる
+        const ang = ambient * (1 - w) + flow * w + (r() * 16 - 8) * (1 - w * .7);
+        const el = document.createElement('div');
+        el.className = `dancer d${pickColor()}`;
+        el.style.width = '22px';
+        el.style.height = '10.3px';
+        el.style.left = `${px.toFixed(1)}px`;
+        el.style.top = `${py.toFixed(1)}px`;
+        el.style.transform = `rotate(${faceLogo(ang, px, py).toFixed(1)}deg)`;
+        container.appendChild(el);
+      }
+    }
+    // 川に沿った高密度の帯: 曲線に沿って追加のdancersを流し、うねりを目で追えるようにする
+    for (let i = 0; i < 170; i++) {
+      const [bx, by, bang, t] = river[Math.floor(r() * river.length)];
+      const [wf, df] = profileAt(t);
+      // 密度の緩急(棄却サンプリング): 急流は詰まり、ゆるむところは疎になる
+      if (r() > df / 2.5) continue;
+      const nrad = (r() * 2 - 1) * 55 * wf;
+      const nang = (bang + 90) * Math.PI / 180;
+      const px = bx + Math.cos(nang) * nrad;
+      const py = by + Math.sin(nang) * nrad;
+      if (!placeOk(px, py)) continue;
+      if (withMatrix && Math.hypot(px - 397, py - 993) < 70) continue;
+      let flow = bang;
+      if (flow > 90) flow -= 180;
+      if (flow < -90) flow += 180;
+      const el = document.createElement('div');
+      el.className = `dancer d${pickColor()}`;
+      el.style.width = '22px';
+      el.style.height = '10.3px';
+      el.style.left = `${px.toFixed(1)}px`;
+      el.style.top = `${py.toFixed(1)}px`;
+      el.style.transform = `rotate(${faceLogo(flow + r() * 8 - 4, px, py).toFixed(1)}deg)`;
+      container.appendChild(el);
+    }
+    // 紙吹雪: 群れのすき間に散らして彩りを足す。
+    // 密度の緩急には乗せず(疎なところにも色が残る)、ロゴまわりの抜きだけ守る
+    for (let i = 0; i < 120; i++) {
+      const px = r() * 1507;
+      const py = r() * 1177;
+      if (!placeOk(px, py)) continue;
+      if (withMatrix && Math.hypot(px - 397, py - 993) < 70) continue;
+      const el = document.createElement('div');
+      el.className = 'confetti';
+      el.style.background = CONFETTI_COLORS[Math.floor(r() * 4)];
+      if (r() < .5) el.style.transform = 'rotate(45deg)';
+      el.style.left = `${px.toFixed(1)}px`;
+      el.style.top = `${py.toFixed(1)}px`;
+      container.appendChild(el);
+    }
+    if (withMatrix) {
+      const el = document.createElement('div');
+      el.className = 'rubym';
+      el.style.width = '44px';
+      el.style.height = '35.5px';
+      el.style.left = '375px';
+      el.style.top = '975px';
+      container.appendChild(el);
+    }
+    // ライトのスモークは川に同期させた「水彩の一筆書き」。ただし帯1本では
+    // 単純すぎるので、本流＋右へ分かれる支流＋飛沫＋色の残響で構成する。
+    // 幅は川の緩急に追従(絞るところは細く、ゆるむところは太い)、
+    // 両端は細く抜いて筆の入り・抜きに。表ではロゴの手前で筆を上げる
+    function sampleBezier(P, n) {
+      const out = [];
+      for (let i = 0; i <= n; i++) {
+        const t = i / n;
+        const u = 1 - t;
+        const x = u * u * u * P[0][0] + 3 * u * u * t * P[1][0] + 3 * u * t * t * P[2][0] + t * t * t * P[3][0];
+        const y = u * u * u * P[0][1] + 3 * u * u * t * P[1][1] + 3 * u * t * t * P[2][1] + t * t * t * P[3][1];
+        const dx = 3 * u * u * (P[1][0] - P[0][0]) + 6 * u * t * (P[2][0] - P[1][0]) + 3 * t * t * (P[3][0] - P[2][0]);
+        const dy = 3 * u * u * (P[1][1] - P[0][1]) + 6 * u * t * (P[2][1] - P[1][1]) + 3 * t * t * (P[3][1] - P[2][1]);
+        out.push([x, y, Math.atan2(dy, dx) * 180 / Math.PI, t]);
+      }
+      return out;
+    }
+    // 支流: 本流の中程(t≈0.5)から右裾へ抜ける。左下がり一辺倒の構図を破る
+    const branch = sampleBezier([[661, 670], [930, 740], [1150, 830], [1290, 1010]], 40);
+    function strokeD(samples, widthK, weaveAmp, phase, endNd = 0, endLen = 6) {
+      const pts = [];
+      for (const [bx, by, bang, t] of samples) {
+        if (withMatrix && endNd > 0) {
+          const nd = Math.hypot((bx - LOGO_C[0]) / LOGO_R[0], (by - LOGO_C[1]) / LOGO_R[1]);
+          if (nd < endNd) break;
+        }
+        const [wf] = profileAt(t);
+        const na = (bang + 90) * Math.PI / 180;
+        // 筆先のゆらぎ: 幅を波でゆらし、芯も少し蛇行させる
+        const half = 44 * wf * widthK * Math.min(1, t * 9 + .15) * (1 + .18 * Math.sin(t * 31 + phase));
+        const off = weaveAmp * Math.sin(t * 5.5 + phase);
+        pts.push([bx + Math.cos(na) * off, by + Math.sin(na) * off, Math.cos(na), Math.sin(na), half]);
+      }
+      const n = pts.length;
+      for (let i = 0; i < n; i++) {
+        pts[i][4] *= Math.min(1, (n - 1 - i) / endLen + .06);
+      }
+      const L = pts.map(p => `${(p[0] + p[2] * p[4]).toFixed(1)},${(p[1] + p[3] * p[4]).toFixed(1)}`);
+      const R = pts.map(p => `${(p[0] - p[2] * p[4]).toFixed(1)},${(p[1] - p[3] * p[4]).toFixed(1)}`);
+      return `M${L.join(' L')} L${R.reverse().join(' L')} Z`;
+    }
+    // 飛沫の色: 流れ上の位置tに対応するインク色
+    function inkAt(stops, t) {
+      t = Math.max(0, Math.min(1, t));
+      for (let i = 1; i < stops.length; i++) {
+        if (t <= stops[i][0]) {
+          const a = stops[i - 1];
+          const b = stops[i];
+          const k = (t - a[0]) / (b[0] - a[0]);
+          return `rgb(${[1, 2, 3].map(j => Math.round(a[j] + (b[j] - a[j]) * k)).join(', ')})`;
+        }
+      }
+      return `rgb(${stops[stops.length - 1].slice(1).join(', ')})`;
+    }
+    const INK_MAIN = [[0, 244, 90, 130], [.33, 255, 178, 70], [.66, 122, 188, 255], [1, 170, 120, 255]];
+    const INK_BR = [[0, 122, 188, 255], [.5, 170, 120, 255], [1, 244, 90, 130]];
+    // 飛沫: 流れの脇に散る絵の具のしずく。筆致と違いエッジは立てる
+    let drops = '';
+    for (let i = 0; i < 34; i++) {
+      const onMain = r() < .62;
+      const s = (onMain ? river : branch)[Math.floor(r() * (onMain ? river : branch).length)];
+      const na = (s[2] + 90) * Math.PI / 180;
+      const off = (r() * 2 - 1) * (70 + 170 * r());
+      const dx = s[0] + Math.cos(na) * off;
+      const dy = s[1] + Math.sin(na) * off;
+      if (withMatrix && Math.hypot((dx - LOGO_C[0]) / LOGO_R[0], (dy - LOGO_C[1]) / LOGO_R[1]) < 1.5) continue;
+      drops += `<circle cx="${dx.toFixed(0)}" cy="${dy.toFixed(0)}" r="${(2.5 + r() * 6).toFixed(1)}"
+        fill="${inkAt(onMain ? INK_MAIN : INK_BR, s[3] + r() * .2 - .1)}" opacity="${(.15 + r() * .2).toFixed(2)}"/>`;
+    }
+    // 下塗り: 「強い色」と「真っ白」の二極だと単純に見える。白場にも
+    // ごく淡い色味を敷いて、全体をひとつの空気でつなぐ(右下の淡さが基準)。
+    // 色はいちばん近い流れのインクを拾うので、隣り合う色味が喧嘩しない
+    let under = '';
+    for (let gy = 90; gy < 1177; gy += 235) {
+      for (let gx = 80; gx < 1507; gx += 245) {
+        const cx = gx + r() * 120 - 60;
+        const cy = gy + r() * 120 - 60;
+        if (withMatrix && Math.hypot((cx - LOGO_C[0]) / LOGO_R[0], (cy - LOGO_C[1]) / LOGO_R[1]) < 1.5) continue;
+        let bd = Infinity;
+        let bt = 0;
+        let main = true;
+        for (const [sx, sy, , t] of river) {
+          const d = Math.hypot(cx - sx, cy - sy);
+          if (d < bd) { bd = d; bt = t; main = true; }
+        }
+        for (const [sx, sy, , t] of branch) {
+          const d = Math.hypot(cx - sx, cy - sy);
+          if (d < bd) { bd = d; bt = t; main = false; }
+        }
+        if (bd < 150) continue;  // 流れの近くは筆致が受け持つ
+        under += `<ellipse cx="${cx.toFixed(0)}" cy="${cy.toFixed(0)}" rx="${(190 + r() * 100).toFixed(0)}" ry="${(150 + r() * 90).toFixed(0)}"
+          fill="${inkAt(main ? INK_MAIN : INK_BR, bt + r() * .16 - .08)}" opacity="${(.045 + r() * .03).toFixed(3)}"/>`;
+      }
+    }
+    const mist = document.createElement('div');
+    mist.className = 'riverfx';
+    // 色はマトリクスのピンク→アンバー→ブルー→ロゴのパープルへ、流れに沿って変わる。
+    // 支流はブルーから再びピンクへ戻り、右裾で左裾のピンクと韻を踏む。
+    // 右肩の淡いアンバーは色の残響(構図の対角を締める)
+    mist.innerHTML = `<svg width="1507" height="1177" viewBox="0 0 1507 1177">
+      <defs>
+        <linearGradient id="riverink" gradientUnits="userSpaceOnUse" x1="397" y1="993" x2="935" y2="315">
+          <stop offset="0" stop-color="rgb(244, 90, 130)"/>
+          <stop offset=".33" stop-color="rgb(255, 178, 70)"/>
+          <stop offset=".66" stop-color="rgb(122, 188, 255)"/>
+          <stop offset="1" stop-color="rgb(170, 120, 255)"/>
+        </linearGradient>
+        <linearGradient id="riverink2" gradientUnits="userSpaceOnUse" x1="661" y1="670" x2="1290" y2="1010">
+          <stop offset="0" stop-color="rgb(122, 188, 255)"/>
+          <stop offset=".5" stop-color="rgb(170, 120, 255)"/>
+          <stop offset="1" stop-color="rgb(244, 90, 130)"/>
+        </linearGradient>
+        <filter id="riverblur0" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="55"/></filter>
+        <filter id="riverblur1" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="22"/></filter>
+        <filter id="riverblur2" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="8"/></filter>
+      </defs>
+      <g filter="url(#riverblur0)">${under}</g>
+      <path d="${strokeD(river, 5, 0, .8, 2.3, 20)}" fill="url(#riverink)" opacity=".26" filter="url(#riverblur0)"/>
+      <path d="${strokeD(river, 1.6, 30, 1.9, 1.7, 13)}" fill="url(#riverink)" opacity=".17" filter="url(#riverblur1)"/>
+      <path d="${strokeD(river, .4, 26, 2.6, 1.25)}" fill="url(#riverink)" opacity=".15" filter="url(#riverblur2)"/>
+      <path d="${strokeD(branch, 3, 0, 4.1, 0, 12)}" fill="url(#riverink2)" opacity=".16" filter="url(#riverblur0)"/>
+      <path d="${strokeD(branch, 1.1, 22, 5.0, 0, 8)}" fill="url(#riverink2)" opacity=".12" filter="url(#riverblur1)"/>
+      <ellipse cx="1240" cy="215" rx="190" ry="130" fill="rgb(255, 178, 70)" opacity=".09" filter="url(#riverblur0)"/>
+      ${drops}
+    </svg>`;
+    const sheet = container.parentNode;
+    sheet.insertBefore(mist, container);
+    sheet.classList.add('has-riverfx');
+    sheet.classList.add('led-on');  // b1dはライトでもLED点灯・紙吹雪あり
+  }
+
+  function fillGroups(container, seed, withMatrix) {
+    // 「均整」と「ランダムの面白み」の両どり:
+    //  - ベースはポアソンディスク(衝突しない有機的配置)
+    //  - 最小距離を点ごとに95〜150pxで揺らす → 詰まる場所と空く場所のゆらぎ
+    //  - なにも置かない「ヌケ」の円を3つ → 呼吸する余白
+    //  - あえて近づけたグループのペアを2組 → 目を引く見せ場
+    const r = lcg(seed);
+    const exclude = (container.dataset.exclude || '').split(',').map(Number);
+    const anchors = [];
+    const groupAnchors = [];
+    const wordAnchors = [];
+    const clear = (x0, y0, d) => !anchors.some(a => Math.hypot(a[0] - x0, a[1] - y0) < d);
+    // 胸ロゴの周りは意図的に広めに空ける
+    const inExclude = (x0, y0) => exclude.length === 4 &&
+      x0 > exclude[0] - 120 && x0 < exclude[0] + exclude[2] + 70 &&
+      y0 > exclude[1] - 80 && y0 < exclude[1] + exclude[3] + 70;
+    // Rubyマトリクスの予約席(かぶり防止)。表裏でレイアウトを揃えるため常に予約する
+    anchors.push([397, 993]);
+    // dancerがどの黒い輪郭線でも切れないためのガード(安全マップ判定)
+    const crossesSeam = (x0, y0) => !safeAt(x0, y0);
+    const y0Cross = (x0, y0) => {
+      const m = 70;
+      if (y0 > 460 && y0 < 1105 + m &&
+          (Math.abs(x0 - 345) < m || Math.abs(x0 - 1161) < m)) return true;
+      if (x0 > 345 - m && x0 < 1161 + m && Math.abs(y0 - 1105) < m) return true;
+      return false;
+    };
+    const voids = [];
+    for (let i = 0; i < 2; i++) {
+      voids.push([80 + r() * 1347, 80 + r() * 1017, 150 + r() * 60]);
+    }
+    // 左下(Rubyマトリクス周辺)は固定の大きめの空間。ただし完全な空白ではなく、
+    // あとで単独のdancerを1体だけ置く(ちょうどいい塩梅の余白にする)
+    voids.push([560, 930, 230]);
+    const inVoid = (x0, y0) => voids.some(v => Math.hypot(x0 - v[0], y0 - v[1]) < v[2]);
+    let prevC = 0;
+    function pickColor() {
+      let c = 1 + Math.floor(r() * 4);
+      if (c === prevC) c = c % 4 + 1;
+      prevC = c;
+      return c;
+    }
+    function dancerAt(x0, y0) {
+      const el = document.createElement('div');
+      el.className = `dancer d${pickColor()}`;
+      el.style.width = '22px';
+      el.style.height = '10.3px';
+      el.style.left = `${x0.toFixed(1)}px`;
+      el.style.top = `${y0.toFixed(1)}px`;
+      return el;
+    }
+    // このゾーン内ではグループを単独dancerに落とす(すかすかな部分をつくるメリハリ用)
+    const SOLO_ZONES = [[780, 565, 130]];
+    const inSolo = (x0, y0) => SOLO_ZONES.some(z => Math.hypot(x0 - z[0], y0 - z[1]) < z[2]);
+    function makeGroup(px, py, forcePair) {
+      if (inSolo(px, py)) {
+        if (!safeAt(px, py)) return false;
+        const el = dancerAt(px, py);
+        el.style.transform = `rotate(${(r() * 28 - 14).toFixed(1)}deg)`;
+        container.appendChild(el);
+        anchors.push([px, py]);
+        return true;
+      }
+      const crowded = forcePair || groupAnchors.some(a => Math.hypot(a[0] - px, a[1] - py) < 160);
+      const n = crowded ? 2 : (r() < .4 ? 3 : 2);
+      const gap = 28 + r() * 16;
+      const dy2 = r() * 16 - 8;
+      const offs = [
+        [0, 0],
+        [gap, dy2],
+        [gap * .5 + r() * 12 - 6, 14 + r() * 12],
+      ];
+      const face = r();
+      const pts = [];
+      for (let i = 0; i < n; i++) {
+        pts.push([px + offs[i][0] + r() * 4 - 2, py + offs[i][1] + r() * 4 - 2]);
+      }
+      // 1体でも縫い目をまたぐ配置なら不成立(呼び出し側でリトライ)
+      if (pts.some(q => crossesSeam(q[0], q[1]))) return false;
+      for (let i = 0; i < n; i++) {
+        const el = dancerAt(pts[i][0], pts[i][1]);
+        const tilt = (r() * 24 - 12).toFixed(1);
+        const flipped = face < .55 ? i === 1 : (face < .75 ? i === 0 : false);
+        el.style.transform = flipped ? `scaleX(-1) rotate(${tilt}deg)` : `rotate(${tilt}deg)`;
+        container.appendChild(el);
+      }
+      groupAnchors.push([px, py]);
+      anchors.push([px, py]);
+      return true;
+    }
+    // Assembleの文字は fillScatter が生成する6個の
+    // 配置(座標・傾き)をそのまま固定で使う。向きは混在してよいが、
+    // 「左下がり(＼)と右下がり(／)が向かい合って並ぶ」=ハの字の配置だけは避けること
+    const WORD_FIXED = [
+      [-29.3, 45.0, -47.7],
+      [1094.4, 22.8, -46.4],
+      [399.9, 231.5, 45.7],
+      [1198.1, 169.3, 40.8],
+      [658.2, 687.2, 40.3],
+      [9.6, 1061.5, -46.0],
+    ];
+    for (const [px, py, deg] of WORD_FIXED) {
+      const el = document.createElement('div');
+      el.className = 'word';
+      el.textContent = WORD;
+      el.style.setProperty('--rot', `${deg}deg`);
+      el.style.left = `${px}px`;
+      el.style.top = `${py}px`;
+      container.appendChild(el);
+      wordAnchors.push([px, py]);
+      // 文字は線状に長いので、テキストに沿って3点のアンカーを置き
+      // dancersが文字に乗らないようにする。
+      // CSSの回転は要素の中心が軸なので、中心から±60pxの線分で取る
+      const rad = deg * Math.PI / 180;
+      const wcx = px + 60;
+      const wcy = py + 13;
+      for (const t of [-60, 0, 60]) {
+        anchors.push([wcx + Math.cos(rad) * t, wcy + Math.sin(rad) * t]);
+      }
+    }
+
+    // 右胸(着用者の右=正面視の左胸)が寂しくならないよう、
+    // このエリアにグループ2つ+単独1体を確保する
+    {
+      let put = 0;
+      for (let t = 0; t < 400 && put < 3; t++) {
+        const px = 390 + r() * 270;
+        const py = 250 + r() * 230;
+        if (inExclude(px, py) || inVoid(px, py)) continue;
+        if (!clear(px, py, 100)) continue;
+        if (put < 2) {
+          if (!makeGroup(px, py, put > 0)) continue;
+        } else {
+          if (crossesSeam(px, py)) continue;
+          const el = dancerAt(px, py);
+          el.style.transform = `rotate(${(r() * 28 - 14).toFixed(1)}deg)`;
+          container.appendChild(el);
+          anchors.push([px, py]);
+        }
+        put++;
+      }
+    }
+
+    // 固定ヌケの中に単独dancerを3体だけ(相互110px以上・マトリクスからは130px以上)
+    {
+      let put = 0;
+      for (let t = 0; t < 600 && put < 3; t++) {
+        const ang = r() * Math.PI * 2;
+        const rad = r() * 190;
+        const px = 560 + Math.cos(ang) * rad;
+        const py = 930 + Math.sin(ang) * rad;
+        if (!safeAt(px, py)) continue;
+        if (Math.hypot(px - 397, py - 993) < 130) continue;
+        if (!clear(px, py, 110)) continue;
+        const el = dancerAt(px, py);
+        el.style.transform = `rotate(${(r() * 28 - 14).toFixed(1)}deg)`;
+        container.appendChild(el);
+        anchors.push([px, py]);
+        put++;
+      }
+    }
+
+    // 濃い場所: 半径160px内にグループ3つ+単独2体を詰めた密集パッチを1か所。
+    // 周囲との密度差でメリハリをつくる
+    for (let t = 0; t < 300; t++) {
+      // 肩・袖は避けて胴の中〜下に置く
+      const cx0 = 420 + r() * 670;
+      const cy0 = 380 + r() * 570;
+      if (inExclude(cx0, cy0) || inVoid(cx0, cy0)) continue;
+      let put = 0;
+      for (let t2 = 0; t2 < 400 && put < 5; t2++) {
+        const ang = r() * Math.PI * 2;
+        const rad = r() * 160;
+        const px = cx0 + Math.cos(ang) * rad;
+        const py = cy0 + Math.sin(ang) * rad;
+        if (px < 30 || px > 1440 || py < 20 || py > 1150) continue;
+        if (inExclude(px, py) || !clear(px, py, 75)) continue;
+        if (put < 3) {
+          if (!makeGroup(px, py, put > 0)) continue;
+        } else {
+          if (crossesSeam(px, py)) continue;
+          const el = dancerAt(px, py);
+          el.style.transform = `rotate(${(r() * 28 - 14).toFixed(1)}deg)`;
+          container.appendChild(el);
+          anchors.push([px, py]);
+        }
+        put++;
+      }
+      if (put >= 4) break;
+    }
+
+    // 見せ場: あえて130〜150pxまで近づけたグループのペアを2組
+    for (let i = 0; i < 2; i++) {
+      for (let t = 0; t < 300; t++) {
+        const px = 60 + r() * 1387;
+        const py = 60 + r() * 1057;
+        if (inExclude(px, py) || inVoid(px, py) || !clear(px, py, 115)) continue;
+        const ang = r() * Math.PI * 2;
+        const dist = 130 + r() * 20;
+        const qx = px + Math.cos(ang) * dist;
+        const qy = py + Math.sin(ang) * dist;
+        if (qx < 30 || qx > 1450 || qy < 20 || qy > 1150) continue;
+        if (inExclude(qx, qy) || inVoid(qx, qy)) continue;
+        if (!makeGroup(px, py, false)) continue;
+        makeGroup(qx, qy, true);
+        break;
+      }
+    }
+    // ベースのポアソン配置(最小距離は点ごとに揺らす)
+    // 密度勾配: 左下(裾・マトリクス側)を濃く、右上(ロゴ側)へ薄く。
+    // 均一なばらまきに方向性をつけて単調さを消す
+    const densityAt = (x0, y0) => {
+      const t = (x0 / 1507) * .5 + ((1177 - y0) / 1177) * .5;  // 0=左下, 1=右上
+      return .25 + .75 * (1 - t);
+    };
+    const PLAN = [['group', 11], ['single', 16], ['confetti', 12], ['spark', 5]];
+    for (const [kind, want] of PLAN) {
+      let placed = 0;
+      let tries = 0;
+      while (placed < want && tries < 20000) {
+        tries++;
+        const px = 10 + r() * 1450;
+        const py = 14 + r() * 1140;
+        const minD = 90 + r() * 50;
+        if (r() > densityAt(px, py)) continue;
+        if (inExclude(px, py)) continue;
+        if (kind !== 'confetti' && kind !== 'spark' && inVoid(px, py)) continue;
+        if (!clear(px, py, minD)) continue;
+        if (kind === 'group') {
+          if (!makeGroup(px, py, false)) continue;
+        } else if (kind === 'single') {
+          if (crossesSeam(px, py)) continue;
+          const el = dancerAt(px, py);
+          el.style.transform = `rotate(${(r() * 28 - 14).toFixed(1)}deg)`;
+          container.appendChild(el);
+          anchors.push([px, py]);
+        } else if (kind === 'confetti') {
+          const el = document.createElement('div');
+          el.className = 'confetti';
+          el.style.background = CONFETTI_COLORS[pickColor() - 1];
+          if (r() < .5) el.style.transform = 'rotate(45deg)';
+          el.style.left = `${px.toFixed(1)}px`;
+          el.style.top = `${py.toFixed(1)}px`;
+          container.appendChild(el);
+        } else {
+          const el = document.createElement('div');
+          el.className = `spark only-dark ${SPARK_TINTS[Math.floor(r() * 3)]}`;
+          el.style.left = `${px.toFixed(1)}px`;
+          el.style.top = `${py.toFixed(1)}px`;
+          container.appendChild(el);
+        }
+        placed++;
+      }
+    }
+    // 手動チューニング: 目視フィードバックによる個別の移動・削除・追加。
+    // 生成結果に対して KILL→MOVE を適用したあとに ADD する(追加分はKILLの対象外)。
+    // MOVE: [探索中心x, y, 移動先中心x, y] / KILL: [中心x, y, 半径] / ADD: [中心x, y]
+    const MOVE = [[594, 792, 436, 860]];
+    const KILL = [
+      [412, 732, 60],
+      // 赤枠(左肩)のペアを1体に
+      [354, 233, 25],
+      // 青枠(左上の胴)の密度さげ: トリオ→単独、ペア2組→単独、混みあい単独を間引く
+      [702, 453, 20],
+      [676, 468, 20],
+      [579, 403, 20],
+      [519, 536, 20],
+      [650, 578, 20],
+      [700, 545, 20],
+      // 左袖寄りの単独を削除
+      [359, 363, 25],
+    ];
+    const ADD = [
+      [545, 217],
+      // 左上の胴(赤枠指定)の密度を上げる4体
+      [490, 480],
+      [592, 498],
+      [530, 560],
+      [680, 635],
+    ];
+    const dancers = Array.from(container.children).filter(el => el.classList.contains('dancer'));
+    const centerOf = el => [parseFloat(el.style.left) + 11, parseFloat(el.style.top) + 5];
+    for (const [kx, ky, kr] of KILL) {
+      for (const el of dancers) {
+        const [cx0, cy0] = centerOf(el);
+        if (Math.hypot(cx0 - kx, cy0 - ky) < kr) el.remove();
+      }
+    }
+    for (const [sx, sy, tx, ty] of MOVE) {
+      let best = null;
+      let bd = 80;
+      for (const el of dancers) {
+        // template内の要素は isConnected が常にfalseなので、削除済み判定は parentNode で行う
+        if (!el.parentNode) continue;
+        const [cx0, cy0] = centerOf(el);
+        const d = Math.hypot(cx0 - sx, cy0 - sy);
+        if (d < bd) {
+          bd = d;
+          best = el;
+        }
+      }
+      if (best) {
+        best.style.left = `${tx - 11}px`;
+        best.style.top = `${ty - 5}px`;
+      }
+    }
+    for (const [ax, ay] of ADD) {
+      const el = dancerAt(ax - 11, ay - 5);
+      el.style.transform = `rotate(${(r() * 28 - 14).toFixed(1)}deg)`;
+      container.appendChild(el);
+      anchors.push([ax, ay]);
+    }
+    // ADD_TRIO: [中心x, y] に3体の組を1つ置く(向かい合い2体+下に1体)
+    const ADD_TRIO = [[690, 540]];
+    for (const [ax, ay] of ADD_TRIO) {
+      const offs = [[0, 0], [34, 3], [15, 18]];
+      for (let i = 0; i < 3; i++) {
+        const el = dancerAt(ax - 11 + offs[i][0], ay - 5 + offs[i][1]);
+        const tilt = (r() * 20 - 10).toFixed(1);
+        el.style.transform = i === 1 ? `scaleX(-1) rotate(${tilt}deg)` : `rotate(${tilt}deg)`;
+        container.appendChild(el);
+      }
+      anchors.push([ax, ay]);
+    }
+    if (withMatrix) {
+      const el = document.createElement('div');
+      el.className = 'rubym';
+      el.style.width = '44px';
+      el.style.height = '35.5px';
+      el.style.left = '375px';
+      el.style.top = '975px';
+      container.appendChild(el);
+    }
+  }
+
+  for (const id of ['proto-b1-front', 'proto-b1-back', 'proto-b1s-front', 'proto-b1s-back',
+                    'proto-b1d-front', 'proto-b1d-back']) {
+    const sc = document.getElementById(id).content.querySelector('.scatter');
+    if (sc.dataset.fill === 'dense') {
+      fillDense(sc, SCATTER_SEED, id === 'proto-b1d-front');
+    } else if (sc.dataset.fill === 'groups') {
+      fillGroups(sc, SCATTER_SEED, id === 'proto-b1s-front');
+    } else {
+      fillScatter(sc, SCATTER_SEED);
+      pullRubymOffSeams(sc);
+    }
+    if (id.endsWith('-back')) foldShoulderWords(sc);
+  }
+
+  for (const id of ['proto-e-front', 'proto-e-back']) {
+    fillRegular(document.getElementById(id).content.querySelector('.scatter'));
+  }
+  const FACES = ['a2-front', 'a2-back', 'b1-front', 'b1-back', 'b1s-front', 'b1s-back', 'b1d-front', 'b1d-back', 'd-front', 'd-back', 'e-front', 'e-back', 'c2-front', 'c2-back', 'd-emb-front', 'dnr-back'];
+  const DARK_ONLY = ['d-emb-front', 'dnr-back'];  // 生地色が前提なのでダークだけ
+  const MODES = ['light', 'dark'];
+  const params = new URLSearchParams(location.search);
+  const captureTarget = params.get('capture');
+  const extra = params.get('guide') ? '&guide=1' : '';
+  if (captureTarget) {
+    // 1面だけ原寸で組み立てる(下のできあがりイメージの iframe から呼ばれる)
+    const [face, mode] = [captureTarget.replace(/-(light|dark)$/, ''), captureTarget.split('-').pop()];
+    const wrap = document.createElement('div');
+    wrap.className = 'wrap';
+    wrap.dataset.face = captureTarget;
+    const sheet = document.getElementById(`proto-${face}`).content.firstElementChild.cloneNode(true);
+    sheet.classList.add(mode);
+    wrap.appendChild(sheet);
+    document.body.appendChild(wrap);
+    document.body.classList.add('capture');
+  } else {
+    // できあがりイメージ(finished.html と同じ組み立て)
+    document.body.classList.add('gallery');
+    for (const face of FACES) {
+      for (const mode of MODES) {
+        if (mode === 'light' && DARK_ONLY.includes(face)) continue;
+        const side = face.split('-').pop();  // d-emb のように名前に - が入る面があるので末尾を取る
+        const card = document.createElement('div');
+        card.className = `card ${mode}`;
+        card.innerHTML = `
+          <div class="name">${face}-${mode}</div>
+          <div class="stagebox ${side}">
+            <iframe src="rejected.html?capture=${face}-${mode}${extra}" scrolling="no"></iframe>
+            <img class="cover" src="assets/body_cover_${side}.png" alt="">
+            <img class="line" src="assets/blackline_${side}.png" alt="">
+          </div>`;
+        document.body.appendChild(card);
+      }
+    }
+  }
+  const shift = params.get('shift');
+  if (shift) document.body.style.marginTop = `-${shift}px`;  // 分割キャプチャ用の縦オフセット
+  if (params.get('guide')) document.body.classList.add('guide');
+  // 文字ロゴの「中」にかかるドットだけを 1 個単位で消す(まわりの穴は残す)。
+  // 各文字の字面の外接矩形(縁取り込み)の中に中心があり、かつ字画に囲われているドット
+  // (20px 格子のセル内 7.9〜13.3px)を地色の四角(.knock)で丸ごと覆う。
+  // 「囲われている」= 同じ文字の中で、ドットの真上に字画がある(P の懐、c の口、i の点と軸の間、K の腕の間)か、
+  // 左右両方に字画がある(u・y の腕の間、a・g・o・b のカウンター)。
+  // i の軸の右のように上が空いていて左右も片側しか字画がない所は、文字の外とみなして残す。
+  // 文字の外側で縁に触れるだけのドットも消さない(部品が穴の上に載っているのと同じ見え方)。
+  // ?knock=rect なら文字ごとでなくロゴ全体の外接矩形(+6px)で判定する
+  async function knockoutDots() {
+    if (params.get('knock') === 'off') return;  // 比較用: ドットを消さない
+    await document.fonts.ready;
+    const G = 20, D0 = 7.9, D1 = 13.4, LW = 6;
+    const rectMode = params.get('knock') === 'rect';
+    for (const sheet of document.querySelectorAll('.sheet.c2')) {
+      const sr = sheet.getBoundingClientRect();
+      const cv = document.createElement('canvas');
+      cv.width = 1507; cv.height = 1177;
+      const ctx = cv.getContext('2d', { willReadFrequently: true });
+      ctx.lineWidth = LW; ctx.lineJoin = 'miter'; ctx.lineCap = 'butt';
+      ctx.strokeStyle = '#000'; ctx.fillStyle = '#000'; ctx.textBaseline = 'alphabetic';
+      const boxes = [];
+      const glyphBoxes = [];  // 文字ごとの字面の外接矩形(縁取りぶん 2px 広げる)
+      for (const prk of sheet.querySelectorAll('.prk')) {
+        let bx0 = Infinity, by0 = Infinity, bx1 = -Infinity, by1 = -Infinity;
+        for (const span of prk.querySelectorAll('.picoruby, .kaigi')) {
+          const cs = getComputedStyle(span);
+          const font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+          await document.fonts.load(font, span.textContent);  // fonts.ready だけだと Web フォント読み込み前に測ってしまうことがある
+          ctx.font = font;
+          const asc = ctx.measureText('H').fontBoundingBoxAscent;
+          const walker = document.createTreeWalker(span, NodeFilter.SHOW_TEXT);
+          let node;
+          while ((node = walker.nextNode())) {
+            const text = node.nodeValue;
+            for (let i = 0; i < text.length; i++) {
+              const ch = text[i];
+              if (ch.trim() === '') continue;
+              const range = document.createRange();
+              range.setStart(node, i); range.setEnd(node, i + 1);
+              const r = range.getBoundingClientRect();
+              const x = r.left - sr.left, base = r.top - sr.top + asc;
+              if (rectMode) {
+                bx0 = Math.min(bx0, r.left - sr.left); bx1 = Math.max(bx1, r.right - sr.left);
+                by0 = Math.min(by0, r.top - sr.top); by1 = Math.max(by1, r.bottom - sr.top);
+              } else {
+                ctx.strokeText(ch, x, base);
+                ctx.fillText(ch, x, base);
+                const m = ctx.measureText(ch);
+                glyphBoxes.push([x - m.actualBoundingBoxLeft - 1.5, base - m.actualBoundingBoxAscent - 1.5,
+                                 x + m.actualBoundingBoxRight + 1.5, base + m.actualBoundingBoxDescent + 1.5]);
+              }
+            }
+          }
+        }
+        if (rectMode && isFinite(bx0)) boxes.push([bx0 - 6, by0 - 6, bx1 + 6, by1 + 6]);
+      }
+      if (rectMode) for (const [x0, y0, x1, y1] of boxes) ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+      const data = ctx.getImageData(0, 0, cv.width, cv.height).data;
+      const hit = (px0, py0, px1, py1) => {
+        for (let y = Math.floor(py0); y < Math.ceil(py1); y++)
+          for (let x = Math.floor(px0); x < Math.ceil(px1); x++)
+            if (data[(y * cv.width + x) * 4 + 3] > 0) return true;
+        return false;
+      };
+      if (params.get('dbg')) sheet.dataset.glyphs = JSON.stringify(glyphBoxes.map(b => b.map(v => Math.round(v * 10) / 10)));
+      // 軸に平行な線分上に字画(canvas のインク)があるか(1 本)
+      const inkOnLine = (x0, y0, x1, y1) => {
+        const dx = Math.sign(x1 - x0), dy = Math.sign(y1 - y0);
+        const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
+        for (let i = 0; i <= n; i++) {
+          const x = Math.round(x0 + dx * i), y = Math.round(y0 + dy * i);
+          if (x < 0 || y < 0 || x >= cv.width || y >= cv.height) continue;
+          if (data[(y * cv.width + x) * 4 + 3] > 0) return true;
+        }
+        return false;
+      };
+      // ドットの幅ぶん(中心 ±2px)の 3 本全部に字画があるか = そのドットの真上/真下/左/右が字画でふさがれている
+      const inkOn = (x0, y0, x1, y1) => [-2, 0, 2].every(o => (y0 === y1) ? inkOnLine(x0, y0 + o, x1, y1 + o) : inkOnLine(x0 + o, y0, x1 + o, y1));
+      // 囲われている = 真上が字画でふさがれている(P の懐、c の口、K の腕の間、i の点と軸の間)か、
+      // 左右ともふさがれている(u・y の腕の間、a・g・o・b のカウンター)。
+      // a の左上のように、上をふさぐ字画がドットの半分にしかかからない所は外とみなして残す
+      const enclosed = (px, py) => glyphBoxes.some(([x0, y0, x1, y1]) => {
+        if (!(px >= x0 && px <= x1 && py >= y0 && py <= y1)) return false;
+        const above = inkOn(px, py - 4, px, y0);
+        const left = inkOn(px - 4, py, x0, py), right = inkOn(px + 4, py, x1, py);
+        return above || (left && right);
+      });
+      const frag = document.createDocumentFragment();
+      for (let cy = 0; cy * G < cv.height; cy++) {
+        for (let cx = 0; cx * G < cv.width; cx++) {
+          const c = (D0 + D1) / 2;
+          if (rectMode ? !hit(cx * G + D0, cy * G + D0, cx * G + D1, cy * G + D1) : !enclosed(cx * G + c, cy * G + c)) continue;
+          const k = document.createElement('div');
+          k.className = 'knock';
+          k.style.left = `${cx * G + 7}px`;
+          k.style.top = `${cy * G + 7}px`;
+          frag.appendChild(k);
+        }
+      }
+      // Ruby の LED マトリクス(.ruby / .rubym)の内側のドットも消す。
+      // 画像のシルエット(縦 24 帯ごとの x 範囲、画像から実測)の中に中心があるドットが対象
+      const RUBY_SIL = [[0.277,0.723],[0.276,0.723],[0.2,0.8],[0.184,0.815],[0.184,0.816],[0.1,0.9],[0.093,0.908],[0.093,0.906],[0.002,0.997],[0,1],[0.006,0.994],[0.093,0.906],[0.093,0.906],[0.105,0.894],[0.184,0.816],[0.185,0.815],[0.276,0.723],[0.276,0.724],[0.284,0.722],[0.368,0.633],[0.368,0.633],[0.38,0.623],[0.46,0.541],[0.46,0.541]];
+      const RUBYM_SIL = [[0.221,0.781],[0.205,0.795],[0.205,0.795],[0.205,0.795],[0.217,0.781],[0.235,0.742],[0.027,0.97],[0.011,0.986],[0,1],[0,1],[0.014,0.986],[0.027,0.97],[0.258,0.74],[0.219,0.781],[0.205,0.795],[0.205,0.795],[0.205,0.795],[0.228,0.769],[0.466,0.537],[0.427,0.573],[0.413,0.589],[0.413,0.589],[0.413,0.589],[0.427,0.573]];
+      for (const el of sheet.querySelectorAll('.ruby, .rubym')) {
+        const mini = el.classList.contains('rubym');
+        const sil = mini ? RUBYM_SIL : RUBY_SIL, aspect = mini ? 438 / 353 : 990 / 809;
+        const r = el.getBoundingClientRect();
+        // background-size: contain で描かれる範囲
+        let w = r.width, h = r.width / aspect;
+        if (h > r.height) { h = r.height; w = h * aspect; }
+        const x0 = r.left - sr.left + (r.width - w) / 2, y0 = r.top - sr.top + (r.height - h) / 2;
+        const c = (D0 + D1) / 2;
+        for (let cy = Math.floor(y0 / G); cy * G < y0 + h; cy++) {
+          for (let cx = Math.floor(x0 / G); cx * G < x0 + w; cx++) {
+            const u = (cx * G + c - x0) / w, v = (cy * G + c - y0) / h;
+            if (u < 0 || u > 1 || v < 0 || v > 1) continue;
+            const [a, b] = sil[Math.min(sil.length - 1, Math.floor(v * sil.length))];
+            if (u < a + 0.02 || u > b - 0.02) continue;
+            const k = document.createElement('div');
+            k.className = 'knock';
+            k.style.left = `${cx * G + 7}px`;
+            k.style.top = `${cy * G + 7}px`;
+            frag.appendChild(k);
+          }
+        }
+      }
+      const guide = sheet.querySelector('.guide');
+      if (guide) guide.after(frag); else sheet.prepend(frag);
+    }
+  }
+  knockoutDots();
+</script>
+</body>
+</html>
