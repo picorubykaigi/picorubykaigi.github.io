@@ -1,10 +1,10 @@
-# images/prarail.png からダーク用の assets/prarail-glow-d.png(点灯した窓 + 段階的な光の漏れ)と
+# assets/prarail.png からダーク用の assets/prarail-glow-d.png(点灯した窓 + 段階的な光の漏れ)と
 # assets/prarail-lines.png(暗い線だけ)を作る。電車の絵を差し替えたら実行する。
 #   ruby gen-prarail-assets.rb [元画像] [出力先ディレクトリ]
 # 画像の読み書きは ImageMagick(magick)に任せ、RGBA の生バイト列を扱う。
 require 'open3'
 
-source = ARGV[0] || '../../images/prarail.png'
+source = ARGV[0] || 'assets/prarail.png'
 out_dir = ARGV[1] || 'assets'
 
 width, height = `magick identify -format '%w %h' #{source}`.split.map(&:to_i)

@@ -456,7 +456,7 @@ body.guide .sheet .guide {
 /* ===== プラレール(b の表の左腰から裏へ続く)。ダークは窓だけ暖色で点灯(夜行電車) ===== */
 .prarail {
   position: absolute;
-  background: url('../../images/prarail.png') center / contain no-repeat;
+  background: url('assets/prarail.png') center / contain no-repeat;
   image-rendering: pixelated;
 }
 .dark .prarail {
@@ -816,9 +816,9 @@ body.guide .sheet .guide {
       <!-- 左胸(着用者の左=正面視では右側)はモーターひとつだけ(電車を走らせる動力) -->
       <div class="part motor" style="left: 938px; top: 302px; width: 44px;"></div>
       <!-- 左腰(正面視では右下)を電車がチラ見せで走る: 脇の黒線の縫い目(実測x=1161)が 1 両目の中ほど、
-           2 つ目の窓と 2 つ目のドアの間の何もない車体(絵の x=347/2178 → 70px)に来るように置く。窓もドアも縫い目にかからず、
-           表には 1 両目の前半分(窓まで)、裏にはドアからの続きが出る -->
-      <div class="prarail" style="left: 1091px; top: 915px; width: 440px; aspect-ratio: 2178 / 310;"></div>
+           2 つ目の窓と 2 つ目のドアの間の何もない車体(絵の x=376/2228 → 76px)に来るように置く。窓もドアも縫い目から 8px 離れ、
+           サイズ(S〜XL)による縫い目のずれ(最大 4px)でも掛からない。表には 1 両目の前半分(窓まで)、裏にはドアからの続きが出る -->
+      <div class="prarail" style="left: 1085px; top: 915px; width: 450px; aspect-ratio: 2228 / 310;"></div>
     </div>
   </template>
 
@@ -827,9 +827,9 @@ body.guide .sheet .guide {
       <div class="guide"></div>
       <div class="ruby no-bleed flat"></div>
       <!-- 表からチラ見せした電車の続き(1 両目の後ろ半分から): 着用者の左脇は背面視では左端。
-           黒線の縫い目(実測x=345)が表と同じ車体の位置(絵の 70px)になる位置に、反転せずそのまま置く
-           (筒状に巻き付く紙面は背面から見ても反転しない)。2 つ目のドアは縫い目から 4px 離れる -->
-      <div class="prarail" style="left: 275px; top: 915px; width: 440px; aspect-ratio: 2178 / 310;"></div>
+           黒線の縫い目(実測x=345)が表と同じ車体の位置(絵の 76px)になる位置に、反転せずそのまま置く
+           (筒状に巻き付く紙面は背面から見ても反転しない) -->
+      <div class="prarail" style="left: 269px; top: 915px; width: 450px; aspect-ratio: 2228 / 310;"></div>
     </div>
   </template>
 

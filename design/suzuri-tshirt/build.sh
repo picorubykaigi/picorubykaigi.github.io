@@ -1,8 +1,8 @@
 #!/bin/bash
 # SUZURI フルグラフィックTシャツ入稿データのビルド (Mサイズ 7535x5882px)
-# plain.html の各面を CSS 1507x1177px・デバイススケール5 でキャプチャし、
-# 黒の実線(ボディ外寸)の内側にマスクして out/ に
+# plain.html の各面を CSS 1507x1177px・デバイススケール5 でキャプチャして全面のまま out/ に
 # a(main-visual)/b(prarail)/c(parts: パーツの 4x3 格子+Assemble!) x ライト・ダーク x 表・裏 を作る。
+# 黒の実線(ボディ外寸)の内側マスクは、確認用プレビューを T シャツ型にくり抜くときだけ使う。
 # ファイル名は「パターン-モード-1front/2back」(色ごとに前後セットで並ぶ)。
 # 要: Google Chrome, ImageMagick(magick)
 set -euo pipefail
@@ -27,7 +27,7 @@ echo "build: $PATTERNS"
 
 mkdir -p out
 
-# 黒の実線(ボディ外寸)の内側マスク: finished用アセットの内側マスク(襟ぐりくり抜き済み)を
+# 黒の実線(ボディ外寸)の内側マスク(プレビューを T シャツ型にくり抜く用): finished用アセットの内側マスク(襟ぐりくり抜き済み)を
 # 原寸に拡大して使う。アセットがなければ先に生成する
 [ -f assets/body_cover_front.png ] || ./gen-finished-assets.sh
 for side in front back; do
@@ -105,19 +105,14 @@ for p in $PATTERNS; do
       if bad "out/$name.png"; then
         echo "  !! $name: 白抜けが直りません (純白 $(white_frac "out/$name.png"))"
       fi
-      magick "out/$name.png" -crop "${PX_W}x${PX_H}+0+0" +repage \
-        "out/mask_$side.png" -alpha off -compose CopyOpacity -composite "out/$name.png"
-      # 地色を敷いて不透明にする。透明チャンネルを持ったままだとPNGが16MBになり
-      # SUZURIの15MB制限を超える(不透明なら8MB台)。黒線の外は塗り足しとして働く
-      ground='#eceade'
-      [ "$mode" = dark ] && ground='#10131c'
-      magick "out/$name.png" -background "$ground" -alpha remove -alpha off "out/$name.png"
+      # 入稿データはくり抜かず、plain.html の全面(7535x5882)をそのまま。裁ち落としは SUZURI 側で行う
+      magick "out/$name.png" -crop "${PX_W}x${PX_H}+0+0" +repage -alpha off "out/$name.png"
     done
   done
 done
 
-# 確認用プレビュー(表裏ペア、Tシャツ型にくり抜いたもの)。入稿ファイルは塗り足しが入って不透明なので、
-# マスクをかけ直してTシャツの形が分かるようにする。リポジトリに残すのはこのプレビューだけ(out/.gitignore)
+# 確認用プレビュー(表裏ペア)。入稿ファイルは全面なので、黒線の内側マスクで T シャツ型にくり抜く。
+# リポジトリに残すのはこのプレビューだけ(out/.gitignore)
 for p in $PATTERNS; do
   for mode in light dark; do
     for side in front back; do
@@ -132,4 +127,4 @@ for p in $PATTERNS; do
 done
 
 ls -lh out/
-echo "done: 入稿データ = out/<パターン>-{light,dark}-{1front,2back}.png (7535x5882px, 黒線内) / プレビュー = out/<パターン>_{light,dark}.png"
+echo "done: 入稿データ = out/<パターン>-{light,dark}-{1front,2back}.png (7535x5882px、全面) / プレビュー = out/<パターン>_{light,dark}.png"
