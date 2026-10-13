@@ -98,6 +98,10 @@ body.capture .wrap::before {
     #10131c;
 }
 
+/* 地なし(?nodots=1): 穴のドットも地色も描かない(グッズ用にモチーフだけを透過で書き出すとき用) */
+body.nodots .sheet {
+  background: none !important;
+}
 /* セーフエリア確認用(?guide=1) */
 .sheet .guide {
   display: none;
@@ -2837,6 +2841,7 @@ body.gallery .label {
   const shift = params.get('shift');
   if (shift) document.body.style.marginTop = `-${shift}px`;  // 分割キャプチャ用の縦オフセット
   if (params.get('guide')) document.body.classList.add('guide');
+  if (params.get('nodots')) document.body.classList.add('nodots');
   // 文字ロゴの「中」にかかるドットだけを 1 個単位で消す(まわりの穴は残す)。
   // 各文字の字面の外接矩形(縁取り込み)の中に中心があり、かつ字画に囲われているドット
   // (20px 格子のセル内 7.9〜13.3px)を地色の四角(.knock)で丸ごと覆う。
@@ -2846,7 +2851,7 @@ body.gallery .label {
   // 文字の外側で縁に触れるだけのドットも消さない(部品が穴の上に載っているのと同じ見え方)。
   // ?knock=rect なら文字ごとでなくロゴ全体の外接矩形(+6px)で判定する
   async function knockoutDots() {
-    if (params.get('knock') === 'off') return;  // 比較用: ドットを消さない
+    if (params.get('knock') === 'off' || params.get('nodots')) return;  // 比較用 / 地なしのときは消すドットがない
     await document.fonts.ready;
     const G = 20, D0 = 7.9, D1 = 13.4, LW = 6;
     const rectMode = params.get('knock') === 'rect';
