@@ -107,6 +107,10 @@ body.print .dark .prk .kaigi {
 body.print .dark .rubym {
   filter: brightness(1.2);
 }
+/* 地なし(?nodots=1): 穴のドットも地色も描かない。通常Tシャツ用に背面のモチーフだけを透過で書き出すとき用 */
+body.nodots .sheet {
+  background: none !important;
+}
 /* セーフエリア確認用(?guide=1) */
 .sheet .guide {
   display: none;
@@ -956,7 +960,7 @@ body.guide .sheet .guide {
   // ロゴの周りを矩形に抜くと四角い穴に見えるので、ドット単位で判定する。
   // ?knock=rect なら文字ごとでなくロゴ全体の外接矩形(+6px)で判定する(比較用)
   async function knockoutDots() {
-    if (params.get('knock') === 'off') return;  // 比較用: ドットを消さない
+    if (params.get('knock') === 'off' || params.get('nodots')) return;  // 比較用 / 地なしのときは消すドットがない
     await document.fonts.ready;
     const G = 20, D0 = 7.9, D1 = 13.4, LW = 6;
     const rectMode = params.get('knock') === 'rect';
@@ -1102,6 +1106,7 @@ body.guide .sheet .guide {
   const shift = params.get('shift');
   if (shift) document.body.style.marginTop = `-${shift}px`;  // 分割キャプチャ用の縦オフセット
   if (params.get('guide')) document.body.classList.add('guide');
+  if (params.get('nodots')) document.body.classList.add('nodots');
   if (params.get('print')) document.body.classList.add('print');
 </script>
 </body>
