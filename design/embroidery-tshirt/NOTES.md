@@ -11,7 +11,7 @@
 | `export.sh` | 入稿データの書き出し(`out/back-logo.png`, `out/chest-ruby.png`, `out/color-guide.png`, `out/embroidery.zip`) |
 | `color-guide.html` | 色指示(糸番号と使用箇所を書き込んだ図)。`out/` の PNG を貼るので `export.sh` が先 |
 | `assets/ruby-1-thread.png` | Ruby マークを糸 2 色に塗り分けた絵(`images/ruby-1.png` の 57 個のドットを、320 を地に G≥93 の明るいドット 21 個だけ 14 に) |
-| `assets/body_cover_*.png`, `assets/blackline_*.png` | できあがりイメージ用の T シャツの形(suzuri-tshirt からコピー) |
+| `assets/body_cover_*.png`, `assets/blackline_*.png` | できあがりイメージ用の T シャツの形(suzuri からコピー) |
 
 ## 面
 

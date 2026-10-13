@@ -19,7 +19,7 @@ i=0
 for P in "a,b" "c"; do
   i=$((i+1))
   "$CHROME" --headless=new --disable-gpu --virtual-time-budget=60000 --no-pdf-header-footer \
-    --print-to-pdf="out/T-shirt-$i.pdf" "http://localhost:$PORT/design/suzuri-tshirt/big.html?p=$P&scale=.9&print=1" 2>/dev/null
+    --print-to-pdf="out/T-shirt-$i.pdf" "http://localhost:$PORT/design/suzuri/big.html?p=$P&scale=.9&print=1" 2>/dev/null
 done
 [ -n "$started" ] && pkill -f "http.server $PORT" || true
 ls -la out/T-shirt-*.pdf
