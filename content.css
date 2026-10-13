@@ -968,6 +968,11 @@ html.dark .job-link a:hover .job-led {
   height: auto;
 }
 
+.goodies-shop-art-board {
+  padding: 8px 0 8px 5px;
+  background: var(--bg);
+}
+
 .goodies-shop-body {
   display: flex;
   flex-direction: column;
@@ -975,6 +980,16 @@ html.dark .job-link a:hover .job-led {
   gap: 20px;
   font-size: 15px;
   line-height: 1.95;
+}
+
+.goodies-shop-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.goodies-shop-text a {
+  text-decoration: underline;
 }
 
 .goodies-license {
@@ -2014,6 +2029,9 @@ html.dark .logo .kaigi {
   }
   .goodies-shop-art {
     flex-basis: auto;
+  }
+  .goodies-shop-art-board {
+    padding: 4px 0 4px 2px;
   }
   .events-header .team-title {
     font-size: clamp(30px, 8.5vw, 38px);

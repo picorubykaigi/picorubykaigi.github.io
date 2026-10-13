@@ -1,12 +1,12 @@
 #!/bin/bash
 # Adventure Board のアイキャッチ。board-photo.jpg(白背景の基板写真)から基板を切り抜き、基板の緑だけ PCB らしい黄緑寄りに
 # 寄せてから、eyecatch.html(styles.css のロゴ+Jersey 10 の名前)を 1200x630 の 2 倍で撮る。
-#   ./eyecatch.sh  → adventure-board-eyecatch.jpg(2400x1260)
+#   ./eyecatch.sh  → ../../images/goodies/adventure-board.jpg(2400x1260)
 # 要: Google Chrome、ImageMagick(magick)
 set -euo pipefail
 cd "$(dirname "$0")"
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-OUT=adventure-board-eyecatch.jpg
+OUT=../../images/goodies/adventure-board.jpg
 mkdir -p out
 
 # 白背景を四隅と、基板の切り欠き・脇から塗りつぶし、残った不透明部分を基板のマスクにする。
