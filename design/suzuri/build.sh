@@ -14,7 +14,6 @@ CSS_H=1177
 SCALE=5
 PX_W=7535
 PX_H=5882
-TPL=../../suzuri-template-full-graphic-t-shirt
 PATTERNS_ALL="a b c"
 # 引数でパターンを指定すると、そのパターンだけリビルドする(例: ./build.sh b c)。
 # 無指定なら全パターン

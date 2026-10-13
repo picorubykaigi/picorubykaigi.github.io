@@ -9,7 +9,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-TPL=../../suzuri-template-full-graphic-t-shirt
+TPL=templates/suzuri-template-full-graphic-t-shirt
 mkdir -p assets
 
 # 襟ぐり(ボディ線に囲まれた首の穴)を塗りつぶすための内点

@@ -6,7 +6,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-TPL=../../suzuri-template-flat-can-case/flat-can-case.png
+TPL=templates/suzuri-template-flat-can-case/flat-can-case.png
 CW=1418; CH=1773           # テンプレートの大きさ
 RX0=115; RY0=100; RX1=1302; RY1=1672   # 赤線(切れてほしくないものを収める枠)
 WIDTH=1150                 # 切り出し(CSS 600px 幅)の横幅。パーツは c の 0.85 倍、格子の外幅は約 830px
