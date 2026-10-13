@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<!-- SUZURI ソックスの配置確認。テンプレート(templates/suzuri-template-socks、25-27cm)の上に plain.html の socks を
+     socks.sh と同じ置き方(倍率 scale、文字ロゴの下端をつま先の赤線の margin px 上、横は中央)で重ねる。
+     書き出さずに調整するためのページ。?scale=1.9&margin=20&zoom=.24 で倍率・つま先からの距離・表示の縮尺を変えられる。
+     決まったら socks.sh の SCALE と Y の式を同じ値にして書き出す -->
+<title>PicoRubyKaigi 2026 Assemble SUZURI ソックス 配置確認</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #888;
+  font-family: monospace;
+  padding: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: center;
+}
+h1 {
+  width: 100%;
+  color: #222;
+  font-size: 13px;
+  font-weight: normal;
+  letter-spacing: .06em;
+  text-align: center;
+}
+
+.card .name {
+  color: #222;
+  font-size: 12px;
+  letter-spacing: .06em;
+  margin-bottom: 6px;
+}
+/* 展開図の原寸(1731 x 4094 / 3701 px)で組んで、.stage ごと zoom で縮める */
+.stagebox {
+  overflow: hidden;
+}
+.stage {
+  position: relative;
+  width: 1731px;
+  transform-origin: 0 0;
+}
+.stage img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1731px;
+}
+.stage iframe {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1507px;
+  height: 1177px;
+  border: 0;
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+</style>
+</head>
+<body>
+<script>
+  const params = new URLSearchParams(location.search);
+  const scale = Number(params.get('scale') || 1.9);     // can(CSS px)から展開図(px)への倍率
+  const margin = Number(params.get('margin') || 20);    // 文字ロゴの下端からつま先の赤線までの px
+  const zoom = Number(params.get('zoom') || .24);       // 表示の縮尺
+  const LOGO_BOTTOM = 982;  // socks の文字ロゴ(2026 Assemble)の下端(CSS y)
+  const CENTER_X = 753;      // can の格子と文字ロゴの中心(CSS x)
+  const HEIGHT = 4094;       // 展開図の高さ。赤線の下端は下端の 310px 上
+
+  const title = document.createElement('h1');
+  title.textContent = `SUZURI ソックス 配置確認: scale=${scale} margin=${margin} (つま先の赤線からロゴの下端まで) zoom=${zoom}`;
+  document.body.appendChild(title);
+  const x = 865 - CENTER_X * scale;
+  const y = HEIGHT - 310 - margin - LOGO_BOTTOM * scale;
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `
+    <div class="name">25-27cm (1731x${HEIGHT})</div>
+    <div class="stagebox" style="width: ${1731 * zoom}px; height: ${HEIGHT * zoom}px;">
+      <div class="stage" style="height: ${HEIGHT}px; transform: scale(${zoom});">
+        <img src="templates/suzuri-template-socks/socks.png" alt="">
+        <iframe src="plain.html?capture=socks-front-light&nodots=1" scrolling="no"
+                style="transform: translate(${x}px, ${y}px) scale(${scale});"></iframe>
+      </div>
+    </div>`;
+  document.body.appendChild(card);
+</script>
+</body>
+</html>

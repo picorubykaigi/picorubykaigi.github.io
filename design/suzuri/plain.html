@@ -148,6 +148,20 @@ body.parts .title-main {
 .title-main.under.can .row2 .assemble {
   font-size: 22px;
 }
+/* ソックス用(socks): PicoRubyKaigi のインク幅を格子の外幅(356px)に揃え、2026 Assemble は .under の大きさ(31px / 25px)にする */
+.title-main.under.can.socks .prk {
+  font-size: 42.6px;
+}
+.light .title-main.under.can.socks .prk .picoruby,
+.light .title-main.under.can.socks .prk .kaigi {
+  -webkit-text-stroke-width: 2.55px;
+}
+.title-main.under.can.socks .row2 .year {
+  font-size: 31px;
+}
+.title-main.under.can.socks .row2 .assemble {
+  font-size: 25px;
+}
 /* クリアマルチケース用(case-kira): 文字ロゴのまわりのきらきら。ぼかさないピクセルの十字(中心 1 マス + 腕、大は腕 3 マスと斜め 1 マス) */
 .kira {
   position: absolute;
@@ -1030,6 +1044,36 @@ body.guide .sheet .guide {
     </div>
   </template>
 
+  <!-- ===== socks (ソックス用): can と同じ 4x4 の格子と文字ロゴを、列 603/703/803/903(間隔 100)、行 387/523/659/795(間隔 136)に詰めて並べたもの。
+       足の甲に置いたとき 1 行目がかかとの切れ込みに入らない幅(外幅 356px)。パーツの大きさは can と同じ。
+       文字ロゴは PicoRubyKaigi のインク幅を格子の外幅に揃え、2026 Assemble は .under の大きさ(.title-main.under.can.socks)。
+       socks.sh が ?nodots=1 で撮って切り出す ===== -->
+  <template id="proto-socks-front">
+    <div class="sheet">
+      <div class="guide"></div>
+      <div class="goodie rocket" style="left: 583px; top: 358px; width: 40px;"></div>
+      <div class="part seg7" style="left: 671px; top: 362px; width: 64px;"></div>
+      <div class="part motor" style="left: 781px; top: 359px; width: 44px;"></div>
+      <div class="slot seg7" style="left: 867px; top: 359px; width: 72px; height: 56px;"></div>
+      <div class="goodie keyboard" style="left: 571px; top: 501px; width: 64px;"></div>
+      <div class="slot battery" style="left: 685px; top: 493px; width: 36px; height: 61px;"></div>
+      <div class="goodie breadboard" style="left: 776px; top: 501px; width: 54px;"></div>
+      <div class="goodie penlight" style="left: 888px; top: 492px; width: 30px; transform: rotate(35deg);"></div>
+      <div class="goodie pico" style="left: 575px; top: 645px; width: 56px;"></div>
+      <div class="part chip" style="left: 677px; top: 633px; width: 52px;"></div>
+      <div class="part speaker" style="left: 777px; top: 633px; width: 52px;"></div>
+      <div class="slot speaker" style="left: 873px; top: 629px; width: 60px; height: 60px;"></div>
+      <div class="goodie nui" style="left: 578px; top: 766px; width: 50px;"></div>
+      <div class="slot motor" style="left: 677px; top: 761px; width: 52px; height: 67px;"></div>
+      <div class="rubym" style="left: 777px; top: 773px; width: 60px; height: 48px;"></div>
+      <div class="part battery" style="left: 888px; top: 769px; width: 30px;"></div>
+      <div class="title-main under can socks" style="top: 902px;">
+        <div class="prk"><span class="picoruby"><span class="kP">P</span><span class="k4">ic</span>oRu<span class="k2">b</span>y</span><span class="kaigi"><span class="k4">K</span><span class="k3 ai">a</span><span class="k5 ig">i</span><span class="k3">g</span>i</span></div>
+        <div class="row2"><div class="year">2026</div><div class="assemble">Assemble</div></div>
+      </div>
+    </div>
+  </template>
+
   <!-- ===== case-front (クリアマルチケース用): c のパーツを 3 列 x 4 行(列 623/753/883、行 400〜790)に並べたもの。記号も吹き出しもなし。
        1 行目は 7セグ・ロケット・くま、Pico は 2 行 1 列。属性の近い電池(2 行 2 列)とモーター(4 行 1 列)、形の似たブレッドボード(3 行 2 列)と
        キーボード(2 行 3 列)は隣り合わせず、赤と黒を行・列ごとに散らす。小さな Ruby は上の大きな Ruby から離して最下段。
@@ -1080,7 +1124,7 @@ body.guide .sheet .guide {
 
 <script>
 
-  const FACES = ['a-front', 'a-back', 'b-front', 'b-back', 'c-front', 'c-back', 'can-front', 'case-front', 'case-kira', 'case-logo'];  // can はフラット缶ケース用(can-case.sh)、case-* はクリアマルチケース用(multi-case.sh)
+  const FACES = ['a-front', 'a-back', 'b-front', 'b-back', 'c-front', 'c-back', 'can-front', 'socks-front', 'case-front', 'case-kira', 'case-logo'];  // can はフラット缶ケース用(can-case.sh)、socks はソックス用(socks.sh)、case-* はクリアマルチケース用(multi-case.sh)
   const MODES = ['light', 'dark'];
   const params = new URLSearchParams(location.search);
   const captureTarget = params.get('capture');
