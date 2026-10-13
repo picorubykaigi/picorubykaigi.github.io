@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<!-- Adventure Board のアイキャッチ(1200x630)。index.html と同じ styles.css を読み、ロゴは .title をそのまま使う。
+     基板の画像は eyecatch.sh が作る。直接開くと 1200x630 の枠の外がグレーになり、余白が見える。 -->
+<base href="../../">
+<title>Adventure Board — eyecatch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="styles.css">
+<style>
+  html {
+    background: #888;
+  }
+
+  body {
+    margin: 0;
+    width: 1200px;
+    height: 630px;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  .frame {
+    position: relative;
+    width: 1200px;
+    height: 630px;
+    overflow: hidden;
+    color: var(--ink);
+  }
+
+  .frame .title {
+    margin: 0;
+    padding: 0;
+    gap: 6px;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .frame .title .year,
+  .frame .title .assemble {
+    margin-top: 0;
+  }
+
+  .frame .title .prk {
+    font-size: 60px;
+    line-height: .86;
+  }
+
+  .frame .title .year {
+    font-size: 36px;
+  }
+
+  .frame .title .assemble {
+    font-size: 22px;
+  }
+
+  .frame .title .prk .l-chika {
+    animation: none;
+  }
+
+  .frame .title .prk .l-chika::before,
+  .frame .title .prk .l-chika::after {
+    animation: none;
+    opacity: 0;
+  }
+
+  .text {
+    position: absolute;
+    left: 70px;
+    top: 96px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  .product {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .name {
+    font-family: 'Jersey 10', sans-serif;
+    font-size: 116px;
+    line-height: .82;
+    letter-spacing: .06em;
+  }
+
+  .label {
+    font-family: 'DotGothic16', monospace;
+    font-size: 26px;
+    letter-spacing: .1em;
+  }
+
+  /* 基板は「A」の形なので切らず、高さいっぱいに置く */
+  .board {
+    position: absolute;
+    right: 110px;
+    top: 18px;
+    height: 602px;
+    width: auto;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <div class="text">
+      <div class="title">
+        <div class="prk"><span class="picoruby">PicoRuby</span><span class="kaigi">Kaigi</span></div>
+        <div class="year">2026</div>
+        <div class="assemble">Assemble</div>
+      </div>
+      <div class="product">
+        <div class="label">オリジナル基板</div>
+        <div class="name">Adventure<br>Board</div>
+      </div>
+    </div>
+    <img class="board" src="design/adventure-board-eyecatch/out/board.png" alt="">
+  </div>
+
+<script>
+  // logo.html と同じ分割。1文字=1つの .l-chika にしないと、字間の微調整と枠が効かない。
+  document.querySelectorAll('.title .prk').forEach(prk => {
+    let i = 0;
+    const chikaify = node => {
+      [...node.childNodes].forEach(child => {
+        if (child.nodeType === Node.TEXT_NODE) {
+          const frag = document.createDocumentFragment();
+          [...child.textContent].forEach(ch => {
+            const s = document.createElement('span');
+            s.className = 'l-chika'; s.textContent = ch; s.dataset.ch = ch; s.style.setProperty('--i', i++);
+            frag.appendChild(s);
+          });
+          child.replaceWith(frag);
+        } else if (child.nodeType === Node.ELEMENT_NODE) {
+          chikaify(child);
+        }
+      });
+    };
+    chikaify(prk);
+  });
+</script>
+</body>
+</html>
