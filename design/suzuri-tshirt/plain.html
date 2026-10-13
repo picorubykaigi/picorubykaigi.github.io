@@ -111,6 +111,54 @@ body.print .dark .rubym {
 body.nodots .sheet {
   background: none !important;
 }
+/* クリアマルチケース(case-logo)と缶ケース(can): 1 行ロゴの下に 2026 と Assemble を 1 行で */
+.title-main.under .row2 {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-top: -6px;
+}
+.title-main.under .row2 .year,
+.title-main.under .row2 .assemble {
+  margin-top: 0;
+}
+/* フラット缶ケース用(can): PicoRubyKaigi のインク幅をパーツ 4 列の外幅(実測 432px)に揃えて 2026 Assemble も縮める */
+.title-main.under.can .prk {
+  font-size: 51.7px;
+}
+.light .title-main.under.can .prk .picoruby,
+.light .title-main.under.can .prk .kaigi {
+  -webkit-text-stroke-width: 3.1px;
+}
+.title-main.under.can .row2 {
+  gap: 12px;
+  margin-top: -1px;
+  position: relative;
+  left: 2.5px;
+}
+.title-main.under.can .row2 .year {
+  font-size: 28px;
+}
+.title-main.under.can .row2 .assemble {
+  font-size: 22px;
+}
+/* クリアマルチケース用(case-kira): 文字ロゴのまわりのきらきら。ぼかさないピクセルの十字(中心 1 マス + 腕、大は腕 3 マスと斜め 1 マス) */
+.kira {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: #fb394a;
+  box-shadow:
+    0 -4px #fb394a, 0 -8px #fb394a, 0 -12px #fb394a, 0 4px #fb394a, 0 8px #fb394a, 0 12px #fb394a,
+    -4px 0 #fb394a, -8px 0 #fb394a, -12px 0 #fb394a, 4px 0 #fb394a, 8px 0 #fb394a, 12px 0 #fb394a,
+    -4px -4px #fb6061, 4px -4px #fb6061, -4px 4px #fb6061, 4px 4px #fb6061;
+}
+.kira.small {
+  width: 3px;
+  height: 3px;
+  background: #fb6061;
+  box-shadow: 0 -3px #fb6061, 0 -6px #fb6061, 0 3px #fb6061, 0 6px #fb6061, -3px 0 #fb6061, -6px 0 #fb6061, 3px 0 #fb6061, 6px 0 #fb6061;
+}
 /* セーフエリア確認用(?guide=1) */
 .sheet .guide {
   display: none;
@@ -533,6 +581,18 @@ body.guide .sheet .guide {
 .dark .step {
   color: #ece9df;
 }
+/* LP の部品ソケット(黄の破線)。缶ケース(can)の空きマスに使う */
+.slot {
+  position: absolute;
+  background: center / contain no-repeat;
+}
+/* LPのソケットSVGは viewBox 単位で線幅が固定で、表示倍率がパーツごとに違うと太さがばらつく。
+   assets/*-slot-pink.svg は表示 3.0px・破線 3.5/3.0px になるよう倍率で逆算した線幅にした、濃いピンク(#f2607a)のコピー。
+   7セグは2桁用のソケット(部品 211x165 と同じ縦横比)。缶ケースはライトだけ */
+.slot.seg7    { background-image: url('assets/seg7-slot-2-pink.svg'); }
+.slot.speaker { background-image: url('assets/speaker-slot-pink.svg'); }
+.slot.motor   { background-image: url('assets/motor-slot-pink.svg'); }
+.slot.battery { background-image: url('assets/battery-slot-pink.svg'); }
 /* 小さな吹き出し(3語の吹き出しはすべてこのサイズ) */
 .bubble.sm {
   padding: 4px 11px 3px;  /* 二重線にしたぶん少し広げる */
@@ -931,9 +991,90 @@ body.guide .sheet .guide {
     </div>
   </template>
 
+  <!-- ===== can (フラット缶ケース用): 4x4 の格子(列 570/692/814/936、行 369/517/665/813。列の間隔は 122、行は 148)にパーツと空きソケット、
+       その下に文字ロゴ(1 行の PicoRubyKaigi と、1 行の 2026 Assemble)。吹き出しも記号もなし。
+       人は左上から見るので左上はロケット。ソケットは (1,4) (2,2) (3,4) (4,2) のジグザグで、
+       ピンクのソケットと印象の近い Pico(3 行 1 列)はソケットの隣に置かない。ブレッドボード(2 行 3 列)は形の似たキーボード(2 行 1 列)や
+       スピーカー・7セグのソケットの隣に置かない(隣は細い電池のソケット)。赤・ピンクと黒は上下に散らす。
+       属性の近い電池(4 行 4 列)とモーター(1 行 3 列)、それぞれのソケット(2 行 2 列・4 行 2 列)も隣り合わせない。
+       can-case.sh が ?nodots=1 で撮って切り出す ===== -->
+  <template id="proto-can-front">
+    <div class="sheet">
+      <div class="guide"></div>
+      <div class="goodie rocket" style="left: 550px; top: 340px; width: 40px;"></div>
+      <div class="part seg7" style="left: 660px; top: 344px; width: 64px;"></div>
+      <div class="part motor" style="left: 792px; top: 341px; width: 44px;"></div>
+      <div class="slot seg7" style="left: 900px; top: 341px; width: 72px; height: 56px;"></div>
+      <div class="goodie keyboard" style="left: 538px; top: 495px; width: 64px;"></div>
+      <div class="slot battery" style="left: 674px; top: 487px; width: 36px; height: 61px;"></div>
+      <div class="goodie breadboard" style="left: 787px; top: 495px; width: 54px;"></div>
+      <div class="goodie penlight" style="left: 921px; top: 486px; width: 30px; transform: rotate(35deg);"></div>
+      <div class="goodie pico" style="left: 542px; top: 651px; width: 56px;"></div>
+      <div class="part chip" style="left: 666px; top: 639px; width: 52px;"></div>
+      <div class="part speaker" style="left: 788px; top: 639px; width: 52px;"></div>
+      <div class="slot speaker" style="left: 906px; top: 635px; width: 60px; height: 60px;"></div>
+      <div class="goodie nui" style="left: 545px; top: 784px; width: 50px;"></div>
+      <div class="slot motor" style="left: 666px; top: 779px; width: 52px; height: 67px;"></div>
+      <div class="rubym" style="left: 784px; top: 791px; width: 60px; height: 48px;"></div>
+      <div class="part battery" style="left: 921px; top: 787px; width: 30px;"></div>
+      <div class="title-main under can" style="top: 920px;">
+        <div class="prk"><span class="picoruby"><span class="kP">P</span><span class="k4">ic</span>oRu<span class="k2">b</span>y</span><span class="kaigi"><span class="k4">K</span><span class="k3 ai">a</span><span class="k5 ig">i</span><span class="k3">g</span>i</span></div>
+        <div class="row2"><div class="year">2026</div><div class="assemble">Assemble</div></div>
+      </div>
+    </div>
+  </template>
+
+  <!-- ===== case-front (クリアマルチケース用): c のパーツを 3 列 x 4 行(列 623/753/883、行 400〜790)に並べたもの。記号も吹き出しもなし。
+       1 行目は 7セグ・ロケット・くま、Pico は 2 行 1 列。属性の近い電池(2 行 2 列)とモーター(4 行 1 列)、形の似たブレッドボード(3 行 2 列)と
+       キーボード(2 行 3 列)は隣り合わせず、赤と黒を行・列ごとに散らす。小さな Ruby は上の大きな Ruby から離して最下段。
+       ケースの正面に置く。multi-case.sh が ?nodots=1 で撮って切り出す ===== -->
+  <template id="proto-case-front">
+    <div class="sheet">
+      <div class="guide"></div>
+      <div class="part seg7" style="left: 591px; top: 375px; width: 64px;"></div>
+      <div class="goodie rocket" style="left: 733px; top: 371px; width: 40px;"></div>
+      <div class="goodie nui" style="left: 858px; top: 371px; width: 50px;"></div>
+      <div class="goodie pico" style="left: 595px; top: 516px; width: 56px;"></div>
+      <div class="part battery" style="left: 738px; top: 504px; width: 30px;"></div>
+      <div class="goodie keyboard" style="left: 851px; top: 508px; width: 64px;"></div>
+      <div class="part speaker" style="left: 597px; top: 634px; width: 52px;"></div>
+      <div class="goodie breadboard" style="left: 726px; top: 638px; width: 54px;"></div>
+      <div class="goodie penlight" style="left: 868px; top: 629px; width: 30px; transform: rotate(35deg);"></div>
+      <div class="part motor" style="left: 601px; top: 762px; width: 44px;"></div>
+      <div class="part chip" style="left: 727px; top: 764px; width: 52px;"></div>
+      <div class="rubym" style="left: 853px; top: 768px; width: 60px; height: 48px;"></div>
+    </div>
+  </template>
+
+  <!-- ===== case-kira (クリアマルチケース用): case-logo の文字ロゴ(CSS x 510-994 / y 800-886)の下側に置くきらきら 5 つ。ロゴ自体は含まない。
+       両端の 2 つはホックの環にかからないよう内側に、2026 Assemble の行の高さには置かない(行の下 26px 以上)。
+       multi-case.sh がロゴと同じ枠で切り、右の折り返しのロゴと対称の位置に置く(折って重ねると背面から見てロゴの左に来る) ===== -->
+  <template id="proto-case-kira">
+    <div class="sheet">
+      <div class="guide"></div>
+      <div class="kira small" style="left: 540px; top: 912px;"></div>
+      <div class="kira small" style="left: 700px; top: 928px;"></div>
+      <div class="kira" style="left: 960px; top: 887px;"></div>
+      <div class="kira" style="left: 612px; top: 977px;"></div>
+      <div class="kira small" style="left: 862px; top: 977px;"></div>
+    </div>
+  </template>
+
+  <!-- ===== case-logo (クリアマルチケース用): 1 行の文字ロゴ(c の表と同じ)の下に 2026 Assemble。折り返しに 90 度回して置く。
+       multi-case.sh が ?nodots=1 で撮って切り出す ===== -->
+  <template id="proto-case-logo">
+    <div class="sheet">
+      <div class="guide"></div>
+      <div class="title-main under">
+        <div class="prk"><span class="picoruby"><span class="kP">P</span><span class="k4">ic</span>oRu<span class="k2">b</span>y</span><span class="kaigi"><span class="k4">K</span><span class="k3 ai">a</span><span class="k5 ig">i</span><span class="k3">g</span>i</span></div>
+        <div class="row2"><div class="year">2026</div><div class="assemble">Assemble</div></div>
+      </div>
+    </div>
+  </template>
+
 <script>
 
-  const FACES = ['a-front', 'a-back', 'b-front', 'b-back', 'c-front', 'c-back'];
+  const FACES = ['a-front', 'a-back', 'b-front', 'b-back', 'c-front', 'c-back', 'can-front', 'case-front', 'case-kira', 'case-logo'];  // can はフラット缶ケース用(can-case.sh)、case-* はクリアマルチケース用(multi-case.sh)
   const MODES = ['light', 'dark'];
   const params = new URLSearchParams(location.search);
   const captureTarget = params.get('capture');

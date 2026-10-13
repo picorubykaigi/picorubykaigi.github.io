@@ -11,6 +11,8 @@ Mサイズ 7535x5882px。CSS 1507x1177px をデバイススケール5でキャ�
 | `build.sh` | 入稿データのビルド。`./build.sh b` のようにパターン名を渡すと部分ビルド |
 | `preview-sizes.sh` | M 用の入稿データを S / M / L / XL のテンプレートに当てはめたできあがりイメージ(`out/size-{light,dark}-<サイズ>.png`)。`./preview-sizes.sh b` |
 | `crop-standard.sh` | 通常のTシャツ用に、入稿データの中心部(表のロゴ+パーツの周りに余白を取った範囲。a 3785×2790px、c 3480×3490px)を四角く切り出す。裏はドットの地なしの透過(`out/<パターン>-{light,dark}-{1front,2back}-standard.png`)。`./crop-standard.sh a c` |
+| `can-case.sh` | フラット缶ケース用。plain.html の can(パーツと空きソケットの 4x4 格子と、その下の文字ロゴ。吹き出しも記号もなし)を地なし・透過でテンプレート(`suzuri-template-flat-can-case`)の赤線の枠に収める(`out/can-case-c.png`、確認用 `out/can-case-c-preview.png`) |
+| `multi-case.sh` | クリアマルチケース用。左右を背面へ折り返してホックで留める形なので、正面に Ruby と c のパーツ 3 列 x 4 行、左の折り返し(背面)に文字ロゴ(PicoRubyKaigi / 2026 Assemble)を 90 度回して、右の折り返しには折って重ねたときロゴの左に来る位置にきらきら 5 つを置き、地なし・透過でテンプレートに置く(`out/multi-case-c.png`)。`./multi-case.sh mini` でミニ版(`out/mini-multi-case-c.png`、正面が狭いので Ruby なし)。確認用に `out/multi-case-c-preview.png`(テンプレートを重ねたもの)と `out/multi-case-c-folded-preview.png`(折って重ねた背面)も作る |
 | `pdf.sh` | 印刷確認用 PDF（A4 横、1 面 1 ページ）。`out/T-shirt-1.pdf`（a・b）と `out/T-shirt-2.pdf`（c） |
 | `finished.html` | できあがりイメージ（黒線で裁ち落とし・ガイド線なし） |
 | `index.html` | テンプレートのガイド線つきプレビュー |
