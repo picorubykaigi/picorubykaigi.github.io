@@ -6,7 +6,7 @@
 #   ./multi-case.sh       → out/multi-case.png(通常、テンプレート suzuri-template-clear-multi-case 3545x4465px)
 #   ./multi-case.sh mini  → out/mini-multi-case.png(ミニ、suzuri-template-mini-clear-multi-case 2735x3118px。正面が狭いので Ruby なし)
 #   いずれも preview/<名前>-preview.png(テンプレートの線を重ねた確認用、長辺 1600px 以内・256 色)も作る
-# 要: Google Chrome、ImageMagick(magick)、Ghostscript(確認用に .ai を描くため)
+# 要: Google Chrome、ImageMagick(magick)
 set -euo pipefail
 cd "$(dirname "$0")"
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
@@ -15,12 +15,12 @@ mkdir -p out preview
 case "${1:-}" in
   mini)
     # ホックの穴は x 342 / 2393、y 1045 / 2066(環の半径は左 88、右 58)。右上(1955, 836)にストラップ用のリング。折り目は x 855 / 1880
-    TPL=../../suzuri-template-mini-clear-multi-case/mini-clear-multi-case.ai; NAME=mini-multi-case
+    TPL=templates/suzuri-template-mini-clear-multi-case/mini-clear-multi-case.png; NAME=mini-multi-case
     CW=2735; CH=3118; FRONT_X=1367; FLAP_X=506; BODY_Y=1556; KIRA_X=2556
     GRID_W=810; RUBY_W=0; GAP=0; LIFT=0; LOGO_L=900 ;;   # ロゴはホックの環(x 254-430)の右に置く。ミニは正面が狭いので Ruby なし(格子だけを上下中央に)
   *)
     # ホックの穴は x 443 / 3102、y 1223 / 3242(環の半径 93)。折り目は x 1107 / 2437(正面は幅 1330)
-    TPL=../../suzuri-template-clear-multi-case/clear-multi-case.ai; NAME=multi-case
+    TPL=templates/suzuri-template-clear-multi-case/clear-multi-case.png; NAME=multi-case
     CW=3545; CH=4465; FRONT_X=1772; FLAP_X=627; BODY_Y=2222; KIRA_X=3287
     GRID_W=1050; RUBY_W=380; GAP=110; LIFT=150; LOGO_L=1500 ;;
 esac
@@ -67,8 +67,8 @@ shot out/tmp_kira.png case-kira-light
 magick out/tmp_kira.png -crop "$KBOX" +repage -resize "$KSCALE" -rotate 90 out/tmp_kira.png
 place out/tmp_kira.png $KIRA_X $BODY_Y "out/$NAME.png"
 
-# 確認用: テンプレート(.ai)を同じ大きさに描いて、その上に入稿データを重ねる
-magick -density 72 "$TPL" -background white -flatten -resize "${CW}x${CH}!" -depth 8 -colorspace sRGB -type TrueColor out/tmp_tpl.png
+# 確認用: テンプレートの線(templates/ の PNG)の上に入稿データを重ねる
+magick "$TPL" -resize "${CW}x${CH}!" -colorspace sRGB -type TrueColor out/tmp_tpl.png
 magick out/tmp_tpl.png "out/$NAME.png" -composite -resize '1600x1600>' -dither None -colors 256 PNG8:"preview/$NAME-preview.png"
 command rm -f out/tmp_*.png
 magick identify -format "%f %wx%h\n" "out/$NAME.png"
