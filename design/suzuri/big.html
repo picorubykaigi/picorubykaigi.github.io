@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>PicoRubyKaigi 2026 Assemble SUZURI フルグラフィックTシャツ 拡大表示</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #b9b9b3;
+  font-family: monospace;
+  padding: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: center;
+}
+h1 {
+  width: 100%;
+  color: #333;
+  font-size: 13px;
+  font-weight: normal;
+  letter-spacing: .06em;
+  text-align: center;
+}
+
+/* finished.html と同じ組み立てを、倍率(?scale=)を変えて大きく見る。
+   ?p=e5 でパターン、?p=e5,b で複数。倍率は既定 .8(1507px→1206px) */
+.card .name {
+  color: #333;
+  font-size: 12px;
+  letter-spacing: .06em;
+  margin-bottom: 6px;
+}
+.stagebox {
+  position: relative;
+  width: calc(1507px * var(--s));
+  height: calc(1177px * var(--s));
+  overflow: hidden;
+}
+.stagebox iframe {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1507px;
+  height: 1177px;
+  border: 0;
+  transform: scale(var(--s));
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+.stagebox .cover,
+.stagebox .line {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.card.dark .line {
+  filter: invert(.45);
+}
+
+/* 印刷(PDF): Tシャツ 1 枚(1 面)につき 1 ページ。A4 横に収まる倍率に固定 */
+@page {
+  size: A4 landscape;
+  margin: 10mm;
+}
+@media print {
+  body {
+    /* 1507x1177 が A4 横の印刷範囲(277x190mm = 1047x718px)に収まる倍率。
+       .59 だと名前の行を足して 712px でぎりぎりになり、環境によって 1 面が 2 ページに割れて白紙が出た */
+    --s: .54 !important;
+    display: block;
+    padding: 0;
+    background: #fff;
+  }
+  h1 {
+    display: none;
+  }
+  .card {
+    break-before: page;  /* 2 枚目以降の前で改ページ(後ろで改ページすると末尾に白紙が付く) */
+    page-break-before: always;
+    break-inside: avoid;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .card:first-of-type {
+    break-before: auto;
+    page-break-before: auto;
+  }
+  .stagebox {
+    overflow: hidden;
+  }
+}
+</style>
+</head>
+<body>
+<script>
+  const params = new URLSearchParams(location.search);
+  const patterns = (params.get('p') || 'e5').split(',');
+  const scale = params.get('scale') || '.8';
+  const extra = (params.get('guide') ? '&guide=1' : '') + (params.get('print') ? '&print=1' : '');  // print=1: PDF 向けに発光などを切る
+  document.body.style.setProperty('--s', scale);
+  const h1 = document.createElement('h1');
+  h1.textContent = `拡大表示 ${patterns.join(', ')} x${scale} (?p=パターン,… &scale=倍率 &guide=1 で安全エリア)`;
+  document.body.appendChild(h1);
+  for (const p of patterns) {
+    for (const mode of ['light', 'dark']) {
+      for (const side of ['front', 'back']) {
+        const face = `${p}-${side}`;
+        const card = document.createElement('div');
+        card.className = `card ${mode}`;
+        card.innerHTML = `
+          <div class="name">${face}-${mode}</div>
+          <div class="stagebox">
+            <iframe src="plain.html?capture=${face}-${mode}${extra}&v=${Date.now()}" scrolling="no"></iframe>
+            <img class="cover" src="assets/body_cover_${side}.png" alt="">
+            <img class="line" src="assets/blackline_${side}.png" alt="">
+          </div>`;
+        document.body.appendChild(card);
+      }
+    }
+  }
+</script>
+</body>
+</html>

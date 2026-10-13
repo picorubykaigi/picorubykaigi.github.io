@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>PicoRubyKaigi 2026 Assemble 刺繍Tシャツ (左胸 Ruby + 背中ロゴ)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bitcount+Single:ELSH,wght@0..100,100..900&family=Micro+5&family=Jersey+10&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #b9b9b3;
+  font-family: monospace;
+  padding: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: center;
+}
+h1 {
+  width: 100%;
+  color: #333;
+  font-size: 13px;
+  font-weight: normal;
+  letter-spacing: .06em;
+  text-align: center;
+}
+
+/* ===== できあがりイメージ(?capture なし): 自分自身を ?capture=<面> で iframe 表示し、
+   suzuri と同じ黒線・カバー(assets/)を重ねて T シャツの形に切る。倍率は ?scale=(既定 .8) ===== */
+.card .name {
+  color: #333;
+  font-size: 12px;
+  letter-spacing: .06em;
+  margin-bottom: 6px;
+}
+.stagebox {
+  position: relative;
+  width: calc(1507px * var(--s));
+  height: calc(1177px * var(--s));
+  overflow: hidden;
+}
+.stagebox iframe {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1507px;
+  height: 1177px;
+  border: 0;
+  transform: scale(var(--s));
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+.stagebox .cover,
+.stagebox .line {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  filter: invert(.45);
+}
+.stagebox .cover {
+  filter: none;
+}
+
+/* ===== 1 面の原寸表示(?capture=<面>)。座標系は SUZURI M テンプレートと同じ 1507x1177px(1px ≈ 0.637mm)。
+   ?transparent=1 で地を塗らない(透過 PNG の書き出し用) ===== */
+body.capture {
+  display: block;
+  background: none;
+  padding: 0;
+}
+.sheet {
+  position: relative;
+  width: 1507px;
+  height: 1177px;
+  overflow: hidden;
+  background: #d9d3c5;  /* 生地: オートミール(色見本 039 の近似) */
+}
+.sheet.black {
+  background: #111111;  /* 黒生地版(色見本 005) */
+}
+body.transparent .sheet {
+  background: none;
+}
+
+/* 左胸(着用者の左=正面視では右)の Ruby: 糸色に塗り分けた丸(assets/ruby-1-thread.png)。
+   高さ 70px = 約 5.4 x 4.4cm(刺繍の上限 25cm² 内) */
+.ruby {
+  position: absolute;
+  left: 891px;
+  top: 290px;
+  height: 70px;
+  aspect-ratio: 990 / 809;
+  background: url('assets/ruby-1-thread.png') center / contain no-repeat;
+  image-rendering: pixelated;
+}
+
+/* 背中(肩甲骨の間)の文字ロゴ: PicoRubyKaigi 1 行 + 同じ行に 2026 Assemble。全体 約 25.4 x 4.3cm(上限 110cm² 内) */
+.title-main {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 345px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+.prk {
+  font-family: 'Bitcount Single', sans-serif;
+  font-size: 43.5px;
+  line-height: 1.18;
+  letter-spacing: .15em;
+  font-variation-settings: 'wght' 330, 'ELSH' 50;
+  white-space: nowrap;
+}
+/* 塗り: PicoRuby は糸 14(ピンク)、Kaigi は糸 8653(白)。塗りと同色の縁取りで Bitcount の要素の隙間を埋める。
+   position: relative で、絶対配置の縁取り層(.under)より手前に描く */
+.prk .picoruby,
+.prk .kaigi {
+  position: relative;
+}
+.prk .picoruby {
+  color: #e58aa6;
+  -webkit-text-stroke: 2.9px #e58aa6;
+  paint-order: stroke fill;
+}
+.prk .kaigi {
+  color: #eeeeee;
+  -webkit-text-stroke: 2.9px #eeeeee;
+  paint-order: stroke fill;
+}
+/* 光学カーニング(字間 .15em に合わせて広げた値)と、対ごとの微調整 */
+.prk .k2 {
+  letter-spacing: .108em;
+}
+.prk .k3 {
+  letter-spacing: .087em;
+}
+.prk .k4 {
+  letter-spacing: .086em;
+}
+.prk .k5 {
+  letter-spacing: .045em;
+}
+.prk .kP {
+  letter-spacing: .128em;
+}
+.prk .ic {
+  margin-right: .01em;
+}
+.prk .gi {
+  margin-right: .02em;
+}
+.prk .co {
+  margin-right: .04em;
+}
+.prk .oR,
+.prk .Ru {
+  margin-right: -.02em;
+}
+/* 縁取り(1mm = 1.57px): 下層に同じ文字を縁の色で 32 方向にずらして重ねる(text-shadow)。
+   ずらした複製の和は丸い結合になるので text-stroke のような棘が出ず、角は塗りと同じ丸み。
+   半径 3.10px = 上層の縁の外側ぶん(1.45px)+ 刺繍の縁 1.57px。内側の輪(1.71px)で要素の継ぎ目を埋める。
+   PicoRuby の縁は糸 320(ローズ)、Kaigi の縁は糸 1738(濃紺) */
+.outlined {
+  position: relative;
+}
+.outlined .prk.under {
+  position: absolute;
+  inset: 0;
+}
+.prk.under .picoruby {
+  color: #d12a62;
+  -webkit-text-stroke: 0;
+  text-shadow: 3.10px 0.00px 0 #d12a62, 3.04px 0.60px 0 #d12a62, 2.86px 1.19px 0 #d12a62, 2.58px 1.72px 0 #d12a62, 2.19px 2.19px 0 #d12a62, 1.72px 2.58px 0 #d12a62, 1.19px 2.86px 0 #d12a62, 0.60px 3.04px 0 #d12a62, 0.00px 3.10px 0 #d12a62, -0.60px 3.04px 0 #d12a62, -1.19px 2.86px 0 #d12a62, -1.72px 2.58px 0 #d12a62, -2.19px 2.19px 0 #d12a62, -2.58px 1.72px 0 #d12a62, -2.86px 1.19px 0 #d12a62, -3.04px 0.60px 0 #d12a62, -3.10px 0.00px 0 #d12a62, -3.04px -0.60px 0 #d12a62, -2.86px -1.19px 0 #d12a62, -2.58px -1.72px 0 #d12a62, -2.19px -2.19px 0 #d12a62, -1.72px -2.58px 0 #d12a62, -1.19px -2.86px 0 #d12a62, -0.60px -3.04px 0 #d12a62, -0.00px -3.10px 0 #d12a62, 0.60px -3.04px 0 #d12a62, 1.19px -2.86px 0 #d12a62, 1.72px -2.58px 0 #d12a62, 2.19px -2.19px 0 #d12a62, 2.58px -1.72px 0 #d12a62, 2.86px -1.19px 0 #d12a62, 3.04px -0.60px 0 #d12a62, 1.71px 0.00px 0 #d12a62, 1.58px 0.65px 0 #d12a62, 1.21px 1.21px 0 #d12a62, 0.65px 1.58px 0 #d12a62, 0.00px 1.71px 0 #d12a62, -0.65px 1.58px 0 #d12a62, -1.21px 1.21px 0 #d12a62, -1.58px 0.65px 0 #d12a62, -1.71px 0.00px 0 #d12a62, -1.58px -0.65px 0 #d12a62, -1.21px -1.21px 0 #d12a62, -0.65px -1.58px 0 #d12a62, -0.00px -1.71px 0 #d12a62, 0.65px -1.58px 0 #d12a62, 1.21px -1.21px 0 #d12a62, 1.58px -0.65px 0 #d12a62;
+}
+.prk.under .kaigi {
+  color: #303345;
+  -webkit-text-stroke: 0;
+  text-shadow: 3.10px 0.00px 0 #303345, 3.04px 0.60px 0 #303345, 2.86px 1.19px 0 #303345, 2.58px 1.72px 0 #303345, 2.19px 2.19px 0 #303345, 1.72px 2.58px 0 #303345, 1.19px 2.86px 0 #303345, 0.60px 3.04px 0 #303345, 0.00px 3.10px 0 #303345, -0.60px 3.04px 0 #303345, -1.19px 2.86px 0 #303345, -1.72px 2.58px 0 #303345, -2.19px 2.19px 0 #303345, -2.58px 1.72px 0 #303345, -2.86px 1.19px 0 #303345, -3.04px 0.60px 0 #303345, -3.10px 0.00px 0 #303345, -3.04px -0.60px 0 #303345, -2.86px -1.19px 0 #303345, -2.58px -1.72px 0 #303345, -2.19px -2.19px 0 #303345, -1.72px -2.58px 0 #303345, -1.19px -2.86px 0 #303345, -0.60px -3.04px 0 #303345, -0.00px -3.10px 0 #303345, 0.60px -3.04px 0 #303345, 1.19px -2.86px 0 #303345, 1.72px -2.58px 0 #303345, 2.19px -2.19px 0 #303345, 2.58px -1.72px 0 #303345, 2.86px -1.19px 0 #303345, 3.04px -0.60px 0 #303345, 1.71px 0.00px 0 #303345, 1.58px 0.65px 0 #303345, 1.21px 1.21px 0 #303345, 0.65px 1.58px 0 #303345, 0.00px 1.71px 0 #303345, -0.65px 1.58px 0 #303345, -1.21px 1.21px 0 #303345, -1.58px 0.65px 0 #303345, -1.71px 0.00px 0 #303345, -1.58px -0.65px 0 #303345, -1.21px -1.21px 0 #303345, -0.65px -1.58px 0 #303345, -0.00px -1.71px 0 #303345, 0.65px -1.58px 0 #303345, 1.21px -1.21px 0 #303345, 1.58px -0.65px 0 #303345;
+}
+/* 2026 Assemble: 塗りは糸 8653(白)、縁は糸 22678(シルバーグレー)。1 文字の幅は 7mm 前後。
+   text-stroke は半分が塗りの外に出るので、縁 1mm のために 3.2px */
+.row2 {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+  margin-top: -12px;
+}
+.year {
+  font-family: 'Micro 5', sans-serif;
+  font-size: 35px;
+  line-height: .8;
+  letter-spacing: .12em;
+  text-indent: .12em;
+}
+.assemble {
+  font-family: 'Jersey 10', sans-serif;
+  font-size: 29px;
+  letter-spacing: .18em;
+  text-indent: .18em;
+}
+.year,
+.assemble {
+  color: #eeeeee;
+  -webkit-text-stroke: 3.2px #a5a7af;
+  paint-order: stroke fill;
+}
+</style>
+</head>
+<body>
+
+  <!-- oatmeal: オートミール生地 / black: 黒生地。糸色は共通 -->
+  <template id="proto-oatmeal-front">
+    <div class="sheet">
+      <div class="ruby"></div>
+    </div>
+  </template>
+
+  <template id="proto-oatmeal-back">
+    <div class="sheet">
+      <div class="title-main">
+        <div class="outlined"><div class="prk under"><span class="picoruby"><span class="kP">P</span><span class="k4 ic">i</span><span class="k4 co">c</span><span class="oR">o</span><span class="Ru">R</span>u<span class="k2">b</span>y</span><span class="kaigi"><span class="k4">K</span><span class="k3">a</span><span class="k5">i</span><span class="k3 gi">g</span>i</span></div><div class="prk"><span class="picoruby"><span class="kP">P</span><span class="k4 ic">i</span><span class="k4 co">c</span><span class="oR">o</span><span class="Ru">R</span>u<span class="k2">b</span>y</span><span class="kaigi"><span class="k4">K</span><span class="k3">a</span><span class="k5">i</span><span class="k3 gi">g</span>i</span></div></div>
+        <div class="row2"><div class="year">2026</div><div class="assemble">Assemble</div></div>
+      </div>
+    </div>
+  </template>
+
+  <template id="proto-black-front">
+    <div class="sheet black">
+      <div class="ruby"></div>
+    </div>
+  </template>
+
+  <template id="proto-black-back">
+    <div class="sheet black">
+      <div class="title-main">
+        <div class="outlined"><div class="prk under"><span class="picoruby"><span class="kP">P</span><span class="k4 ic">i</span><span class="k4 co">c</span><span class="oR">o</span><span class="Ru">R</span>u<span class="k2">b</span>y</span><span class="kaigi"><span class="k4">K</span><span class="k3">a</span><span class="k5">i</span><span class="k3 gi">g</span>i</span></div><div class="prk"><span class="picoruby"><span class="kP">P</span><span class="k4 ic">i</span><span class="k4 co">c</span><span class="oR">o</span><span class="Ru">R</span>u<span class="k2">b</span>y</span><span class="kaigi"><span class="k4">K</span><span class="k3">a</span><span class="k5">i</span><span class="k3 gi">g</span>i</span></div></div>
+        <div class="row2"><div class="year">2026</div><div class="assemble">Assemble</div></div>
+      </div>
+    </div>
+  </template>
+
+<script>
+  const FACES = ['oatmeal-front', 'oatmeal-back', 'black-front', 'black-back'];
+  const params = new URLSearchParams(location.search);
+  const captureTarget = params.get('capture');
+  if (captureTarget) {
+    const sheet = document.getElementById(`proto-${captureTarget}`).content.firstElementChild.cloneNode(true);
+    document.body.appendChild(sheet);
+    document.body.classList.add('capture');
+    if (params.get('transparent')) document.body.classList.add('transparent');
+  } else {
+    const scale = params.get('scale') || '.8';
+    document.body.style.setProperty('--s', scale);
+    const h1 = document.createElement('h1');
+    h1.textContent = `刺繍Tシャツ できあがりイメージ x${scale} (?scale=倍率 / ?capture=oatmeal-back で 1 面の原寸)`;
+    document.body.appendChild(h1);
+    for (const face of FACES) {
+      const side = face.split('-')[1];
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="name">${face}</div>
+        <div class="stagebox">
+          <iframe src="index.html?capture=${face}&v=${Date.now()}" scrolling="no"></iframe>
+          <img class="cover" src="assets/body_cover_${side}.png" alt="">
+          <img class="line" src="assets/blackline_${side}.png" alt="">
+        </div>`;
+      document.body.appendChild(card);
+    }
+  }
+</script>
+</body>
+</html>
