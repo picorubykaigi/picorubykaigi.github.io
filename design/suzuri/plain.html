@@ -111,6 +111,12 @@ body.print .dark .rubym {
 body.nodots .sheet {
   background: none !important;
 }
+/* パーツだけ(?parts=1): 記号・吹き出し・文字ロゴを描かない。Goodies ページの Official Goods のアイキャッチ用に c の格子だけを書き出すとき用 */
+body.parts .step,
+body.parts .bubble,
+body.parts .title-main {
+  display: none;
+}
 /* クリアマルチケース(case-logo)と缶ケース(can): 1 行ロゴの下に 2026 と Assemble を 1 行で */
 .title-main.under .row2 {
   display: flex;
@@ -1248,6 +1254,7 @@ body.guide .sheet .guide {
   if (shift) document.body.style.marginTop = `-${shift}px`;  // 分割キャプチャ用の縦オフセット
   if (params.get('guide')) document.body.classList.add('guide');
   if (params.get('nodots')) document.body.classList.add('nodots');
+  if (params.get('parts')) document.body.classList.add('parts');
   if (params.get('print')) document.body.classList.add('print');
 </script>
 </body>

@@ -13,6 +13,7 @@ Mサイズ 7535x5882px。CSS 1507x1177px をデバイススケール5でキャ�
 | `crop-standard.sh` | 通常のTシャツ用に、入稿データの中心部(表のロゴ+パーツの周りに余白を取った範囲。a 3785×2790px、c 3480×3490px)を四角く切り出す。裏はドットの地なしの透過(`out/<パターン>-{light,dark}-{1front,2back}-standard.png`)。確認用に表裏を並べた `preview/<パターン>_{light,dark}-standard.png`(幅 1600px)も作る。`./crop-standard.sh a c` |
 | `can-case.sh` | フラット缶ケース用。plain.html の can(パーツと空きソケットの 4x4 格子と、その下の文字ロゴ。吹き出しも記号もなし)を地なし・透過でテンプレート(`suzuri-template-flat-can-case`)の赤線の枠に収める(`out/can-case.png`、確認用 `preview/can-case-preview.png`) |
 | `multi-case.sh` | クリアマルチケース用。左右を背面へ折り返してホックで留める形なので、正面に Ruby と c のパーツ 3 列 x 4 行、左の折り返し(背面)に文字ロゴ(PicoRubyKaigi / 2026 Assemble)を 90 度回して、右の折り返しには折って重ねたときロゴの左に来る位置にきらきら 5 つを置き、地なし・透過でテンプレートに置く(`out/multi-case.png`)。`./multi-case.sh mini` でミニ版(`out/mini-multi-case.png`、正面が狭いので Ruby なし)。確認用に `preview/multi-case-preview.png`(テンプレートを重ねた展開図)も作る |
+| `eyecatch.sh` | Goodies ページの Official Goods のアイキャッチ。c の格子を記号・吹き出し・文字ロゴなし(`?parts=1`)でドットの地ごと撮って切り出す(`images/goodies/official-goods.png`、追跡する) |
 | `pdf.sh` | 印刷確認用 PDF（A4 横、1 面 1 ページ）。`out/T-shirt-1.pdf`（a・b）と `out/T-shirt-2.pdf`（c） |
 | `finished.html` | できあがりイメージ（黒線で裁ち落とし・ガイド線なし） |
 | `index.html` | テンプレートのガイド線つきプレビュー |

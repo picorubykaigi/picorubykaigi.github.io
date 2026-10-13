@@ -939,6 +939,44 @@ html.dark .job-link a:hover .job-led {
   text-underline-offset: 3px;
 }
 
+.goodies-shop {
+  max-width: 880px;
+  margin: 0 auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 40px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 24px 40px;
+}
+
+.goodies-shop-art {
+  flex: 0 0 400px;
+  min-width: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform .15s ease;
+}
+
+.goodies-shop-art:hover {
+  transform: scale(1.02);
+}
+
+.goodies-shop-art img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.goodies-shop-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  font-size: 15px;
+  line-height: 1.95;
+}
+
 .goodies-license {
   max-width: 880px;
   margin: 0 auto;
@@ -1792,8 +1830,18 @@ html.dark .sponsor-card { background: #212838; }
 html.dark .goodies-list { background: #212838; }
 
 html.dark .goodies-template,
-html.dark .goodies-template-previews li {
+html.dark .goodies-template-previews li,
+html.dark .goodies-shop {
   background: #212838;
+}
+
+html.dark a.event-cta {
+  background: #fb5479;
+  border-color: #97233a;
+}
+
+html.dark a.event-cta:hover {
+  background: #ff7a98;
 }
 
 html.dark .blog-dancer-led {
@@ -1956,6 +2004,15 @@ html.dark .logo .kaigi {
     padding: 18px;
   }
   .goodies-template-previews {
+    flex-basis: auto;
+  }
+  .goodies-shop {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 20px;
+    padding: 18px;
+  }
+  .goodies-shop-art {
     flex-basis: auto;
   }
   .events-header .team-title {
