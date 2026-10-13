@@ -3,7 +3,7 @@
 # plain.html の各面を CSS 1507x1177px・デバイススケール5 でキャプチャして全面のまま out/ に
 # a(main-visual)/b(prarail)/c(parts: パーツの 4x3 格子+Assemble!) x ライト・ダーク x 表・裏 を作る。
 # 黒の実線(ボディ外寸)の内側マスクは、確認用プレビューを T シャツ型にくり抜くときだけ使う。
-# ファイル名は「パターン-モード-1front/2back」(色ごとに前後セットで並ぶ)。
+# ファイル名は「パターン-モード-1front/2back-full」(色ごとに前後セットで並ぶ)。
 # 要: Google Chrome, ImageMagick(magick)
 set -euo pipefail
 cd "$(dirname "$0")"
@@ -91,7 +91,7 @@ slice_shot() {  # slice_shot <出力> <URL> <分割数>
 for p in $PATTERNS; do
   for mode in light dark; do
     for side in front back; do
-      name="$p-$mode-$(num_of $side)"
+      name="$p-$mode-$(num_of $side)-full"
       url="file://$PWD/plain.html?capture=$p-$side-$mode"
       shot "out/$name.png" "$url" $CSS_H
       # 白抜け検査: 純白が1%を超えたら上下2分割で撮り直す(巨大キャンバスの
@@ -112,19 +112,21 @@ for p in $PATTERNS; do
 done
 
 # 確認用プレビュー(表裏ペア)。入稿ファイルは全面なので、黒線の内側マスクで T シャツ型にくり抜く。
-# リポジトリに残すのはこのプレビューだけ(out/.gitignore)
+# プレビューは preview/ に書き、リポジトリに残す(out/ は入稿データと中間ファイルだけで、追跡しない)。
+# 軽くするため、ディザなしの 256 色(PNG8)で書く
+mkdir -p preview
 for p in $PATTERNS; do
   for mode in light dark; do
     for side in front back; do
-      magick "out/$p-$mode-$(num_of $side).png" "out/mask_$side.png" \
+      magick "out/$p-$mode-$(num_of $side)-full.png" "out/mask_$side.png" \
         -alpha off -compose CopyOpacity -composite "out/cut_${mode}_$side.png"
     done
     magick \( "out/cut_${mode}_front.png" -background '#9a9a94' -alpha remove \) \
            \( "out/cut_${mode}_back.png"  -background '#9a9a94' -alpha remove \) \
-           +append -resize 1600x "out/${p}_$mode.png"
+           +append -resize 1600x -dither None -colors 256 PNG8:"preview/${p}_$mode-full.png"
   done
   command rm -f out/cut_*.png
 done
 
 ls -lh out/
-echo "done: 入稿データ = out/<パターン>-{light,dark}-{1front,2back}.png (7535x5882px、全面) / プレビュー = out/<パターン>_{light,dark}.png"
+echo "done: 入稿データ = out/<パターン>-{light,dark}-{1front,2back}-full.png (7535x5882px、全面) / プレビュー = preview/<パターン>_{light,dark}-full.png"

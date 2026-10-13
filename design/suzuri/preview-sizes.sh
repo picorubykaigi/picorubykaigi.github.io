@@ -1,11 +1,12 @@
 #!/bin/bash
-# M サイズ用の入稿データ(out/<パターン>-{light,dark}-{1front,2back}.png)を S / M / L / XL のテンプレートに
+# M サイズ用の入稿データ(out/<パターン>-{light,dark}-{1front,2back}-full.png)を S / M / L / XL のテンプレートに
 # 当てはめたできあがりイメージを作る(SUZURI はサイズごとの画像を受け付けず、1 枚の画像を各サイズの推奨サイズに
 # 引き伸ばすものとして、推奨サイズへ非等倍に拡大縮小してからそのサイズの黒線でくり抜く)。
-#   ./preview-sizes.sh b   → out/size-{light,dark}-{S,M,L,XL}.png(表裏ペア、幅 1600px)
+#   ./preview-sizes.sh b   → out/size-{light,dark}-{S,M,L,XL}.png(表裏ペア、幅 1600px。手元で見るだけなので追跡しない)
 # 要: ImageMagick(magick)
 set -euo pipefail
 cd "$(dirname "$0")"
+mkdir -p out
 P=${1:-b}
 TPL=../../suzuri-template-full-graphic-t-shirt
 SCALE=0.2  # テンプレート原寸に対する作業倍率
@@ -34,7 +35,7 @@ for size in S M L XL; do
       ny=$(printf '%.0f' "$(echo "$sh*$([ $side = front ] && echo 0.068 || echo 0.038)" | bc -l)")
       magick out/tmp_f.png -fill white -draw "color $nx,$ny floodfill" -negate out/tmp_mask.png
       # 入稿データをそのサイズに引き伸ばし、マスクでくり抜いて灰色の地に置き、黒線を重ねる
-      magick "out/$P-$mode-$(num_of $side).png" -resize "${sw}x${sh}!" out/tmp_mask.png \
+      magick "out/$P-$mode-$(num_of $side)-full.png" -resize "${sw}x${sh}!" out/tmp_mask.png \
         -alpha off -compose CopyOpacity -composite -background '#9a9a94' -alpha remove out/tmp_cut.png
       magick out/tmp_cut.png \( out/tmp_line.png -negate -alpha off -fill '#333' -opaque black -transparent white \) \
         -compose over -composite "out/tmp_$side.png"

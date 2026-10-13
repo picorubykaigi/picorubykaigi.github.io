@@ -1,10 +1,2 @@
-T-shirt-*.pdf
-*-light-*.png
-*-dark-*.png
-mask_*.png
-cut_*.png
-tmp_*.png
-size-*.png
-can-case-*.png
-multi-case-*.png
-mini-multi-case-*.png
+*
+!.gitignore

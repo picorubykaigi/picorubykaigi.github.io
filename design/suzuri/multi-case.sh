@@ -3,27 +3,25 @@
 # 上下のタブは端を閉じる。地もドットもなしの透過で、正面に Ruby とその下に c のパーツ 3 列 x 4 行、
 # 左の折り返し(折ったとき外側=背面に見える)に文字ロゴ(1 行目 PicoRubyKaigi、2 行目 2026 Assemble)を 90 度回して置き、
 # 右の折り返しには、折って重ねたときそのロゴの左に来る位置にきらきらを置く。
-#   ./multi-case.sh       → out/multi-case-c.png(通常、テンプレート suzuri-template-clear-multi-case 3545x4465px)
-#   ./multi-case.sh mini  → out/mini-multi-case-c.png(ミニ、suzuri-template-mini-clear-multi-case 2735x3118px。正面が狭いので Ruby なし)
-#   いずれも out/<名前>-preview.png(テンプレートの線を重ねた確認用)も作る
+#   ./multi-case.sh       → out/multi-case.png(通常、テンプレート suzuri-template-clear-multi-case 3545x4465px)
+#   ./multi-case.sh mini  → out/mini-multi-case.png(ミニ、suzuri-template-mini-clear-multi-case 2735x3118px。正面が狭いので Ruby なし)
+#   いずれも preview/<名前>-preview.png(テンプレートの線を重ねた確認用、長辺 1600px 以内・256 色)も作る
 # 要: Google Chrome、ImageMagick(magick)、Ghostscript(確認用に .ai を描くため)
 set -euo pipefail
 cd "$(dirname "$0")"
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-mkdir -p out
+mkdir -p out preview
 
 case "${1:-}" in
   mini)
     # ホックの穴は x 342 / 2393、y 1045 / 2066(環の半径は左 88、右 58)。右上(1955, 836)にストラップ用のリング。折り目は x 855 / 1880
-    TPL=../../suzuri-template-mini-clear-multi-case/mini-clear-multi-case.ai; NAME=mini-multi-case-c
+    TPL=../../suzuri-template-mini-clear-multi-case/mini-clear-multi-case.ai; NAME=mini-multi-case
     CW=2735; CH=3118; FRONT_X=1367; FLAP_X=506; BODY_Y=1556; KIRA_X=2556
-    FOLD_L=855; FOLD_R=1880; HOLE_X=342; HOLE_Y1=1045; HOLE_Y2=2066; HOLE_R=88; CUT_L=135; CUT_R=2596
     GRID_W=810; RUBY_W=0; GAP=0; LIFT=0; LOGO_L=900 ;;   # ロゴはホックの環(x 254-430)の右に置く。ミニは正面が狭いので Ruby なし(格子だけを上下中央に)
   *)
     # ホックの穴は x 443 / 3102、y 1223 / 3242(環の半径 93)。折り目は x 1107 / 2437(正面は幅 1330)
-    TPL=../../suzuri-template-clear-multi-case/clear-multi-case.ai; NAME=multi-case-c
+    TPL=../../suzuri-template-clear-multi-case/clear-multi-case.ai; NAME=multi-case
     CW=3545; CH=4465; FRONT_X=1772; FLAP_X=627; BODY_Y=2222; KIRA_X=3287
-    FOLD_L=1107; FOLD_R=2437; HOLE_X=443; HOLE_Y1=1223; HOLE_Y2=3242; HOLE_R=93; CUT_L=138; CUT_R=3414
     GRID_W=1050; RUBY_W=380; GAP=110; LIFT=150; LOGO_L=1500 ;;
 esac
 
@@ -71,15 +69,6 @@ place out/tmp_kira.png $KIRA_X $BODY_Y "out/$NAME.png"
 
 # 確認用: テンプレート(.ai)を同じ大きさに描いて、その上に入稿データを重ねる
 magick -density 72 "$TPL" -background white -flatten -resize "${CW}x${CH}!" -depth 8 -colorspace sRGB -type TrueColor out/tmp_tpl.png
-magick out/tmp_tpl.png "out/$NAME.png" -composite "out/$NAME-preview.png"
-# 確認用 2: 折って重ねた背面(背面側から見た向き)。左右の折り返し(切り線の内側)を折り目で裏返して正面の幅に重ね、ホックの位置に丸を描く
-FW=$(( FOLD_R - FOLD_L ))
-magick -size "${FW}x${CH}" xc:white \
-  \( "out/$NAME.png" -crop "$(( FOLD_L - CUT_L ))x${CH}+${CUT_L}+0" +repage -flop \) -geometry +0+0 -composite \
-  \( "out/$NAME.png" -crop "$(( CUT_R - FOLD_R ))x${CH}+${FOLD_R}+0" +repage -flop \) -geometry "+$(( FW - (CUT_R - FOLD_R) ))+0" -composite \
-  -flop -fill '#c8c8c8' -stroke '#555' -strokewidth 4 \
-  -draw "circle $(( FW - (FOLD_L - HOLE_X) )),$HOLE_Y1 $(( FW - (FOLD_L - HOLE_X) + HOLE_R )),$HOLE_Y1" \
-  -draw "circle $(( FW - (FOLD_L - HOLE_X) )),$HOLE_Y2 $(( FW - (FOLD_L - HOLE_X) + HOLE_R )),$HOLE_Y2" \
-  -bordercolor '#555' -border 3 "out/$NAME-folded-preview.png"
+magick out/tmp_tpl.png "out/$NAME.png" -composite -resize '1600x1600>' -dither None -colors 256 PNG8:"preview/$NAME-preview.png"
 command rm -f out/tmp_*.png
 magick identify -format "%f %wx%h\n" "out/$NAME.png"
