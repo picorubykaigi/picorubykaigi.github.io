@@ -2235,7 +2235,7 @@ html.dark .logo .kaigi {
   gap: 16px;
 }
 
-@media (min-width: 640px) {
+@media (min-width: 960px) {
   .speaker-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 24px;
