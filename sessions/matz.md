@@ -1,5 +1,5 @@
 ---
-title: TBD
+title: TBA
 speaker: まつもと|ゆきひろ
 kind: Keynote
 time: 10:45
