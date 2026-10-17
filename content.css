@@ -1509,6 +1509,12 @@ html.dark .session-kind {
   padding: 8px 20px 0;
 }
 
+@media (min-width: 761px) {
+  .session-columns:not(:has(.content-body)) {
+    grid-template-columns: minmax(0, 1fr) 260px;
+  }
+}
+
 .session-columns .content-body > :first-child {
   margin-top: 0;
 }
@@ -1573,7 +1579,7 @@ html.dark .session-aside {
   background: #212838;
 }
 
-.session-aside:not(:has(.session-bio)) {
+.session-columns:not(:has(.content-body)) .session-aside {
   padding-top: 32px;
   padding-bottom: 32px;
 }
@@ -1981,8 +1987,6 @@ html.dark .logo .kaigi {
   }
   .session-columns:not(:has(.content-body)) .session-aside {
     margin-top: 9px;
-  }
-  .session-aside:not(:has(.session-bio)) {
     padding: 28px 24px;
   }
 }
