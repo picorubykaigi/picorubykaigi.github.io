@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>PicoRubyKaigi 2026 Assemble 属性シール A5 面付け</title>
+<!-- layout.js(layout.rb が生成)の位置にシールを置き、帯の仕切りに薄い破線を印刷する。?cut でカットパス入りの見本(印刷用には付けない線を重ねる)。
+     入稿は build_sheet.sh で印刷用 PDF と見本 PDF を出す。 -->
+<link rel="stylesheet" href="stickers.css">
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+@page {
+  size: 148mm 210mm;
+  margin: 0;
+}
+
+html {
+  background: #888;
+}
+
+body {
+  padding: 8mm;
+}
+
+.sheet {
+  position: relative;
+  width: 148mm;
+  height: 210mm;
+  background: #fff;
+  overflow: hidden;
+}
+
+.sheet .sticker {
+  position: absolute;
+}
+
+.sheet .guide {
+  position: absolute;
+  border: 0 dashed #c8c8c8;
+}
+
+.sheet .guide.v {
+  border-left-width: .2mm;
+}
+
+.sheet .guide.h {
+  left: 0;
+  width: 100%;
+  border-top-width: .2mm;
+}
+
+body.cut .sheet .sticker svg path {
+  stroke: #e0007f;
+  stroke-width: .15;
+}
+
+@media print {
+  html {
+    background: none;
+  }
+
+  body {
+    padding: 0;
+  }
+}
+</style>
+</head>
+<body>
+<div class="sheet"></div>
+
+<script src="cutpaths.js"></script>
+<script src="layout.js"></script>
+<script src="stickers.js"></script>
+<script>
+if (location.search.includes('cut')) document.body.classList.add('cut');
+const sheet = document.querySelector('.sheet');
+// 帯の仕切りの目印(印刷する)
+LAYOUT.cuts.forEach((cut) => {
+  const guide = document.createElement('div');
+  if (cut.x === undefined) {
+    guide.className = 'guide h';
+    guide.style.top = `${cut.y}mm`;
+  } else {
+    guide.className = 'guide v';
+    guide.style.left = `${cut.x}mm`;
+    guide.style.top = `${cut.y1}mm`;
+    guide.style.height = `${cut.y2 - cut.y1}mm`;
+  }
+  sheet.appendChild(guide);
+});
+LAYOUT.items.forEach((item) => {
+  const element = document.createElement('div');
+  element.className = 'sticker';
+  element.dataset.sticker = item.name;
+  element.style.left = `${item.x}mm`;
+  element.style.top = `${item.y}mm`;
+  sheet.appendChild(element);
+  renderSticker(element);
+});
+</script>
+</body>
+</html>

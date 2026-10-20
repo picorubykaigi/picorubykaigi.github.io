@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>PicoRubyKaigi 2026 Assemble 名札 (はがき 100x148mm / 塗り足し3mm込み106x154mm)</title>
+<!-- 名札。ショップカード(design/shopcard)と同じブレッドボード地 + LED ロゴ + 電光掲示板で組む。
+     寸法は mm。html の背景グレーは塗り足しの外(撮影には入らない)。
+     ?capture=<role> でそのロールの 1 枚だけを左上に原寸で置く(build.sh が使う)。&marks=0 でトンボを消す(Affinity に貼る画像用) -->
+<link rel="stylesheet" href="stickers.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bitcount+Single:ELSH,wght@0..100,100..900&family=Micro+5&family=Jersey+10&family=DotGothic16&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  background: #888;
+}
+
+body {
+  font-family: 'DotGothic16', monospace;
+  padding: 8mm;
+  display: flex;
+  flex-direction: column;
+  gap: 10mm;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.row {
+  display: flex;
+  gap: 8mm;
+  align-items: flex-start;
+}
+
+.label {
+  width: 100%;
+  color: #eee;
+  font-size: 3.2mm;
+  letter-spacing: .06em;
+}
+
+body.capture {
+  display: block;
+  padding: 0;
+  gap: 0;
+}
+
+body.capture .label,
+body.capture .row {
+  display: none;
+}
+
+body.capture .row.show {
+  display: block;
+}
+
+body.capture .card {
+  display: none;
+}
+
+body.capture .card.show {
+  display: block;
+}
+
+/* 一覧では塗り足し 3mm を切り落とし、仕上がりの見え方で並べる */
+body:not(.capture) .card {
+  clip-path: inset(3mm);
+  margin: -3mm;
+}
+
+/* カード(仕上がり 100x148 + 塗り足し 3mm) */
+.card {
+  position: relative;
+  width: 106mm;
+  height: 154mm;
+  overflow: hidden;
+  flex: none;
+  --ink: #26242f;
+  --line: #d8d4c4;
+  --led: 246, 75, 91;
+  color: var(--ink);
+  background:
+    url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2724%27%3E%3Crect%20x=%279.5%27%20y=%279.5%27%20width=%275%27%20height=%275%27%20fill=%27%2339352b%27%20fill-opacity=%27.11%27/%3E%3Crect%20x=%2711%27%20y=%2711%27%20width=%275%27%20height=%275%27%20fill=%27%231c180e%27%20fill-opacity=%27.14%27/%3E%3C/svg%3E") left 1.9mm top 1.9mm / 2.6mm 2.6mm repeat,
+    #eceade;
+}
+
+/* トンボ: 仕上がり線(3mm)の延長を塗り足し帯に引く(?marks=0 で消す) */
+body.nomarks .card::after {
+  display: none;
+}
+
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 99;
+  --tb: rgba(70, 70, 70, .8);
+  background-image:
+    linear-gradient(var(--tb) 0 0), linear-gradient(var(--tb) 0 0),
+    linear-gradient(var(--tb) 0 0), linear-gradient(var(--tb) 0 0),
+    linear-gradient(var(--tb) 0 0), linear-gradient(var(--tb) 0 0),
+    linear-gradient(var(--tb) 0 0), linear-gradient(var(--tb) 0 0);
+  background-repeat: no-repeat;
+  background-size:
+    2.5mm .12mm, .12mm 2.5mm,
+    2.5mm .12mm, .12mm 2.5mm,
+    2.5mm .12mm, .12mm 2.5mm,
+    2.5mm .12mm, .12mm 2.5mm;
+  background-position:
+    left 0 top 3mm,      left 3mm top 0,
+    right 0 top 3mm,     right 3mm top 0,
+    left 0 bottom 3mm,   left 3mm bottom 0,
+    right 0 bottom 3mm,  right 3mm bottom 0;
+}
+
+/* ロールごとの LED 色: Attendee=白 / Speaker=PicoRuby のピンク(#f64b5b) / Staff=リン光グリーン(#6ef0a0) */
+.card.attendee {
+  --led: 255, 255, 255;
+}
+
+.card.speaker {
+  --led: 246, 75, 91;
+}
+
+.card.staff {
+  --led: 110, 240, 160;
+}
+
+/* ロールの帯 = 電光掲示板 */
+.band {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 17mm;
+  padding-top: 3mm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #16141c;
+}
+
+/* ドットはサイトの .ticker::after と同じ比率(帯の高さの 1/10 ピッチ、直径はその 2/5)。印刷で飛ばないよう少し濃く */
+.band::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(var(--led), .2) .28mm, transparent .45mm);
+  background-size: 1.4mm 1.4mm;
+  pointer-events: none;
+}
+
+.band .role {
+  font-family: 'Jersey 10', sans-serif;
+  font-size: 8.9mm;
+  line-height: .58;
+  letter-spacing: .28em;
+  text-indent: .28em;
+  color: rgb(var(--led));
+  white-space: nowrap;
+  transform: translateY(.35mm);
+}
+
+/* 名前欄(白プレート) */
+.plate {
+  position: absolute;
+  left: 9mm;
+  right: 9mm;
+  top: 21mm;
+  height: 46mm;
+  background: #fff;
+  border: .4mm solid var(--line);
+  border-radius: 2mm;
+}
+
+/* デコ欄はプレートにせず、ブレッドボードに「挿す場所」の破線を描く(サイトの circuit-slot と同じ見立て) */
+.deco {
+  position: absolute;
+  left: 9mm;
+  right: 9mm;
+  top: 71mm;
+  height: 58mm;
+  border: .5mm dashed #8a8678;
+  border-radius: 2mm;
+}
+
+/* 欄のラベル(名前 / デコ): 欄の左上の内側に薄い字で書く */
+.tag {
+  position: absolute;
+  z-index: 2;
+  left: 2.6mm;
+  top: 2mm;
+  white-space: nowrap;
+  font-family: 'Jersey 10', sans-serif;
+  font-size: 3.9mm;
+  line-height: .8;
+  letter-spacing: .1em;
+  color: #a5a196;
+}
+
+/* シールを貼った例(stickers.html のシールをデコ欄に置く) */
+.card .sticker {
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+
+.inline-logo {
+  position: absolute;
+  left: 9mm;
+  right: 9mm;
+  top: 133.2mm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4.6mm;
+}
+
+.lockup-ruby {
+  width: 12.8mm;
+  transform: translateY(-1mm);
+}
+
+.lockup-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .75mm;
+  transform: translateY(.2mm);
+}
+
+.prk {
+  font-family: 'Bitcount Single', sans-serif;
+  font-size: 8mm;
+  line-height: .86;
+  letter-spacing: .04em;
+  font-variation-settings: 'wght' 330, 'ELSH' 50;
+}
+
+.prk .picoruby,
+.prk .kaigi {
+  white-space: nowrap;
+  paint-order: stroke fill;
+}
+
+.prk .picoruby {
+  color: #f64b5b;
+  -webkit-text-stroke: .48mm #da1d3c;
+}
+
+.prk .kaigi {
+  color: #fff;
+  -webkit-text-stroke: .48mm #454747;
+}
+
+.prk .k2 {
+  letter-spacing: .036em;
+}
+
+.prk .k3 {
+  letter-spacing: .029em;
+}
+
+.prk .k4 {
+  letter-spacing: .022em;
+}
+
+.prk .k5 {
+  letter-spacing: .015em;
+}
+
+.prk .kP {
+  letter-spacing: .026em;
+}
+
+.row2 {
+  display: flex;
+  align-items: center;
+  gap: 1.9mm;
+  line-height: 1;
+  position: relative;
+  left: -1.5mm;
+}
+
+.year {
+  font-family: 'Micro 5', sans-serif;
+  font-size: 5.4mm;
+  line-height: .8;
+  letter-spacing: .14em;
+  text-indent: .12em;
+}
+
+.assemble {
+  font-family: 'Jersey 10', sans-serif;
+  font-size: 4.1mm;
+  letter-spacing: .14em;
+  text-indent: .18em;
+}
+
+</style>
+</head>
+<body>
+
+<div class="label">シール(stickers.html)を貼った例</div>
+<div class="row">
+  <div class="card attendee">
+    <div class="band"><span class="role">ATTENDEE</span></div>
+    <div class="plate"><span class="tag">NAME</span></div>
+    <div class="deco"><span class="tag">ASSEMBLED WITH</span></div>
+    <div class="sticker" data-sticker="newbie" style="left: 24mm; top: 86mm;"></div>
+    <div class="sticker" data-sticker="led" style="left: 53mm; top: 86mm;"></div>
+    <div class="sticker" data-sticker="keyboard" style="left: 82mm; top: 86mm;"></div>
+    <div class="sticker" data-sticker="motor" style="left: 24mm; top: 114mm;"></div>
+    <div class="sticker" data-sticker="game" style="left: 53mm; top: 114mm;"></div>
+    <div class="sticker" data-sticker="ruby" style="left: 82mm; top: 114mm;"></div>
+    <div class="sticker" data-sticker="wifi" style="left: 91mm; top: 98.5mm;"></div>
+    <div class="inline-logo">
+      <img class="lockup-ruby" src="../../images/ruby-1.png" alt="">
+      <div class="lockup-text">
+        <div class="prk"><span class="picoruby"><span class="kP">P</span><span class="k4">ic</span>oRu<span class="k2">b</span>y</span><span class="kaigi"><span class="k4">K</span><span class="k3">a</span><span class="k5">i</span><span class="k3">g</span>i</span></div>
+        <div class="row2"><div class="year">2026</div><div class="assemble">Assemble</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="card speaker">
+    <div class="band"><span class="role">SPEAKER</span></div>
+    <div class="plate"><span class="tag">NAME</span></div>
+    <div class="deco"><span class="tag">ASSEMBLED WITH</span></div>
+    <div class="sticker" data-sticker="sparkle" style="left: 24mm; top: 86mm;"></div>
+    <div class="sticker" data-sticker="sound" style="left: 53mm; top: 86mm;"></div>
+    <div class="sticker" data-sticker="pico" style="left: 82mm; top: 86mm;"></div>
+    <div class="sticker" data-sticker="esp32" style="left: 24mm; top: 114mm;"></div>
+    <div class="sticker" data-sticker="soldering" style="left: 53mm; top: 114mm;"></div>
+    <div class="sticker" data-sticker="pockecon" style="left: 82mm; top: 114mm;"></div>
+    <div class="inline-logo">
+      <img class="lockup-ruby" src="../../images/ruby-1.png" alt="">
+      <div class="lockup-text">
+        <div class="prk"><span class="picoruby"><span class="kP">P</span><span class="k4">ic</span>oRu<span class="k2">b</span>y</span><span class="kaigi"><span class="k4">K</span><span class="k3">a</span><span class="k5">i</span><span class="k3">g</span>i</span></div>
+        <div class="row2"><div class="year">2026</div><div class="assemble">Assemble</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="label">ロール</div>
+<div class="row roles">
+  <div class="card attendee">
+    <div class="band"><span class="role">ATTENDEE</span></div>
+    <div class="plate"><span class="tag">NAME</span></div>
+    <div class="deco"><span class="tag">ASSEMBLED WITH</span></div>
+    <div class="inline-logo">
+      <img class="lockup-ruby" src="../../images/ruby-1.png" alt="">
+      <div class="lockup-text">
+        <div class="prk"><span class="picoruby"><span class="kP">P</span><span class="k4">ic</span>oRu<span class="k2">b</span>y</span><span class="kaigi"><span class="k4">K</span><span class="k3">a</span><span class="k5">i</span><span class="k3">g</span>i</span></div>
+        <div class="row2"><div class="year">2026</div><div class="assemble">Assemble</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="card speaker">
+    <div class="band"><span class="role">SPEAKER</span></div>
+    <div class="plate"><span class="tag">NAME</span></div>
+    <div class="deco"><span class="tag">ASSEMBLED WITH</span></div>
+    <div class="inline-logo">
+      <img class="lockup-ruby" src="../../images/ruby-1.png" alt="">
+      <div class="lockup-text">
+        <div class="prk"><span class="picoruby"><span class="kP">P</span><span class="k4">ic</span>oRu<span class="k2">b</span>y</span><span class="kaigi"><span class="k4">K</span><span class="k3">a</span><span class="k5">i</span><span class="k3">g</span>i</span></div>
+        <div class="row2"><div class="year">2026</div><div class="assemble">Assemble</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="card staff">
+    <div class="band"><span class="role">STAFF</span></div>
+    <div class="plate"><span class="tag">NAME</span></div>
+    <div class="deco"><span class="tag">ASSEMBLED WITH</span></div>
+    <div class="inline-logo">
+      <img class="lockup-ruby" src="../../images/ruby-1.png" alt="">
+      <div class="lockup-text">
+        <div class="prk"><span class="picoruby"><span class="kP">P</span><span class="k4">ic</span>oRu<span class="k2">b</span>y</span><span class="kaigi"><span class="k4">K</span><span class="k3">a</span><span class="k5">i</span><span class="k3">g</span>i</span></div>
+        <div class="row2"><div class="year">2026</div><div class="assemble">Assemble</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="cutpaths.js"></script>
+<script src="stickers.js"></script>
+<script>
+  const params = new URLSearchParams(location.search);
+  const role = params.get('capture');
+  if (role) {
+    document.body.classList.add('capture');
+    if (params.get('marks') === '0') document.body.classList.add('nomarks');
+    document.querySelector('.row.roles').classList.add('show');
+    document.querySelector(`.row.roles .card.${role}`).classList.add('show');
+  }
+</script>
+</body>
+</html>
