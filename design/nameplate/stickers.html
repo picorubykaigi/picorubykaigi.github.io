@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>PicoRubyKaigi 2026 Assemble 名札の属性シール</title>
+<!-- 名札のデコスペースに貼る属性シールの案。サイトにあるパーツ画像(motor/ruby-mini)はそのまま使い、画像生成の絵は images/ に置く(strip_background.rb で地を抜いたもの)。 -->
+<link rel="stylesheet" href="stickers.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Micro+5&family=DotGothic16&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  background: #888;
+}
+
+body {
+  font-family: 'DotGothic16', monospace;
+  padding: 8mm;
+  display: flex;
+  flex-direction: column;
+  gap: 6mm;
+  color: #eee;
+}
+
+.sheet {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6mm;
+  align-items: center;
+}
+</style>
+</head>
+<body>
+
+<div class="sheet">
+  <div class="sticker" data-sticker="newbie"></div>
+  <div class="sticker" data-sticker="led"></div>
+  <div class="sticker" data-sticker="ruby"></div>
+  <div class="sticker" data-sticker="motor"></div>
+  <div class="sticker" data-sticker="pico"></div>
+  <div class="sticker" data-sticker="esp32"></div>
+  <div class="sticker" data-sticker="soldering"></div>
+</div>
+<div class="sheet">
+  <div class="sticker" data-sticker="pockecon"></div>
+  <div class="sticker" data-sticker="keyboard"></div>
+  <div class="sticker" data-sticker="game"></div>
+  <div class="sticker" data-sticker="sound"></div>
+  <div class="sticker" data-sticker="sparkle"></div>
+  <div class="sticker" data-sticker="wifi"></div>
+</div>
+
+<script src="cutpaths.js"></script>
+<script src="stickers.js"></script>
+</body>
+</html>

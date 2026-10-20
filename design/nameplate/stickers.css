@@ -1,0 +1,10 @@
+/* 属性シール。絵の形にそったカットパス(cutpath.rb → cutpaths.js)で、絵の 2mm 外側を白フチにして切り抜く。
+   印刷は自由型ラベルシール(マルチタイプ)、カットパスは自作。index.html の名札にも貼って見せるので別ファイル */
+.sticker {
+  display: block;
+  flex: none;
+}
+
+.sticker svg {
+  display: block;
+}
