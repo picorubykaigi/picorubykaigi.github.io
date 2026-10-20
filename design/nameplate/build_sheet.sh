@@ -1,14 +1,15 @@
 #!/bin/bash
 # 属性シールの入稿データ(A5 面付け)のビルド。
-#   ./build_sheet.sh → out/stickers-a5-print.pdf(印刷用。カットパスの線なし) out/stickers-a5-cutpath.pdf(カットパス入りの見本) out/stickers-a5.zip(両方) out/stickers-a5-{print,cutpath}.png(低解像度のプレビュー。PDF と zip は重いので追跡せず、これだけ追跡する)
+#   ./build_sheet.sh → out/stickers-a5-print.pdf(印刷用。カットパスの線なし) out/stickers-a5-cutpath.pdf(カットパス入りの見本) out/stickers-a5.zip(両方)
+#   preview/stickers-a5-print.png も出す(低解像度のプレビュー。out/ は重いので追跡せず、preview/ だけ追跡する。縁がなめらかになるよう 480dpi で描いて 1/4 に縮める)
 # 入稿先は Illustrator 以外で作るとき「カットパス入りの見本」と「カットパスを消した印刷用データ」の 2 点入稿。
 # Chrome の PDF は RGB なので、Ghostscript で CMYK に変換する(画像は間引かない。透過はそのまま残る)。ファイル名は半角英数字。
-# 要: Google Chrome, Ghostscript(gs), zip
+# 要: Google Chrome, Ghostscript(gs), ImageMagick(magick), zip
 set -euo pipefail
 cd "$(dirname "$0")"
 
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-mkdir -p out
+mkdir -p out preview
 tmp=$(mktemp -d)
 trap 'command rm -rf "$tmp"' EXIT
 
@@ -27,9 +28,8 @@ for mode in print cutpath; do
     -dAutoFilterGrayImages=false -dGrayImageFilter=/FlateEncode \
     -sOutputFile="out/stickers-a5-$mode.pdf" "$tmp/$mode.pdf"
 done
-for mode in print cutpath; do
-  gs -q -dNOPAUSE -dBATCH -sDEVICE=png16m -r120 -sOutputFile="out/stickers-a5-$mode.png" "out/stickers-a5-$mode.pdf"
-done
+gs -q -dNOPAUSE -dBATCH -sDEVICE=png16m -r480 -sOutputFile="$tmp/preview.png" out/stickers-a5-print.pdf
+magick "$tmp/preview.png" -resize 25% preview/stickers-a5-print.png
 command rm -f out/stickers-a5.zip
 (cd out && zip -q stickers-a5.zip stickers-a5-print.pdf stickers-a5-cutpath.pdf)
-echo "done: out/stickers-a5-print.pdf out/stickers-a5-cutpath.pdf out/stickers-a5.zip out/stickers-a5-{print,cutpath}.png (A5 148x210mm, CMYK)"
+echo "done: out/stickers-a5-print.pdf out/stickers-a5-cutpath.pdf out/stickers-a5.zip preview/stickers-a5-print.png (A5 148x210mm, CMYK)"

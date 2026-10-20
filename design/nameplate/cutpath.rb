@@ -194,7 +194,7 @@ STICKERS.each do |name, spec|
     factor = (MIN_PPI * ((spec[:width] || spec[:height] * src_w / src_h.to_f) * SIZE) / 25.4 / src_w).ceil
     if factor > 1
       src = "images/#{name}-up.png"
-      system('magick', spec[:src], '-scale', "#{factor * 100}%", src) || abort("#{name} の拡大に失敗")
+      system('magick', spec[:src], '-scale', "#{factor * 100}%", '-define', 'png:exclude-chunks=date,time', src) || abort("#{name} の拡大に失敗")
       src_w *= factor
       src_h *= factor
     end
