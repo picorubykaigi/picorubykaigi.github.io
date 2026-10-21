@@ -535,6 +535,7 @@ img {
 
 .sponsor-card {
   min-width: 0;
+  container-type: inline-size;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -595,6 +596,79 @@ a.sponsor-logo:hover img,
   font-weight: 700;
   line-height: 1.55;
   letter-spacing: .1em;
+}
+
+.sponsor-role {
+  --spk-fill: #fff;
+  --spk-line: #26242f;
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: .08em;
+  white-space: nowrap;
+  padding: 1px 3px 0 5px;
+  border: 5px solid var(--spk-line);
+  border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Cg fill='%2326242f'%3E%3Crect x='4' y='0' width='8' height='2'/%3E%3Crect x='4' y='14' width='8' height='2'/%3E%3Crect x='0' y='4' width='2' height='8'/%3E%3Crect x='14' y='4' width='2' height='8'/%3E%3Crect x='2' y='2' width='2' height='2'/%3E%3Crect x='12' y='2' width='2' height='2'/%3E%3Crect x='2' y='12' width='2' height='2'/%3E%3Crect x='12' y='12' width='2' height='2'/%3E%3C/g%3E%3C/svg%3E") 6 fill / 5px stretch;
+  margin-left: 8px;
+  transform: translateY(-2px);
+}
+
+.sponsor-role::before,
+.sponsor-role::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.sponsor-role::before {
+  right: calc(100% + 3px);
+  width: 4px;
+  height: 6px;
+  box-sizing: border-box;
+  background: var(--spk-fill);
+  border-top: 2px solid var(--spk-line);
+  border-bottom: 2px solid var(--spk-line);
+}
+
+.sponsor-role::after {
+  right: calc(100% + 7px);
+  width: 2px;
+  height: 2px;
+  background: var(--spk-line);
+}
+
+@container (max-width: 470px) {
+  .sponsor-role {
+    display: block;
+    width: fit-content;
+    margin: 7px 0 4px;
+    transform: none;
+  }
+
+  .sponsor-role::before,
+  .sponsor-role::after {
+    top: auto;
+    right: auto;
+    transform: none;
+  }
+
+  .sponsor-role::before {
+    bottom: calc(100% + 3px);
+    left: 14px;
+    width: 6px;
+    height: 4px;
+    border: 0 solid var(--spk-line);
+    border-width: 0 2px;
+  }
+
+  .sponsor-role::after {
+    bottom: calc(100% + 7px);
+    left: 16px;
+  }
 }
 
 .sponsor-name a:hover,
@@ -1903,6 +1977,12 @@ html.dark .content-body :not(pre) > code { background: #2b3242; }
 html.dark .team-section h2 { background: #2b3242; }
 
 html.dark .sponsor-card { background: #212838; }
+
+html.dark .sponsor-role {
+  --spk-fill: #212838;
+  --spk-line: #fff;
+  border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Cg fill='%23ffffff'%3E%3Crect x='4' y='0' width='8' height='2'/%3E%3Crect x='4' y='14' width='8' height='2'/%3E%3Crect x='0' y='4' width='2' height='8'/%3E%3Crect x='14' y='4' width='2' height='8'/%3E%3Crect x='2' y='2' width='2' height='2'/%3E%3Crect x='12' y='2' width='2' height='2'/%3E%3Crect x='2' y='12' width='2' height='2'/%3E%3Crect x='12' y='12' width='2' height='2'/%3E%3C/g%3E%3C/svg%3E") 6 fill / 5px stretch;
+}
 
 
 html.dark .goodies-list { background: #212838; }
