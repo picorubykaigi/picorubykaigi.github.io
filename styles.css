@@ -1195,7 +1195,7 @@ body.dark .spk-hint {
   left: 0;
   top: 62%;                         /* 画面中ほど(通過が映える高さ) */
   height: 80px;
-  aspect-ratio: 2150 / 310;         /* prarail.png の比(高さから幅を決定) */
+  aspect-ratio: 2178 / 310;         /* prarail.png の比(高さから幅を決定) */
   z-index: 50;                      /* 手前を横切る */
   background: url('images/prarail.png') center/contain no-repeat;
   image-rendering: pixelated;
