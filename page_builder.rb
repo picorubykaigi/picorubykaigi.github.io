@@ -19,7 +19,8 @@ class PageBuilder
     'sponsors' => 'Sponsors',
     'jobs' => 'Jobs',
     'team' => 'Team',
-    'goodies' => 'Goodies'
+    'goodies' => 'Goodies',
+    'policies' => 'Policies'
   }.freeze
 
   # Pages that bring their own <head> (different stylesheets, fonts, OGP), so

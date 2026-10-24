@@ -2181,6 +2181,16 @@ html.dark .logo .kaigi {
   .events-header .team-dancers {
     gap: 8px;
   }
+  .policies-header .team-title {
+    font-size: clamp(30px, 8.5vw, 38px);
+    letter-spacing: .08em;
+  }
+  .policies-header .team-dancers {
+    gap: 8px;
+  }
+  .policies-body h2 {
+    font-size: 19px;
+  }
   .event-day + .event-day {
     margin-top: 40px;
   }
