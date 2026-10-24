@@ -1518,6 +1518,15 @@ html.dark .schedule-link:hover .schedule-icon {
   color: var(--muted);
 }
 
+.schedule-title-icon {
+  width: 20px;
+  height: 14px;
+  margin-left: 8px;
+  vertical-align: -2px;
+  fill: currentColor;
+  image-rendering: pixelated;
+}
+
 .schedule-speaker {
   font-size: 15px;
   line-height: 1.5;

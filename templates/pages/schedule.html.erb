@@ -6,7 +6,8 @@ slots = [
   'matz',
   'S-H-GAMELINKS',
   'Suzune2741',
-  { time: '12:10', minutes: 70, kind: :break, title: '昼休み' },
+  { time: '12:10', kind: :info, title: 'みんなで #rubyfriends', icon: 'camera' },
+  { time: '12:20', minutes: 60, kind: :break, title: '昼休み' },
   { time: '13:20', minutes: 40, kind: :showcase, title: 'Showcase', works: %w[harukasan yancya tarosay kubo_token] },
   'ydah',
   { time: '14:25', minutes: 30, kind: :break, title: 'ひと休み' },
@@ -26,6 +27,9 @@ end
   <svg width="0" height="0" aria-hidden="true" style="position:absolute">
     <symbol id="icon-new-tab" viewBox="0 0 7 7">
       <path d="M0 2h2v1H1v3h3V5h1v2H0zM3 0h4v4H6V2H5v1H4v1H3v1H2V4h1V3h1V2h1V1H3z"/>
+    </symbol>
+    <symbol id="icon-camera" viewBox="0 0 10 7">
+      <path d="M1 0h1v1H1z M3 0h4v1H3z M0 1h10v1H0z M0 2h4v1H0z M6 2h4v1H6z M0 3h3v1H0z M7 3h3v1H7z M0 4h3v1H0z M7 4h3v1H7z M0 5h4v1H0z M6 5h4v1H6z M0 6h10v1H0z"/>
     </symbol>
   </svg>
 
@@ -79,7 +83,7 @@ end
                 </div>
               </a>
     <%- else -%>
-              <h3 class="schedule-title"><%= escape(slot[:title]) %></h3>
+              <h3 class="schedule-title"><%= escape(slot[:title]) %><%- if slot[:icon] -%><svg class="schedule-title-icon" aria-hidden="true"><use href="#icon-<%= slot[:icon] %>"/></svg><%- end -%></h3>
       <%- if slot[:speaker] -%>
               <p class="schedule-speaker"><%= escape(slot[:speaker]) %></p>
       <%- end -%>
