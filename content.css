@@ -1193,7 +1193,8 @@ html.dark .job-link a:hover .job-led {
   margin-top: 4px;
 }
 
-.event-meta dt {
+.event-meta dt,
+.event-note-icon {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1232,6 +1233,20 @@ html.dark .job-link a:hover .job-led {
 }
 
 .event-meta dd a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.event-note {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 10px;
+  margin-top: 4px;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.event-note a {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
