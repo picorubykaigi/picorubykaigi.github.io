@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>PicoRubyKaigi 2026 Assemble ステッカー</title>
+<!-- 採用したステッカー。main は 5cm角(プリントパック フルカラーステッカー)、party は 3cm角(同 シール印刷)。html の背景をグレーにして枠の端を見せる -->
+<link rel="stylesheet" href="stickers.css">
+</head>
+<body>
+
+<div class="row">
+<!-- main: 5cm角 -->
+<div class="item">
+  <div class="sticker main">
+    <div class="img ruby"></div>
+    <div class="title">
+      <div class="prk"><span class="picoruby"><span class="kP">P</span><span class="k4">ic</span>oRu<span class="k2">b</span>y</span><span class="kaigi"><span class="k4">K</span><span class="k3">a</span><span class="k5">i</span><span class="k3">g</span>i</span></div>
+      <div class="row2"><div class="year">2026</div><div class="assemble">Assemble</div></div>
+    </div>
+  </div>
+  <div class="label">main</div>
+</div>
+
+<!-- party: 3cm角 -->
+<div class="item">
+  <div class="sticker e e15 g3 dark s30">
+    <div class="scale">
+      <div class="ring-h"></div>
+      <div class="ring-v"></div>
+      <div class="rubyg"></div>
+      <div class="party-text rainbow-rev-green2">PARTY</div>
+      <div class="spark pink" style="left: 37.5mm; top: 9.5mm;"></div>
+      <div class="spark blue" style="left: 10.5mm; top: 27mm;"></div>
+    </div>
+  </div>
+  <div class="label">party</div>
+</div>
+</div>
+
+<script>
+// ?r=6 で角丸の半径(mm)を変える
+const radius = new URLSearchParams(location.search).get('r');
+if (radius) document.body.style.setProperty('--r', radius + 'mm');
+</script>
+</body>
+</html>
