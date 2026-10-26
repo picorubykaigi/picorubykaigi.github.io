@@ -69,7 +69,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3mm;
+  gap: 6mm;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
 }
@@ -103,7 +103,11 @@ body {
 .plate .jp.long { font-size: 23mm; }     /* 「持ち込み展示」など字数が多いとき */
 .plate .en {
   font-family: 'Jersey 10', sans-serif;
-  font-size: 8mm;
+  /* Jersey 10 はドットフォントで字面が小さい。8mm だと紙の上の字の高さが 4.2mm しかなく、
+     R / E / P / O の中の穴が潰れて読みにくかった。13mm で字の高さ 6.8mm。
+     最長の ADVENTURE BOARD PICKUP でも 181mm で、日本語の上限 230mm の内側に収まる。
+     15mm まで上げると英字が日本語とほぼ同じ幅になり、添えものではなくなるのでここで止める */
+  font-size: 13mm;
   line-height: 1;
   letter-spacing: .26em;
   text-indent: .26em;
