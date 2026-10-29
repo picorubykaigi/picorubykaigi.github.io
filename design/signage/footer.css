@@ -1,0 +1,47 @@
+/* どの案内にも入れる足もとの 1 行。
+   部品を左右に振り分け、中央にワードマーク。長さは mm。
+   会場のサイン(signage.css)と名札の案内(../nametag/index.html)の両方がこれを読み込む。
+   部品の画像はサイト本体の ../../images/ を直接参照する(コピーを置かない)。
+   ワードマークだけは signage/images/logo-2line.png。 */
+
+/* ===== 足もと: 1 行。部品を左右に振り分け、中央にワードマーク。
+   ワードマークに Ruby のマークは入れない(Ruby は部品として右端に並ぶため) ===== */
+.bar {
+  flex: none;
+  height: 28mm;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 13mm;
+  padding: 0 12.5mm 6mm;
+}
+.bar .side {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  gap: 10mm;
+}
+.bar .side.l { justify-content: flex-end; }
+.bar .side.r { justify-content: flex-start; }
+.bar .word {
+  flex: none;
+  padding-bottom: .5mm;
+}
+.bar .word img {
+  /* 2 行のロゴ(signage/images/logo-2line.png)。高さの 56.1% が「PicoRubyKaigi」の帯なので、
+     12.5mm で文字ロゴの実寸は約 7.0mm。2 行ぶん背が高いので、部品(13mm)より気持ち低くすると
+     足もとが 1 本の帯として収まる */
+  height: 12.5mm;
+  width: auto;
+}
+
+/* 部品の大きさは高さ一律 13mm。
+   「見た目の面積を揃える」ために 1 個ずつ高さを変えていたが、実測すると紙の上の
+   インクの面積は 69〜187mm2 と 2.7 倍ばらついていて揃っていなかった。
+   面積を本当に揃えると Ruby だけ主役級に大きくなり、7seg が小さくなって読みにくい。
+   元画像の解像度がばらばら(137〜353px)なので、ドットの粒を揃える手も使えない。
+   高さ一律ならルールが一言で言え、部品を差し替えても迷わない。 */
+.bar .side img {
+  height: 13mm;
+  width: auto;
+}

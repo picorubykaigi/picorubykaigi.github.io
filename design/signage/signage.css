@@ -1,0 +1,174 @@
+/* 会場の案内・サインの共通の枠。
+   ブレッドボードの地 → その上に白いプレート(部品)を置き、中に文字を入れる。
+   足もとは 1 行で、部品を左右に振り分け、中央にワードマーク。
+   長さはすべて mm。印刷するとそのままの寸法になる。
+   使う側は signage.css を読み込んで、.paper > .sheet > (.plate, .bar) を書く。 */
+
+@import url('https://fonts.googleapis.com/css2?family=Micro+5&family=Jersey+10&family=DotGothic16&display=swap');
+/* 足もとの 1 行は footer.css(名札の案内と共通) */
+@import url('footer.css');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+img {
+  display: block;
+  image-rendering: pixelated;
+}
+
+@page {
+  size: A4 landscape;
+  margin: 0;
+}
+
+body {
+  background: #b9b9b3;
+  font-family: 'DotGothic16', sans-serif;
+  color: #26242f;
+}
+
+/* ===== 紙: A4 ヨコ 297x210mm。
+   フチなし印刷ができないプリンタでも刷れるよう、外周 5mm は白のまま残す ===== */
+.paper {
+  position: relative;
+  width: 297mm;
+  height: 210mm;
+  background: #fff;
+  padding: 5mm;
+  overflow: hidden;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* ===== 地: ブレッドボード(サイトの --bg + 6mm 格子の穴のドット) ===== */
+.sheet {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background:
+    url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2724%27%3E%3Crect%20x=%279.5%27%20y=%279.5%27%20width=%275%27%20height=%275%27%20fill=%27%2339352b%27%20fill-opacity=%27.11%27/%3E%3Crect%20x=%2711%27%20y=%2711%27%20width=%275%27%20height=%275%27%20fill=%27%231c180e%27%20fill-opacity=%27.14%27/%3E%3C/svg%3E") 0 0 / 6mm 6mm,
+    #eceade;
+}
+
+/* ===== 地の上に載せる「部品」= 白いプレート。中身(文字・手書き)はこの中に入れる。
+   作りはサイトの .speaker-card(白・角丸・四隅の丸)と同じで、A4 用に太くしてある ===== */
+.plate {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  margin: 9mm 12.5mm 0;
+  background: #fff;
+  border: 1mm solid #d8d4c4;
+  border-radius: 4mm;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6mm;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+/* 四隅の取り付け穴。4 つのうち下 2 つは .plate > i が持つ */
+.plate::before,
+.plate::after,
+.plate > i::before,
+.plate > i::after {
+  content: '';
+  position: absolute;
+  width: 5.2mm;
+  height: 5.2mm;
+  border-radius: 50%;
+  border: 1mm solid #d8d4c4;
+  background: #f6f4ea;
+}
+.plate::before { left: 4.2mm; top: 4.2mm; }
+.plate::after  { right: 4.2mm; top: 4.2mm; }
+.plate > i::before { left: 4.2mm; bottom: 4.2mm; }
+.plate > i::after  { right: 4.2mm; bottom: 4.2mm; }
+
+/* プレートに刷る文字。手書きの案内では空のままにする。
+   英字は Jersey 10(サイトが `- Assemble -`・Keynote/Talk 見出し・時刻に使っているもの)。
+   Bitcount Grid Single はサイトの @import にあるだけで 1 箇所も使われていないので使わない */
+.plate .jp {
+  font-size: 33mm;
+  line-height: 1;
+  letter-spacing: .06em;
+  text-align: center;
+}
+.plate .jp.long { font-size: 23mm; }     /* 「持ち込み展示」など字数が多いとき */
+.plate .en {
+  font-family: 'Jersey 10', sans-serif;
+  /* Jersey 10 はドットフォントで字面が小さい。8mm だと紙の上の字の高さが 4.2mm しかなく、
+     R / E / P / O の中の穴が潰れて読みにくかった。13mm で字の高さ 6.8mm。
+     最長の ADVENTURE BOARD PICKUP でも 181mm で、日本語の上限 230mm の内側に収まる。
+     15mm まで上げると英字が日本語とほぼ同じ幅になり、添えものではなくなるのでここで止める */
+  font-size: 13mm;
+  line-height: 1;
+  letter-spacing: .26em;
+  text-indent: .26em;
+  color: #c0223a;
+}
+
+/* QR を載せる案内(ハッシュタグなど)。主役は文字なので、QR は小さく下に置く */
+.plate .qr {
+  width: 36mm;
+  height: 36mm;
+  background: #fff;
+  border: .5mm solid #d8d4c4;
+  border-radius: 2mm;
+  padding: 2mm;
+  margin-top: 16mm;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.plate .qr img {
+  width: 100%;
+  height: 100%;
+  image-rendering: auto;
+}
+.plate .note {
+  font-size: 4.6mm;
+  line-height: 1.5;
+  margin-top: 2.5mm;
+  text-align: center;
+  color: #4a4740;
+}
+
+/* ===== 画面表示: 窓幅に合わせて縮小する(印刷と ?capture は等倍) ===== */
+body.screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+}
+body.screen .scaler {
+  width: calc(297mm * var(--s, 1));
+  height: calc(210mm * var(--s, 1));
+}
+body.screen .paper {
+  transform: scale(var(--s, 1));
+  transform-origin: 0 0;
+}
+/* 一覧表示のときに紙の上に出す名前。クラス名を .label にすると
+   使う側(名札の案内の「写真OK」など)と衝突するので .caption にしてある */
+body.screen .caption {
+  width: calc(297mm * var(--s, 1));
+  font-size: 13px;
+  color: #3a3a36;
+}
+
+@media print {
+  body { background: none; }
+  body.screen { display: block; padding: 0; gap: 0; }
+  body.screen .scaler { width: 297mm; height: 210mm; }
+  body.screen .paper { transform: none; }
+  body.screen .caption { display: none; }
+  .scaler { break-after: page; }
+  .scaler:last-of-type { break-after: auto; }
+}
