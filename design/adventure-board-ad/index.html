@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>PicoRubyKaigi 2026 Assemble Adventure Board の宣伝 (A4 ヨコ)</title>
+<!-- 足もとの 1 行(部品 + ワードマーク)は会場のサイン・名札の案内と共通 -->
+<link rel="stylesheet" href="../signage/footer.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Micro+5&family=Jersey+10&family=DotGothic16&display=swap');
+
+/* ===== この 1 枚の文字の大きさの基準 ===== */
+:root {
+  --t-note:  4mm;   /* 注記・補足 */
+  --t-body:  5mm;   /* 本文・ラベル */
+  --t-lead:  6mm;   /* リード文 */
+  --t-head:  8mm;   /* 小見出し・帯の英字 */
+  --t-title: 11mm;  /* 大見出し・値段 */
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+img {
+  display: block;
+  image-rendering: pixelated;
+}
+
+/* ===== 用紙: A4 ヨコ 297x210mm。長さはすべて mm で書く(印刷が原寸になる) ===== */
+@page {
+  size: A4 landscape;
+  margin: 0;
+}
+
+body {
+  background: #b9b9b3;
+  font-family: 'DotGothic16', sans-serif;
+  color: #26242f;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 16px;
+}
+
+/* 画面では窓幅に合わせて縮小(--s は JS が入れる)。印刷では等倍 */
+.scaler {
+  width: calc(297mm * var(--s, 1));
+  height: calc(210mm * var(--s, 1));
+}
+.sheet {
+  position: relative;
+  width: 297mm;
+  height: 210mm;
+  overflow: hidden;
+  transform: scale(var(--s, 1));
+  transform-origin: 0 0;
+  display: flex;
+  flex-direction: column;
+  /* 地: サイトの --bg + 6mm 格子の穴のドット(名札の案内と同じ) */
+  background:
+    url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2724%27%3E%3Crect%20x=%279.5%27%20y=%279.5%27%20width=%275%27%20height=%275%27%20fill=%27%2339352b%27%20fill-opacity=%27.11%27/%3E%3Crect%20x=%2711%27%20y=%2711%27%20width=%275%27%20height=%275%27%20fill=%27%231c180e%27%20fill-opacity=%27.14%27/%3E%3C/svg%3E") 0 0 / 6mm 6mm,
+    #eceade;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* ===== 見出し帯: 名札の案内と同じ電光掲示板風。===== */
+.led {
+  position: relative;
+  height: 30mm;
+  flex: none;
+  background:
+    url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%278%27%20height=%278%27%3E%3Ccircle%20cx=%274%27%20cy=%274%27%20r=%271.5%27%20fill=%27%23ffffff%27%20fill-opacity=%27.07%27/%3E%3C/svg%3E") 0 0 / 2mm 2mm,
+    #1b1a24;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6mm;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.led .jp {
+  font-size: var(--t-title);
+  line-height: 1;
+  color: #f6f4ea;
+  letter-spacing: .08em;
+  text-indent: .08em;
+}
+/* 赤はタイトルを補佐する */
+.led .en {
+  font-family: 'Jersey 10', sans-serif;
+  font-size: var(--t-head);
+  line-height: 1;
+  color: #f64b5b;
+  letter-spacing: .18em;
+  text-indent: .18em;
+  position: relative;
+  top: .7mm;
+}
+/* ===== 本体: 左に基板、右に買い方 ===== */
+.body {
+  flex: 1;
+  display: flex;
+  gap: 7mm;
+  padding: 8mm 10mm 0;
+  min-height: 0;
+}
+.col {
+  display: flex;
+  background: #f6f4ea;
+  border: .5mm solid #d8d4c4;   /* サイトの --line。.panel / .speaker-card と同じ 2px 相当 */
+  border-radius: 3.7mm;
+  padding: 6mm;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.col-board { flex: 1.35; gap: 6mm; min-width: 0; }
+.col-buy   { flex: 1; flex-direction: column; min-width: 0; }
+
+/* 左: 基板の写真 + 何が入っているか */
+.col-board .photo {
+  flex: none;
+  display: flex;
+  align-items: center;
+}
+.col-board .photo img {
+  height: 100mm;
+  width: auto;
+  image-rendering: auto;        /* 写真なのでドット絵の補間は切る */
+  filter: drop-shadow(0 1mm 1.2mm rgba(38,36,47,.22));
+}
+.col-board .about {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4mm;
+}
+.lead {
+  font-size: var(--t-lead);
+  line-height: 1.5;
+  letter-spacing: .01em;
+}
+.spec {
+  font-size: var(--t-body);
+  line-height: 1.6;
+  color: #4a4740;
+}
+.spec dt {
+  font-family: 'Micro 5', sans-serif;
+  font-size: var(--t-body);
+  letter-spacing: .14em;
+  color: #8a8578;
+  margin-bottom: .6mm;
+}
+.spec dd + dt { margin-top: 3mm; }
+
+/* 右: 買い方の 2 手順 */
+.head {
+  display: flex;
+  align-items: center;
+  gap: 3.5mm;
+  flex: none;
+}
+.no {
+  flex: none;
+  width: 11mm;
+  height: 11mm;
+  border-radius: 50%;
+  background: #e8404b;
+  color: #fff;
+  font-family: 'Micro 5', sans-serif;
+  font-size: 9mm;
+  line-height: 11mm;
+  text-align: center;
+  text-indent: .04em;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.head h2 {
+  font-size: var(--t-head);
+  line-height: 1.15;
+  font-weight: normal;
+  letter-spacing: .02em;
+}
+.head .sub {
+  font-family: 'Micro 5', sans-serif;
+  font-size: var(--t-body);
+  line-height: 1;
+  letter-spacing: .14em;
+  color: #8a8578;
+  margin-top: .8mm;
+}
+.step + .step {
+  margin-top: 5mm;
+  padding-top: 5mm;
+  border-top: .5mm dashed #d8d4c4;
+}
+
+/* QR と値段を横に並べる */
+.buy {
+  display: flex;
+  align-items: center;
+  gap: 5mm;
+  margin: 4mm 0 0;
+}
+.qr {
+  flex: none;
+  width: 48mm;
+  height: 48mm;
+  background: #fff;
+  border: .5mm solid #d8d4c4;
+  border-radius: 2mm;
+  padding: 2mm;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.qr img {
+  width: 100%;
+  height: 100%;
+  image-rendering: auto;
+}
+.price {
+  flex: 1;
+  min-width: 0;
+}
+.yen {
+  font-size: var(--t-title);
+  line-height: 1;
+  letter-spacing: .02em;
+  color: #c0223a;
+  white-space: nowrap;
+}
+.yen .unit,
+.yen small {
+  font-size: var(--t-body);
+  letter-spacing: 0;
+  color: #4a4740;
+}
+.note {
+  font-size: var(--t-note);
+  line-height: 1.55;
+  margin-top: 4mm;
+  color: #4a4740;
+}
+.pickup {
+  font-size: var(--t-body);
+  line-height: 1.55;
+  margin-top: 3.5mm;
+}
+.pickup b {
+  font-weight: normal;
+  -webkit-text-stroke: .12mm #26242f;
+}
+
+@media print {
+  body { background: none; padding: 0; }
+  .scaler { width: 297mm; height: 210mm; }
+  .sheet { transform: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="scaler">
+<div class="sheet">
+
+  <header class="led">
+    <span class="jp">オリジナル基板販売中</span>
+    <span class="en">Adventure Board</span>
+  </header>
+
+  <main class="body">
+
+    <!-- 左: 基板そのもの -->
+    <section class="col col-board">
+      <div class="photo"><img src="images/board.png" alt="Adventure Board の基板"></div>
+      <div class="about">
+        <p class="lead">
+          PicoRubyKaigi 2026<br>
+          オリジナル基板<br>
+          Lチカのその先へ
+        </p>
+        <dl class="spec">
+          <dt>SET</dt>
+          <dd>本体・ミニブレッドボード<br>砲弾型LED・ジャンパ線 2本<br>1kΩ抵抗 2本</dd>
+          <dt>YOU NEED</dt>
+          <dd>USB Type-C ケーブルと PC<br>(ケーブルはデータ通信対応)</dd>
+        </dl>
+      </div>
+    </section>
+
+    <!-- 右: 買い方 -->
+    <section class="col col-buy">
+
+      <div class="step">
+        <div class="head">
+          <span class="no">1</span>
+          <div>
+            <h2>connpass で買う</h2>
+            <div class="sub">BUY ON CONNPASS</div>
+          </div>
+        </div>
+        <div class="buy">
+          <div class="qr"><img src="images/qr.svg" alt="connpass の販売ページ"></div>
+          <div class="price">
+            <div class="yen">3,400<span class="unit">円</span><small>(税込)</small></div>
+            <p class="note">
+              この QR から。決済は PayPal。<br>
+              先着順。キャンセルは返金不可。
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="head">
+          <span class="no">2</span>
+          <div>
+            <h2>受け取る</h2>
+            <div class="sub">PICKUP</div>
+          </div>
+        </div>
+        <p class="pickup">
+          受付のとなり、<b>Adventure Board 受渡し</b> へ。<br>
+          <b>connpass の受付票</b>を見せてください。<br>
+          受け取りは<b>イベント中</b>にお願いします。
+        </p>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- 足もと: 会場のサイン・名札の案内と同じ 1 行 -->
+  <div class="bar">
+    <div class="side l">
+      <img class="p-batt" src="../../images/battery.png" alt="">
+      <img class="p-speaker" src="../../images/spaeker.png" alt="">
+      <img class="p-7seg" src="../../images/7seg-1.png" alt="">
+    </div>
+    <div class="word"><img src="../signage/images/logo-2line.png" alt="PicoRubyKaigi 2026 Assemble"></div>
+    <div class="side r">
+      <img class="p-motor" src="../../images/motor.png" alt="">
+      <img class="p-chip" src="../../images/chip.png" alt="">
+      <img class="p-ruby" src="../../images/ruby-mini.png" alt="">
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+// 画面表示だけ、窓幅に合わせて縮小する(印刷と ?capture は等倍のまま)
+const capture = new URLSearchParams(location.search).has('capture');
+function fit() {
+  if (capture) { document.body.style.padding = '0'; return; }
+  // 幅だけで決めると縦にはみ出してスクロールが要る。高さも見て小さいほうを採る
+  const sheet = document.querySelector('.sheet');
+  const s = Math.min(1, (window.innerWidth - 32) / sheet.offsetWidth,
+                        (window.innerHeight - 32) / sheet.offsetHeight);
+  document.documentElement.style.setProperty('--s', s);
+}
+addEventListener('resize', fit);
+fit();
+</script>
+
+</body>
+</html>

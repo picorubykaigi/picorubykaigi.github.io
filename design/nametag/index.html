@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>PicoRubyKaigi 2026 Assemble 名札のアナウンス (A4 ヨコ・名札を書く台に置く)</title>
+<!-- 足もとの 1 行(部品 + ワードマーク)は会場のサインと共通 -->
+<link rel="stylesheet" href="../signage/footer.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Micro+5&family=Jersey+10&family=DotGothic16&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+img {
+  display: block;
+  image-rendering: pixelated;
+}
+
+/* ===== 用紙: A4 ヨコ 297x210mm。長さはすべて mm で書く(印刷が原寸になる) ===== */
+@page {
+  size: A4 landscape;
+  margin: 0;
+}
+
+body {
+  background: #b9b9b3;
+  font-family: 'DotGothic16', sans-serif;
+  color: #26242f;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 16px;
+}
+
+/* 画面では窓幅に合わせて縮小(--s は JS が入れる)。印刷では等倍 */
+.scaler {
+  width: calc(297mm * var(--s, 1));
+  height: calc(210mm * var(--s, 1));
+}
+.sheet {
+  position: relative;
+  width: 297mm;
+  height: 210mm;
+  overflow: hidden;
+  transform: scale(var(--s, 1));
+  transform-origin: 0 0;
+  display: flex;
+  flex-direction: column;
+  /* 地: サイトの --bg + 6mm 格子の穴のドット(濃淡 2 枚重ね) */
+  background:
+    url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%2724%27%20height=%2724%27%3E%3Crect%20x=%279.5%27%20y=%279.5%27%20width=%275%27%20height=%275%27%20fill=%27%2339352b%27%20fill-opacity=%27.11%27/%3E%3Crect%20x=%2711%27%20y=%2711%27%20width=%275%27%20height=%275%27%20fill=%27%231c180e%27%20fill-opacity=%27.14%27/%3E%3C/svg%3E") 0 0 / 6mm 6mm,
+    #eceade;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* ===== 見出し帯: 名札の上端と同じ電光掲示板風(濃紺 + ドットマトリクス) ===== */
+.led {
+  position: relative;
+  height: 30mm;
+  flex: none;
+  background:
+    url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20width=%278%27%20height=%278%27%3E%3Ccircle%20cx=%274%27%20cy=%274%27%20r=%271.5%27%20fill=%27%23ffffff%27%20fill-opacity=%27.07%27/%3E%3C/svg%3E") 0 0 / 2mm 2mm,
+    #1b1a24;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6mm;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.led .jp {
+  font-size: 11mm;
+  line-height: 1;
+  color: #f6f4ea;
+  letter-spacing: .08em;
+  text-indent: .08em;
+}
+.led .en {
+  font-family: 'Jersey 10', sans-serif;
+  font-size: 7.4mm;
+  line-height: 1;
+  color: #f64b5b;
+  letter-spacing: .22em;
+  text-indent: .22em;
+  /* 字面が行の上に寄るので、日本語の字面の中心に合わせて下げる */
+  position: relative;
+  top: .65mm;
+}
+
+/* ===== 本体: 左にシール、右にストラップ ===== */
+.body {
+  flex: 1;
+  display: flex;
+  gap: 7mm;
+  padding: 8mm 10mm 0;
+  min-height: 0;
+}
+.col {
+  display: flex;
+  flex-direction: column;
+  background: #f6f4ea;
+  border: .5mm solid #d8d4c4;
+  border-radius: 3.7mm;
+  padding: 6mm 6mm 5mm;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.col-left  { flex: 1.5; }
+.col-strap { flex: 1; }
+
+/* 左の枠は 01 と 02 の 2 段積み。間は破線で仕切る */
+.step {
+  display: flex;
+  flex-direction: column;
+}
+.step + .step {
+  margin-top: 4mm;
+  padding-top: 4mm;
+  border-top: .5mm dashed #d8d4c4;
+  flex: 1;
+  min-height: 0;
+}
+
+/* 見出し: 丸番号 + 日本語 + 下に英語 */
+.head {
+  display: flex;
+  align-items: center;
+  gap: 3.5mm;
+  flex: none;
+}
+.no {
+  flex: none;
+  width: 11mm;
+  height: 11mm;
+  border-radius: 50%;
+  background: #e8404b;
+  color: #fff;
+  font-family: 'Micro 5', sans-serif;
+  font-size: 9mm;
+  line-height: 11mm;
+  text-align: center;
+  text-indent: .04em;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.head h2 {
+  font-size: 8mm;
+  line-height: 1.15;
+  font-weight: normal;
+  letter-spacing: .02em;
+}
+.head .sub {
+  font-family: 'Micro 5', sans-serif;
+  font-size: 5mm;
+  line-height: 1;
+  letter-spacing: .14em;
+  color: #8a8578;
+  margin-top: .8mm;
+}
+
+/* ===== 01 名前 ===== */
+.namebox {
+  flex: none;
+  position: relative;
+  height: 18mm;
+  margin: 3mm 0 2.5mm;
+  background: #fff;
+  border: .5mm solid #d8d4c4;
+  border-radius: 2mm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.namebox .tag {
+  position: absolute;
+  left: 2.5mm;
+  top: 1.8mm;
+  font-family: 'Micro 5', sans-serif;
+  font-size: 4.4mm;
+  line-height: 1;
+  letter-spacing: .14em;
+  color: #a9a496;
+}
+/* 書き方の例薄いグレーで */
+.namebox .sample {
+  font-size: 8mm;
+  line-height: 1;
+  color: #bdb8a8;
+  letter-spacing: .04em;
+  margin-top: 2mm;
+}
+
+/* ===== 02 シール ===== */
+.stickers {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+  gap: 2.2mm;
+  padding: 1.5mm 0;
+}
+/* シール 1 枚 = 白い丸 + 中に絵。
+   7 個 + 6 個の 2 段に収まる幅(7*18.5 + 6*2.2 = 142.7mm。枠の内寸 145mm) */
+.stickers span {
+  flex: none;
+  width: 18.5mm;
+  height: 18.5mm;
+  border-radius: 50%;
+  background: #fff;
+  border: .4mm solid #ece8da;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 白丸が生成りの地に沈まないよう、ごく薄い影で浮かせる */
+  filter: drop-shadow(0 .4mm .5mm rgba(38,36,47,.18));
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+/* 白紙のタッグシール。実物はヨコ使い(細長い長方形を横に寝かせて貼る)。 */
+.stickers span.blank {
+  position: relative;
+  width: 18.5mm;
+  height: 7.2mm;          /* 実物の比率(約 2.6:1)をヨコにしたもの */
+  align-self: center;
+  border-radius: 1.4mm;
+  background: #fff;
+  border: .4mm solid #d8d4c4;
+}
+.stickers span.blank::before,
+.stickers span.blank::after {
+  content: '';
+  position: absolute;
+  left: 2.2mm;
+  right: 2.2mm;
+  height: .4mm;
+  background: #e0dcce;
+}
+.stickers span.blank::before { top: 2.4mm; }
+.stickers span.blank::after  { top: 4.4mm; }
+
+/* 箱の対角線**を 14mm に揃える */
+.stickers img { display: block; }
+.stickers .i-newbie    { width:  8.63mm; height: 11.06mm; }
+.stickers .i-led       { width:  5.92mm; height: 12.74mm; }
+.stickers .i-ruby-up   { width: 10.90mm; height:  8.79mm; }
+.stickers .i-motor-up  { width:  8.61mm; height: 11.04mm; }
+.stickers .i-pico      { width: 12.36mm; height:  6.57mm; }
+.stickers .i-esp32     { width: 12.14mm; height:  6.97mm; }
+.stickers .i-soldering { width:  9.89mm; height:  9.93mm; }
+.stickers .i-pockecon  { width: 11.74mm; height:  7.64mm; }
+.stickers .i-keyboard  { width: 12.63mm; height:  6.04mm; }
+.stickers .i-game      { width: 12.54mm; height:  6.23mm; }
+.stickers .i-sound     { width:  9.72mm; height: 10.08mm; }
+.stickers .i-sparkle   { width: 10.17mm; height:  9.63mm; }
+.stickers .i-wifi      { width: 10.39mm; height:  9.41mm; }
+.note {
+  flex: none;
+  font-size: 4.4mm;
+  line-height: 1.55;
+  letter-spacing: .01em;
+}
+/* ===== 03 ストラップ ===== */
+.straps {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4mm;
+  padding: 2mm 0 3mm;
+}
+.strap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5mm;
+}
+.strap svg {
+  width: 100%;
+  max-width: 36mm;
+  height: auto;
+  display: block;
+}
+/* ひも: 同じ 2 本の線を 2 回重ねる。縁(太い濃色)の上に地の色を細く。
+   組みひもの陰影は A4 では潰れて色が濁るだけなので入れない */
+.strap .edge { stroke: var(--cord-edge); stroke-width: 6.4; }
+.strap .fill { stroke: var(--cord);      stroke-width: 5; }
+/* 名札ケース(透明のソフトケース)。ひもの色に関係なく共通 */
+.strap .case .body {
+  fill: rgba(255,255,255,.55);
+  stroke: #b9b3a2;
+  stroke-width: 1.6;
+}
+.strap .case .insert {
+  fill: none;
+  stroke: #d8d2c1;
+  stroke-width: 1;
+}
+.strap .case .slot {
+  fill: #f0eee2;
+  stroke: #b9b3a2;
+  stroke-width: 1.2;
+}
+.strap .case .hole {
+  fill: #f0eee2;
+  stroke: #b9b3a2;
+  stroke-width: 1.2;
+}
+
+/* ひもの下端の結び目(ケースの穴に通して結んである) */
+.strap .knot ellipse {
+  fill: var(--cord);
+  stroke: var(--cord-edge);
+  stroke-width: 1.8;
+}
+.strap.ok { --cord: #e8404b; --cord-edge: #c0223a; }
+.strap.ng { --cord: #ffffff; --cord-edge: #a9a496; }
+.strap .label {
+  font-size: 6.6mm;
+  line-height: 1.1;
+  letter-spacing: .02em;
+  white-space: nowrap;
+}
+.strap .label-en {
+  font-family: 'Jersey 10', sans-serif;
+  font-size: 4.6mm;
+  line-height: 1;
+  letter-spacing: .06em;
+  color: #6f6a5e;
+  white-space: nowrap;
+}
+.strap.ok .label { color: #c0223a; }
+
+@media print {
+  body { background: none; padding: 0; }
+  .scaler { width: 297mm; height: 210mm; }
+  .sheet { transform: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="scaler">
+<div class="sheet">
+
+  <header class="led">
+    <span class="jp">名札をつくろう</span>
+    <span class="en">MAKE YOUR BADGE</span>
+  </header>
+
+  <main class="body">
+
+    <section class="col col-left">
+
+      <!-- 01: NAME 欄に名前を書く -->
+      <div class="step">
+        <div class="head">
+          <span class="no">1</span>
+          <div>
+            <h2>名前をかく</h2>
+            <div class="sub">NAME</div>
+          </div>
+        </div>
+        <div class="namebox">
+          <span class="tag">NAME</span>
+          <span class="sample">ぴこぴこ</span>
+        </div>
+        <p class="note">
+          呼ばれたい名前を大きく。ハンドルネームもOK。
+        </p>
+      </div>
+
+      <!-- 02: 名札の ASSEMBLED WITH 欄に貼るシール -->
+      <div class="step">
+        <div class="head">
+          <span class="no">2</span>
+          <div>
+            <h2>シールで自己紹介</h2>
+            <div class="sub">ASSEMBLED WITH</div>
+          </div>
+        </div>
+        <div class="stickers">
+            <span><img class="i-newbie" src="../nameplate/images/newbie.png" alt=""></span>
+            <span><img class="i-led" src="../nameplate/images/led.png" alt=""></span>
+            <span><img class="i-ruby-up" src="../nameplate/images/ruby-up.png" alt=""></span>
+            <span><img class="i-motor-up" src="../nameplate/images/motor-up.png" alt=""></span>
+            <span><img class="i-pico" src="../nameplate/images/pico.png" alt=""></span>
+            <span><img class="i-esp32" src="../nameplate/images/esp32.png" alt=""></span>
+            <span><img class="i-soldering" src="../nameplate/images/soldering.png" alt=""></span>
+            <span><img class="i-pockecon" src="../nameplate/images/pockecon.png" alt=""></span>
+            <span><img class="i-keyboard" src="../nameplate/images/keyboard.png" alt=""></span>
+            <span><img class="i-game" src="../nameplate/images/game.png" alt=""></span>
+            <span><img class="i-sound" src="../nameplate/images/sound.png" alt=""></span>
+            <span><img class="i-sparkle" src="../nameplate/images/sparkle.png" alt=""></span>
+            <span><img class="i-wifi" src="../nameplate/images/wifi.png" alt=""></span>
+            <span class="blank" aria-label="白紙のシール"></span>
+          </div>
+        <p class="note">
+          好きなもの、興味のあるものを何枚でも。<br>
+          ないものは白紙のシールに。同じシールの人に話しかけてみて。
+        </p>
+      </div>
+
+    </section>
+
+    <!-- 03: ストラップの色 = 写真の可否 -->
+    <section class="col col-strap">
+      <div class="head">
+        <span class="no">3</span>
+        <div>
+          <h2>ストラップの色</h2>
+          <div class="sub">PHOTO OK / NO PHOTO</div>
+        </div>
+      </div>
+      <div class="straps">
+
+        <div class="strap ok">
+          <!-- 実物は細い組ひも。下端は結び目(名札の穴に通して結ぶ)。赤 = 撮影OK -->
+          <svg viewBox="0 0 120 230" role="img" aria-label="赤いひものついた名札ケース">
+            <defs>
+              <g id="cord-ok" fill="none" stroke-linecap="round">
+                <path d="M37,134 C29,100 12,48 10,26 C8,10 26,4 60,4 C94,4 112,10 110,26 C108,48 91,100 83,134"/>
+              </g>
+            </defs>
+            <!-- 名札ケース: 透明なので地が透ける。上辺に吊り穴 2 つと中央のスリット -->
+            <g class="case">
+              <rect class="body" x="25" y="124" width="70" height="100" rx="4"/>
+              <rect class="insert" x="29" y="128" width="62" height="92" rx="2"/>
+              <rect class="slot" x="49" y="131" width="22" height="4.5" rx="2.2"/>
+              <circle class="hole" cx="37" cy="133.5" r="3"/>
+              <circle class="hole" cx="83" cy="133.5" r="3"/>
+            </g>
+            <use href="#cord-ok" class="edge"/>
+            <use href="#cord-ok" class="fill"/>
+            <g class="knot">
+              <ellipse cx="37" cy="133.5" rx="5.6" ry="4.6"/>
+              <ellipse cx="83" cy="133.5" rx="5.6" ry="4.6"/>
+            </g>
+          </svg>
+          <div class="label">写真OK</div>
+          <div class="label-en">PHOTO OK</div>
+        </div>
+
+        <div class="strap ng">
+          <!-- 白 = 撮影NG -->
+          <svg viewBox="0 0 120 230" role="img" aria-label="白いひものついた名札ケース">
+            <defs>
+              <g id="cord-ng" fill="none" stroke-linecap="round">
+                <path d="M37,134 C29,100 12,48 10,26 C8,10 26,4 60,4 C94,4 112,10 110,26 C108,48 91,100 83,134"/>
+              </g>
+            </defs>
+            <!-- 名札ケース: 透明なので地が透ける。上辺に吊り穴 2 つと中央のスリット -->
+            <g class="case">
+              <rect class="body" x="25" y="124" width="70" height="100" rx="4"/>
+              <rect class="insert" x="29" y="128" width="62" height="92" rx="2"/>
+              <rect class="slot" x="49" y="131" width="22" height="4.5" rx="2.2"/>
+              <circle class="hole" cx="37" cy="133.5" r="3"/>
+              <circle class="hole" cx="83" cy="133.5" r="3"/>
+            </g>
+            <use href="#cord-ng" class="edge"/>
+            <use href="#cord-ng" class="fill"/>
+            <g class="knot">
+              <ellipse cx="37" cy="133.5" rx="5.6" ry="4.6"/>
+              <ellipse cx="83" cy="133.5" rx="5.6" ry="4.6"/>
+            </g>
+          </svg>
+          <div class="label">写真NG</div>
+          <div class="label-en">NO PHOTO</div>
+        </div>
+
+      </div>
+      <p class="note">
+        白ストラップの人は写さないように。
+      </p>
+    </section>
+
+  </main>
+
+  <!-- 足もと: 会場のサインと同じ 1 行(部品 + ワードマーク) -->
+  <div class="bar">
+    <div class="side l">
+      <img class="p-batt" src="../../images/battery.png" alt="">
+      <img class="p-speaker" src="../../images/spaeker.png" alt="">
+      <img class="p-7seg" src="../../images/7seg-1.png" alt="">
+    </div>
+    <div class="word"><img src="../signage/images/logo-2line.png" alt="PicoRubyKaigi 2026 Assemble"></div>
+    <div class="side r">
+      <img class="p-motor" src="../../images/motor.png" alt="">
+      <img class="p-chip" src="../../images/chip.png" alt="">
+      <img class="p-ruby" src="../../images/ruby-mini.png" alt="">
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+// 画面表示だけ、窓幅に合わせて用紙を縮小する(印刷と ?capture は等倍のまま)
+const capture = new URLSearchParams(location.search).has('capture');
+function fit() {
+  if (capture) { document.body.style.padding = '0'; return; }
+  const sheet = document.querySelector('.sheet');
+  const w = sheet.offsetWidth, h = sheet.offsetHeight;
+  const s = Math.min(1, (window.innerWidth - 32) / w, (window.innerHeight - 32) / h);
+  document.documentElement.style.setProperty('--s', s);
+}
+addEventListener('resize', fit);
+addEventListener('load', fit);
+fit();
+</script>
+
+</body>
+</html>
