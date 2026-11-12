@@ -339,7 +339,7 @@ function bbApplyGridShift(){
       ['.venue-when', -2, -2, -2, -2],
       ['.venue-where',-2, -2, -2, -2],
       ['.keynotes',  -2, -2, -2, -2],
-      ['.button',    -3,  4, 26, 4],   // 下を緩和(ラベル下の無地ボード〜下は置ける)
+      ['.thanks',    -2, -2, -2, -2],
       ['.ticker',    12, -2, -2, -2],  // 上を詰めて基盤との間のかぶりは許容
     ];
     // strict(初期ロード)=インセット無視で各要素の全体(+2px)を避ける / 非strict(ドロップ)=インセット適用(端のかぶり許容)。
@@ -488,8 +488,6 @@ function bbApplyGridShift(){
   const logo=document.querySelector('.title .prk');
   const scene=document.querySelector('.scene');
   const rubyLed=document.querySelector('.ruby-led');
-  const ticketBtn=document.querySelector('.button-icon.ticket');
-  const proposalBtn=document.querySelector('.button-icon.proposal');
   if(!parts.length) return;
   const SW=54, SH=54;
   // 通電音: 他の効果音と同じくオシレーター1個の素朴なポップ。D6→G6 の2音グライドで、
@@ -1148,24 +1146,6 @@ function bbApplyGridShift(){
       r.classList.toggle('on', (SEG[ch]||'').includes(r.dataset.s)); });
   }
   render(); setInterval(render, 60000);
-})();
-
-// ボタンの hover 効果音: E6→C7 へ上昇する短い跳ね。triangle をローパス3000で丸める家系の音色。
-// hover は連発し高音で耳に通りやすいので、低い音量(0.085)で控えめに鳴らす。
-(function(){
-  const pico=()=>{ try{ const c=window.audioCtx&&window.audioCtx(); if(!c) return;
-    const t=c.currentTime;
-    const o=c.createOscillator(), g=c.createGain(); o.type='triangle';
-    o.frequency.setValueAtTime(1319,t);                       // E6
-    o.frequency.exponentialRampToValueAtTime(2093,t+0.05);    // C7 へ上昇
-    g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.085,t+0.012);
-    g.gain.exponentialRampToValueAtTime(0.0001,t+0.10);       // 余韻を残さず短く切る
-    const lp=c.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=3000; lp.Q.value=1;
-    o.connect(g); g.connect(lp); lp.connect(c.destination); o.start(t); o.stop(t+0.11);
-  }catch(e){} };
-  document.querySelectorAll('.button-icon').forEach(btn=>{
-    btn.addEventListener('pointerenter', e=>{ if(e.pointerType==='touch') return; pico(); }); // タップでは鳴らさない
-  });
 })();
 
 // ---- くみたて完成のごほうび: ruby-full 中は Ruby がゲーム機になる(タップで /game/ へ) ----
