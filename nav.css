@@ -29,16 +29,16 @@
   text-decoration: none;
 }
 
-@media (min-width: 1460px) {
+@media (min-width: 1560px) {
   .nav-list a:hover {
     text-decoration: underline;
     text-underline-offset: 4px;
   }
 }
 
-/* The ten-item nav plus the logo needs ~1460px on one line; below that the
+/* The eleven-item nav plus the logo needs ~1560px on one line; below that the
    burger takes over. */
-@media (max-width: 1459px) {
+@media (max-width: 1559px) {
   .nav-burger {
     display: flex;
     flex-direction: column;

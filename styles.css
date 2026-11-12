@@ -515,6 +515,26 @@ body.dark .cross { --tint: #56f096; } /* ダーク=緑 */
   z-index: 6;
 }
 
+@media (min-width: 1100px) and (max-width: 1559px) {
+  .top-nav .nav-burger {
+    display: none;
+  }
+  .top-nav .nav-list {
+    display: flex;
+    position: static;
+    flex-direction: row;
+    gap: 28px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+  }
+  .top-nav .nav-list a:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+}
+
 @media (max-width: 767px) {
   .top-nav {
     right: 20px;
