@@ -5,6 +5,7 @@ kind: Talk
 time: 14:55
 minutes: 20
 x: khoriosk
+slides: https://speakerdeck.com/khoriosk/picorubykaigi-2026-femtoruby-cortex-m7-khoriosk
 bio: 個人でPicoRuby/FemtoRubyのMCUへのポーティングに取り組んでいます。現在はCortex-M7 MCUを対象に、Ruby実行環境とhardwareの境界や、移植時に必要となる構成を確認しています。
 ---
 

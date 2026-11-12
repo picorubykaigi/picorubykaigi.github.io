@@ -5,6 +5,7 @@ kind: Talk
 time: 11:50
 minutes: 20
 github: Suzune2741
+slides: https://speakerdeck.com/suzune2741/mrubyc-to-node-red-de-hajimeru-maikon-puroguramingu
 bio: 松江工業高等専門学校 電子情報システム工学専攻所属。\n在学中にRubyに触れ、初心者でも分かりやすい記述に魅力を感じて愛用している。小中学生向けのプログラミング出張講座や自身の体験などからプログラミングを始めるハードルの高さを感じ、Node-REDとmruby/cを活用したブラウザで完結できる開発環境の構築を行っている。
 ---
 

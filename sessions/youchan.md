@@ -6,6 +6,7 @@ time: 15:20
 minutes: 20
 github: youchan
 x: youchan
+slides: https://youchan.info/slides/PicoRubyKaigi2026Assemble/
 bio: PicoPicoRuby(共同)主催者
 ---
 

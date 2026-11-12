@@ -31,9 +31,19 @@
             <p class="session-bio"><%= escape(session[:bio]).gsub("\n", '<br>') %></p>
 <%- end -%>
           </aside>
-<%- if session[:abstract_html] -%>
+<%- if session[:abstract_html] || session[:slides] -%>
           <div class="content-body">
+<%- if session[:abstract_html] -%>
   <%= session[:abstract_html].chomp %>
+<%- end -%>
+<%- if session[:slides] -%>
+            <div class="session-material">
+              <h2>Presentation Material</h2>
+              <p class="session-slides">
+                <a class="event-cta" href="<%= escape(session[:slides]) %>" target="_blank" rel="noopener"><svg viewBox="0 0 7 8" aria-hidden="true"><path fill-rule="evenodd" d="M0 0h5v1h1v1h1v6H0zM1 1v6h5V3H4V1z"/></svg>Slides</a>
+              </p>
+            </div>
+<%- end -%>
           </div>
 <%- end -%>
         </div>

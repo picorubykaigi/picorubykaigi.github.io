@@ -6,6 +6,7 @@ time: 13:20
 minutes: 40
 github: tarosay
 x: momoonga
+slides: https://speakerdeck.com/tarosay/own-a5-robot-restored-a4print
 bio: 　Wakayama.rb主催。UIAPrubyを開発し、CoderDojo和歌山有田で子供たちのプログラミングや電子工作を支援しています。Rubyが使えるマイコンボード「GR-CITRUS」の開発経験があり、UIAPduino用Arduino IDEボードパッケージ、Scratch拡張機能を開発・公開し、Windows・Mac・Linuxの開発環境も整備しています。現在は、ブロックプログラミングからRubyコードを生成する「URB Block」も開発中です。宇宙甲子園近畿地方大会では缶サット部門の審査員を務めています。関西Ruby会議09では、参加者のうち希望された方にUIAPrubyボードを配布しました。
 ---
 
