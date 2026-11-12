@@ -5,6 +5,7 @@ kind: Talk
 time: 11:25
 minutes: 20
 github: S-H-GAMELINKS
+slides: https://speakerdeck.com/gamelinks007/picoruby-dehajimeru-jisaku-kaneru-nyuumon
 bio: Rubyを自作カーネルやseL4マイクロカーネルなどの上に移植することが楽しいRubyist。最近はPicoRubyの上でCRubyを動かす遊びを覚えた。
 ---
 

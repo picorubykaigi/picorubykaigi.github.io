@@ -6,6 +6,7 @@ time: 15:45
 minutes: 20
 github: yuuu
 x: Y_uuu
+slides: https://speakerdeck.com/yuuu/growing-picorubys-ecosystem-on-esp32
 bio: 福岡にある株式会社FusicでIoTクラウドエンジニアとして、RubyやAWSを活用したIoTシステムの受託開発をしています。\nまた、フィヨルドブートキャンプというRubyのオンラインプログラミングスクールでメンターをしています。RubyKaigi 2019ではLocal Organizerをしていました。\nR2P2-ESP32を公開して以来、常にESP32デバイスをリュックサックに忍ばせています。
 ---
 

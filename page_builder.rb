@@ -90,6 +90,7 @@ class PageBuilder
         minutes: meta['minutes'].to_i,
         github: meta['github'],
         x: meta['x'],
+        slides: meta['slides'],
         abstract_html: body.strip.empty? ? nil : markdown_to_html(body)
       }]
     end
