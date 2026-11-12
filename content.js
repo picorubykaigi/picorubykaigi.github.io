@@ -1,2 +1,79 @@
 // Match the top page's dark mode (battery plugged in) before first paint.
 try { if (/(?:^|; )pos_battery=[^;]/.test(document.cookie)) document.documentElement.classList.add('dark'); } catch (e) {}
+
+// Marquee bulbs on a.event-cta: the dots run on a rounded rectangle concentric with the button border,
+// with a dot at the middle of every corner arc and the rest spaced evenly between them.
+// Every third dot is a bulb; the three bulb groups light in turn so the light runs clockwise.
+document.addEventListener('DOMContentLoaded', () => {
+  const svgNamespace = 'http://www.w3.org/2000/svg';
+  const inset = 4;
+  const spacing = 8;
+  const track = (link) => {
+    const style = getComputedStyle(link);
+    const width = link.clientWidth - inset * 2;
+    const height = link.clientHeight - inset * 2;
+    const radius = Math.max(0, parseFloat(style.borderTopLeftRadius) - parseFloat(style.borderTopWidth) - inset);
+    const near = inset + radius - radius / Math.SQRT2;
+    const left = inset;
+    const top = inset;
+    const right = inset + width;
+    const bottom = inset + height;
+    const arc = (x, y) => `A ${radius} ${radius} 0 0 1 ${x} ${y}`;
+    const path = [
+      `M ${near} ${near}`, arc(left + radius, top),
+      `H ${right - radius}`, arc(right, top + radius),
+      `V ${bottom - radius}`, arc(right - radius, bottom),
+      `H ${left + radius}`, arc(left, bottom - radius),
+      `V ${top + radius}`, arc(near, near),
+    ].join(' ');
+    const quarter = Math.PI * radius / 2;
+    return { path, across: width - 2 * radius + quarter, down: height - 2 * radius + quarter };
+  };
+  const dotCounts = (across, down) => {
+    const downCount = Math.max(1, Math.round(down / spacing));
+    const acrossCount = [0, 1, -1, 2, -2]
+      .map(shift => Math.round(across / spacing) + shift)
+      .filter(count => count >= 1 && (count + downCount) % 3 === 0)
+      .sort((first, second) => Math.abs(across / first - spacing) - Math.abs(across / second - spacing))[0];
+    return [acrossCount, downCount];
+  };
+  const fitBulbs = (link, svg, guide) => {
+    const { path, across, down } = track(link);
+    guide.setAttribute('d', path);
+    const [acrossCount, downCount] = dotCounts(across, down);
+    const sides = [[across, acrossCount], [down, downCount], [across, acrossCount], [down, downCount]];
+    const groups = [...svg.querySelectorAll('g')];
+    groups.forEach(group => group.replaceChildren());
+    let start = 0;
+    let index = 0;
+    sides.forEach(([length, count]) => {
+      for (let step = 0; step < count; step++) {
+        const point = guide.getPointAtLength(start + length * step / count);
+        [[groups[0], 2], [groups[1 + index % 3], 1.5]].forEach(([group, radius]) => {
+          const circle = document.createElementNS(svgNamespace, 'circle');
+          circle.setAttribute('cx', point.x);
+          circle.setAttribute('cy', point.y);
+          circle.setAttribute('r', radius);
+          group.appendChild(circle);
+        });
+        index++;
+      }
+      start += length;
+    });
+  };
+  document.querySelectorAll('a.event-cta').forEach(link => {
+    const svg = document.createElementNS(svgNamespace, 'svg');
+    svg.setAttribute('class', 'cta-bulbs');
+    svg.setAttribute('aria-hidden', 'true');
+    const guide = document.createElementNS(svgNamespace, 'path');
+    guide.setAttribute('fill', 'none');
+    svg.appendChild(guide);
+    ['dots', 'bulbs bulbs-0', 'bulbs bulbs-1', 'bulbs bulbs-2'].forEach(name => {
+      const group = document.createElementNS(svgNamespace, 'g');
+      group.setAttribute('class', name);
+      svg.appendChild(group);
+    });
+    link.appendChild(svg);
+    new ResizeObserver(() => fitBulbs(link, svg, guide)).observe(link);
+  });
+});

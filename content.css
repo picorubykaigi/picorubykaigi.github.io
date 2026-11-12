@@ -1272,29 +1272,24 @@ a.event-cta {
   color: #fff;
 }
 
-a.event-cta::before,
-a.event-cta::after {
-  content: '';
+.cta-bulbs {
   position: absolute;
-  inset: 2px;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   opacity: 0;
   pointer-events: none;
 }
 
-a.event-cta::before {
-  background:
-    radial-gradient(circle at 4px 2px, rgba(255, 255, 255, .35) 0 2px, transparent 2.5px) 0 0 / 8px 4px repeat-x,
-    radial-gradient(circle at 4px 2px, rgba(255, 255, 255, .35) 0 2px, transparent 2.5px) 0 100% / 8px 4px repeat-x,
-    radial-gradient(circle at 2px 4px, rgba(255, 255, 255, .35) 0 2px, transparent 2.5px) 0 0 / 4px 8px repeat-y,
-    radial-gradient(circle at 2px 4px, rgba(255, 255, 255, .35) 0 2px, transparent 2.5px) 100% 0 / 4px 8px repeat-y;
+.cta-bulbs .dots {
+  fill: rgba(255, 255, 255, .35);
 }
 
-a.event-cta::after {
-  background:
-    radial-gradient(circle at 4px 2px, #fffdf2 0 1px, #ffd76a 1px 2px, transparent 2.5px) 0 0 / 24px 4px repeat-x,
-    radial-gradient(circle at 4px 2px, #fffdf2 0 1px, #ffd76a 1px 2px, transparent 2.5px) 0 100% / 24px 4px repeat-x,
-    radial-gradient(circle at 2px 4px, #fffdf2 0 1px, #ffd76a 1px 2px, transparent 2.5px) 0 0 / 4px 24px repeat-y,
-    radial-gradient(circle at 2px 4px, #fffdf2 0 1px, #ffd76a 1px 2px, transparent 2.5px) 100% 0 / 4px 24px repeat-y;
+.cta-bulbs .bulbs {
+  fill: #fffdf2;
+  stroke: #ffd76a;
+  stroke-width: 1px;
+  opacity: 0;
 }
 
 a.event-cta:hover {
@@ -1304,18 +1299,28 @@ a.event-cta:hover {
     0 2px 0 #6a0e1e;
 }
 
-a.event-cta:hover::before,
-a.event-cta:hover::after {
+a.event-cta:hover .cta-bulbs {
   opacity: 1;
 }
 
-a.event-cta:hover::after {
-  animation: event-cta-bulbs .45s steps(3) infinite;
+a.event-cta:hover .bulbs {
+  animation: event-cta-bulbs .45s step-end infinite;
+}
+
+a.event-cta:hover .bulbs-1 {
+  animation-delay: -.3s;
+}
+
+a.event-cta:hover .bulbs-2 {
+  animation-delay: -.15s;
 }
 
 @keyframes event-cta-bulbs {
-  to {
-    background-position: 24px 0, -24px 100%, 0 -24px, 100% 24px;
+  0% {
+    opacity: 1;
+  }
+  33.333% {
+    opacity: 0;
   }
 }
 
@@ -1637,7 +1642,7 @@ html.dark .session-kind {
   text-decoration: none;
 }
 
-.session-slides svg {
+.session-slides svg:not(.cta-bulbs) {
   width: 14px;
   height: 16px;
   fill: currentColor;
