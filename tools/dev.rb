@@ -16,7 +16,7 @@ OUT = File.join(ROOT, 'dist')
 
 PORT = (ARGV[0] || ENV['PORT'] || 8916).to_i
 INTERVAL = 0.4
-IGNORE = %w[dist node_modules design tools docs .git .cloudflare].freeze
+IGNORE = %w[dist node_modules tools .git .cloudflare].freeze
 REBUILD_ALL = %w[build.rb blog_builder.rb page_builder.rb renderer.rb minify.mjs].freeze
 NOT_COPIED = %w[package.json package-lock.json Gemfile Gemfile.lock build.mjs].freeze
 BLOG_TEMPLATES = %w[templates/post.html.erb templates/index.html.erb].freeze
