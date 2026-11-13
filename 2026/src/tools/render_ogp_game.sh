@@ -8,7 +8,7 @@ CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 PORT=8765
 SCALE=2
 
-if ! curl -s -o /dev/null "http://localhost:$PORT/tools/ogp_game.html"; then
+if ! curl -s -o /dev/null "http://localhost:$PORT/2026/tools/ogp_game.html"; then
   (python3 -m http.server $PORT >/tmp/ogp_srv.log 2>&1 &)
   sleep 1
 fi
@@ -16,6 +16,6 @@ fi
 "$CHROME" --headless=new --disable-gpu --hide-scrollbars \
   --force-device-scale-factor=$SCALE --window-size=1200,630 \
   --virtual-time-budget=12000 \
-  --screenshot="images/ogp_game.png" "http://localhost:$PORT/tools/ogp_game.html" 2>/dev/null
+  --screenshot="images/ogp_game.png" "http://localhost:$PORT/2026/tools/ogp_game.html" 2>/dev/null
 
 magick identify -format "OGP game: %wx%h\n" images/ogp_game.png

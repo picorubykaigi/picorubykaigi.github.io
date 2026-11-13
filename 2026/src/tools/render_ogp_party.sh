@@ -5,7 +5,7 @@
 set -e
 cd "$(dirname "$0")/.."
 # サーバは要らない(file:// で読む)。ブラウザで見たいときは npm run dev の
-# http://localhost:8916/tools/ogp_party.html へ。
+# http://localhost:8916/2026/tools/ogp_party.html へ。
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 
 # 引数に数字を渡すと、紙吹雪ときらめきの散らし方を振り直せる。

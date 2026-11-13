@@ -1,79 +1,32 @@
 #!/usr/bin/env ruby
 #
-# 開発用サーバ。dist/ を配信しつつ、ソースの変更を見張って差分だけ dist/ に反映する。
+# 開発用サーバ。dist/ を配信しつつ、その年のソース(<年>/src)の変更を見張って、その年を dist/<年>/ にビルドし直す。
+# 年を省くと、src/ がある年のうち最新の年。
 #
-#   bundle exec ruby tools/dev.rb [port]   # 既定 8916
+#   bundle exec ruby tools/dev.rb [port] [year]   # 既定 8916
 
 require 'webrick'
-require 'fileutils'
 require 'rbconfig'
 
 $stdout.sync = true
 
 ROOT = File.expand_path('..', __dir__)
-Dir.chdir(ROOT)
 OUT = File.join(ROOT, 'dist')
 
 PORT = (ARGV[0] || ENV['PORT'] || 8916).to_i
+YEAR = ARGV[1] || Dir.children(ROOT).grep(/\A\d{4}\z/).select { |year| Dir.exist?(File.join(ROOT, year, 'src')) }.max
+SRC = File.join(ROOT, YEAR, 'src')
 INTERVAL = 0.4
-IGNORE = %w[dist node_modules tools .git .cloudflare].freeze
-REBUILD_ALL = %w[build.rb blog_builder.rb page_builder.rb renderer.rb minify.mjs].freeze
-NOT_COPIED = %w[package.json package-lock.json Gemfile Gemfile.lock build.mjs].freeze
-BLOG_TEMPLATES = %w[templates/post.html.erb templates/index.html.erb].freeze
-
-def classify(path)
-  return :full if REBUILD_ALL.include?(path)
-  return :blog if path.start_with?('blog/posts/') || BLOG_TEMPLATES.include?(path)
-  return :pages if path.start_with?('templates/pages/', 'sessions/') || path == 'templates/layout.html.erb'
-  return :full if path.start_with?('templates/')   # 共通部品はページにもブログにも効く
-  return :skip if NOT_COPIED.include?(path) || path.end_with?('.md')
-
-  :copy
-end
-
-def source_files
-  Dir.glob('**/*').reject do |path|
-    IGNORE.any? { |dir| path == dir || path.start_with?("#{dir}/") } || File.directory?(path)
-  end
-end
 
 def snapshot
-  source_files.to_h { |path| [path, File.mtime(path)] }
+  Dir.glob('**/*', base: SRC).reject { |path| File.directory?(File.join(SRC, path)) }
+     .to_h { |path| [path, File.mtime(File.join(SRC, path))] }
 rescue Errno::ENOENT
   retry   # 監視中に消えたファイルがあれば取り直す
 end
 
-def build_blog
-  system(RbConfig.ruby, File.join(ROOT, 'blog_builder.rb'), OUT) || warn('blog_builder.rb failed')
-end
-
-def build_pages
-  system(RbConfig.ruby, File.join(ROOT, 'page_builder.rb'), OUT) || warn('page_builder.rb failed')
-end
-
-def full_build
-  system(RbConfig.ruby, File.join(ROOT, 'build.rb')) || warn('build.rb failed')
-end
-
-def copy_to_dist(path)
-  dest = File.join(OUT, path)
-  FileUtils.mkdir_p(File.dirname(dest))
-  FileUtils.cp(path, dest)
-end
-
-def apply(changed, removed)
-  kinds = changed.map { |path| classify(path) }
-
-  if removed.any? || kinds.include?(:full)
-    reason = removed.any? ? '削除あり' : 'ビルド定義の変更'
-    print "  (#{reason} → フルビルド) "
-    return full_build
-  end
-
-  changed.zip(kinds).each { |path, kind| copy_to_dist(path) if kind == :copy }
-  build_pages if kinds.include?(:pages)
-  build_blog if kinds.include?(:blog)
-  true
+def build
+  system(RbConfig.ruby, File.join(ROOT, 'build.rb'), YEAR, out: File::NULL) || warn('build.rb failed')
 end
 
 server = WEBrick::HTTPServer.new(
@@ -90,9 +43,9 @@ no_cache = Class.new(WEBrick::HTTPServlet::FileHandler) do
   end
 end
 server.mount('/', no_cache, OUT, FancyIndexing: true)
-# 画像生成ページ(tools/ogp*.html)も同じサーバから見られるようにする。<base href="../"> の
-# 参照先(images/ fonts/)は dist/ 側で解決される。
-server.mount('/tools', no_cache, File.join(ROOT, 'tools'), FancyIndexing: true)
+# 画像生成ページ(<年>/src/tools/ogp*.html)も同じサーバから見られるようにする。<base href="../"> の
+# 参照先(images/ fonts/)は dist/<年>/ 側で解決される。
+server.mount("/#{YEAR}/tools", no_cache, File.join(SRC, 'tools'), FancyIndexing: true)
 
 devtools_probe = Class.new(WEBrick::HTTPServlet::AbstractServlet) do
   def do_GET(_req, res)
@@ -105,28 +58,27 @@ server.mount('/.well-known/appspecific/com.chrome.devtools.json', devtools_probe
 trap('INT') { server.shutdown }
 trap('TERM') { server.shutdown }
 
-puts 'Building...'
-full_build
+puts "Building #{YEAR}..."
+build
 
 watcher = Thread.new do
   previous = snapshot
   loop do
     sleep INTERVAL
     current = snapshot
-    changed = current.reject { |path, mtime| previous[path] == mtime }.keys
-    removed = previous.keys - current.keys
+    changed = current.reject { |path, mtime| previous[path] == mtime }.keys + (previous.keys - current.keys)
     previous = current
-    next if changed.empty? && removed.empty?
+    next if changed.empty?
 
     started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-    print "#{Time.now.strftime('%H:%M:%S')} #{(changed + removed).join(' ')} "
-    apply(changed, removed)
+    print "#{Time.now.strftime('%H:%M:%S')} #{changed.join(' ')} "
+    build
     elapsed = ((Process.clock_gettime(Process::CLOCK_MONOTONIC) - started) * 1000).round
     puts "(#{elapsed}ms)"
   end
 end
 
-puts "http://127.0.0.1:#{PORT}/"
+puts "http://127.0.0.1:#{PORT}/#{YEAR}/"
 puts 'Stop to Ctrl-C'
 server.start
 watcher.kill
