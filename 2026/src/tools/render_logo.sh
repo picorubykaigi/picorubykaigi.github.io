@@ -22,7 +22,7 @@ OUT=images/goodies
 CACHE_BUST="$(date +%s)$$"   # logo.html を直したのに前回の描画が出る(Chromeのキャッシュ)のを防ぐ
 mkdir -p "$OUT"
 
-if ! curl -s -o /dev/null "http://localhost:$PORT/tools/logo.html"; then
+if ! curl -s -o /dev/null "http://localhost:$PORT/2026/tools/logo.html"; then
   (python3 -m http.server $PORT >/tmp/logo_srv.log 2>&1 &)
   sleep 1
 fi
@@ -33,7 +33,7 @@ shoot() {  # shoot <query> <out.png>
     --default-background-color=00000000 \
     --force-device-scale-factor=$SCALE --window-size=1440,1000 \
     --virtual-time-budget=12000 \
-    --screenshot="$2" "http://localhost:$PORT/tools/logo.html$1${1:+&}${1:-?}cb=$CACHE_BUST" 2>/dev/null
+    --screenshot="$2" "http://localhost:$PORT/2026/tools/logo.html$1${1:+&}${1:-?}cb=$CACHE_BUST" 2>/dev/null
   magick "$2" -trim +repage \
     -bordercolor none -border "$(magick "$2" -trim +repage -format "%[fx:round(h*$PAD_RATIO)]" info:)" \
     "$2"

@@ -12,7 +12,7 @@ SCALE=2   # 出力倍率。1=1200x630(標準) / 2=2400x1260(高精細・推奨) 
 CACHE_BUST="$(date +%s)$$"   # ogp.html を直したのに前回の描画が出る(Chromeのキャッシュ)のを防ぐ
 
 # サーバが無ければ起動
-if ! curl -s -o /dev/null "http://localhost:$PORT/tools/ogp.html"; then
+if ! curl -s -o /dev/null "http://localhost:$PORT/2026/tools/ogp.html"; then
   (python3 -m http.server $PORT >/tmp/ogp_srv.log 2>&1 &)
   sleep 1
 fi
@@ -21,7 +21,7 @@ shoot() {  # shoot <query> <out.png>
   "$CHROME" --headless=new --disable-gpu --hide-scrollbars \
     --force-device-scale-factor=$SCALE --window-size=1200,630 \
     --virtual-time-budget=12000 \
-    --screenshot="$2" "http://localhost:$PORT/tools/ogp.html$1${1:+&}${1:-?}cb=$CACHE_BUST" 2>/dev/null
+    --screenshot="$2" "http://localhost:$PORT/2026/tools/ogp.html$1${1:+&}${1:-?}cb=$CACHE_BUST" 2>/dev/null
 }
 
 shoot "" "images/ogp.png"

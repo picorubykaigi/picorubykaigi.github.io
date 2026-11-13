@@ -5,7 +5,7 @@
 set -e
 cd "$(dirname "$0")/.."
 # サーバは要らない(file:// で読む)。ブラウザで見たいときは npm run dev の
-# http://localhost:8916/tools/ogp_tour.html へ。
+# http://localhost:8916/2026/tools/ogp_tour.html へ。
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 
 # 背景と窓のドット絵を先に書き出す
