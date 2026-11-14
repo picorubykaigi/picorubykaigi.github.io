@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="/2026/content.js"></script>
+  <title>Cortex-M7 MCUへのfemtoRubyポーティング — 限られたRAMでの構成と検証 - khoriosk | PicoRubyKaigi 2026 Assemble</title>
+  <link rel="icon" type="image/png" href="/2026/images/favicon.png">
+  <link rel="apple-touch-icon" href="/2026/images/apple-touch-icon.png">
+  <meta name="description" content="本発表では、MCUの起動からFemtoRubyの実行、Rubyからの周辺機能制御まで、移植の中で取り組んだ内容を紹介する。特に限られたRAMに実行環境を収めるための構成や機能の選択について扱う。FemtoRubyとMCU依存部の境界、移植時…">
+  <meta property="og:title" content="Cortex-M7 MCUへのfemtoRubyポーティング — 限られたRAMでの構成と検証 - khoriosk | PicoRubyKaigi 2026 Assemble">
+  <meta property="og:description" content="本発表では、MCUの起動からFemtoRubyの実行、Rubyからの周辺機能制御まで、移植の中で取り組んだ内容を紹介する。特に限られたRAMに実行環境を収めるための構成や機能の選択について扱う。FemtoRubyとMCU依存部の境界、移植時…">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://picorubykaigi.org/2026/schedule/khoriosk/">
+  <meta property="og:site_name" content="PicoRubyKaigi 2026 Assemble">
+  <meta property="og:locale" content="ja_JP">
+  <meta property="og:image" content="https://picorubykaigi.org/2026/images/ogp.png">
+  <link rel="stylesheet" href="/2026/content.css">
+  <link rel="stylesheet" href="/2026/nav.css">
+</head>
+<body>
+  <header class="site-header">
+  <div class="inner">
+    <a class="logo" href="/2026/"><span class="logo-name"><span class="pico">P<span class="kern-pi">i</span><span class="kern-ic">c</span>oRuby</span><span class="kaigi"><span class="kern-yk">K</span>ai<span class="kern-ig">gi</span></span></span><span class="logo-meta"><span class="year">2026</span><span class="assemble">Assemble</span></span></a>
+    <nav class="site-nav">
+  <input type="checkbox" id="nav-open" class="nav-open" aria-label="メニュー">
+  <label for="nav-open" class="nav-burger" aria-hidden="true"><span></span><span></span><span></span></label>
+  <ul class="nav-list">
+    <li><a href="/2026/schedule/">Schedule</a></li>
+    <li><a href="/2026/speakers/">Speakers</a></li>
+    <li><a href="/2026/events/">Events</a></li>
+    <li><a href="/adventure-board/" target="_blank" rel="noopener">Board</a></li>
+    <li><a href="/2026/blog/">Blog</a></li>
+    <li><a href="/2026/sponsors/">Sponsors</a></li>
+    <li><a href="/2026/jobs/">Jobs</a></li>
+    <li><a href="/2026/goodies/">Goodies</a></li>
+    <li><a href="/2026/game/">Game</a></li>
+    <li><a href="/2026/policies/">Policies</a></li>
+    <li><a href="/2026/team/">Team</a></li>
+  </ul>
+</nav>
+  </div>
+</header>
+
+  <svg width="0" height="0" aria-hidden="true" style="position:absolute">
+    <symbol id="icon-x" viewBox="0 0 24 24">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+    </symbol>
+    <symbol id="icon-github" viewBox="0 0 16 16">
+      <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+    </symbol>
+  </svg>
+
+  <main class="container container-wide">
+    <div class="panel">
+      <article class="session">
+        <header class="content-header">
+          <p class="session-kind">Talk</p>
+          <h1><span class="title-part">Cortex-M7 MCUへのfemtoRubyポーティング — 限られたRAMでの構成と検証</span></h1>
+        </header>
+        <div class="session-columns">
+          <aside class="session-aside">
+            <img class="session-photo" src="/2026/images/speakers/khoriosk.jpg" alt="">
+            <p class="session-name">khoriosk</p>
+            <p class="team-id">@khoriosk</p>
+            <p class="team-links speaker-links">
+              <a href="https://x.com/khoriosk" target="_blank" rel="noopener" aria-label="X"><svg><use href="#icon-x"/></svg></a>
+            </p>
+            <p class="session-bio">個人でPicoRuby/FemtoRubyのMCUへのポーティングに取り組んでいます。現在はCortex-M7 MCUを対象に、Ruby実行環境とhardwareの境界や、移植時に必要となる構成を確認しています。</p>
+          </aside>
+          <div class="content-body">
+  
+<p>本発表では、MCUの起動からFemtoRubyの実行、Rubyからの周辺機能制御まで、移植の中で取り組んだ内容を紹介する。特に限られたRAMに実行環境を収めるための構成や機能の選択について扱う。FemtoRubyとMCU依存部の境界、移植時の確認方法を整理し、今後のMCUポーティングにも利用できる形で共有する。</p>
+            <div class="session-material">
+              <h2>Presentation Material</h2>
+              <p class="session-slides">
+                <a class="event-cta" href="https://speakerdeck.com/khoriosk/picorubykaigi-2026-femtoruby-cortex-m7-khoriosk" target="_blank" rel="noopener"><svg viewBox="0 0 7 8" aria-hidden="true"><path fill-rule="evenodd" d="M0 0h5v1h1v1h1v6H0zM1 1v6h5V3H4V1z"/></svg>Slides</a>
+              </p>
+            </div>
+          </div>
+        </div>
+        <footer class="blog-footer">
+          <span></span>
+          <a class="blog-nav-index" href="/2026/schedule/">Schedule</a>
+          <span></span>
+        </footer>
+      </article>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script src="/2026/content.js"></script>
+  <title>オリジナル基板「Adventure Board」の試作基板とWebコンソールのご紹介 | PicoRubyKaigi 2026 Assemble</title>
+  <link rel="icon" type="image/png" href="/2026/images/favicon.png">
+  <link rel="apple-touch-icon" href="/2026/images/apple-touch-icon.png">
+  <meta name="description" content="PicoRubyKaigi 2026 Assembleのオリジナル基板「Adventure Board」の試作と、ブラウザで動くWebコンソールについてご紹介します">
+  <meta property="og:title" content="オリジナル基板「Adventure Board」の試作基板とWebコンソールのご紹介 | PicoRubyKaigi 2026 Assemble">
+  <meta property="og:description" content="PicoRubyKaigi 2026 Assembleのオリジナル基板「Adventure Board」の試作と、ブラウザで動くWebコンソールについてご紹介します">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://picorubykaigi.org/2026/blog/adventure-board.html">
+  <meta property="og:site_name" content="PicoRubyKaigi 2026 Assemble">
+  <meta property="og:locale" content="ja_JP">
+  <meta property="og:image" content="https://picorubykaigi.org/2026/images/blog/adventure-board-dev.jpg">
+  <link rel="stylesheet" href="/2026/content.css">
+  <link rel="stylesheet" href="/2026/nav.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="inner">
+    <a class="logo" href="/2026/"><span class="logo-name"><span class="pico">P<span class="kern-pi">i</span><span class="kern-ic">c</span>oRuby</span><span class="kaigi"><span class="kern-yk">K</span>ai<span class="kern-ig">gi</span></span></span><span class="logo-meta"><span class="year">2026</span><span class="assemble">Assemble</span></span></a>
+    <nav class="site-nav">
+  <input type="checkbox" id="nav-open" class="nav-open" aria-label="メニュー">
+  <label for="nav-open" class="nav-burger" aria-hidden="true"><span></span><span></span><span></span></label>
+  <ul class="nav-list">
+    <li><a href="/2026/schedule/">Schedule</a></li>
+    <li><a href="/2026/speakers/">Speakers</a></li>
+    <li><a href="/2026/events/">Events</a></li>
+    <li><a href="/adventure-board/" target="_blank" rel="noopener">Board</a></li>
+    <li><a href="/2026/blog/">Blog</a></li>
+    <li><a href="/2026/sponsors/">Sponsors</a></li>
+    <li><a href="/2026/jobs/">Jobs</a></li>
+    <li><a href="/2026/goodies/">Goodies</a></li>
+    <li><a href="/2026/game/">Game</a></li>
+    <li><a href="/2026/policies/">Policies</a></li>
+    <li><a href="/2026/team/">Team</a></li>
+  </ul>
+</nav>
+  </div>
+</header>
+  <main class="container">
+    <div class="panel">
+      <article>
+        <header class="content-header">
+          <h1>オリジナル基板「Adventure Board」の試作基板とWebコンソールのご紹介</h1>
+          <time datetime="2026-09-28">2026.09.28.</time>
+        </header>
+        <div class="content-body">
+
+<p>こんにちは、PicoRubyKaigi 2026 Assembleのスタッフをしている<a href="https://github.com/kishima">kishima</a>です。</p>
+
+<p><a href="board.html">以前の記事</a>では、このイベントのために準備しているオリジナル基板の仕様をご紹介しました。今回は試作基板が完成したので、その基板と、ブラウザで基板のシミュレーションができる「Adventure Board Console」についてご紹介したいと思います。</p>
+
+<div class="blog-dancers" aria-hidden="true"><div class="blog-dancer"><span class="blog-dancer-led"></span></div><div class="blog-dancer"><span class="blog-dancer-led"></span></div><div class="blog-dancer"><span class="blog-dancer-led"></span></div><div class="blog-dancer"><span class="blog-dancer-led"></span></div></div>
+
+<h2>オリジナル基板の名前は「Adventure Board」</h2>
+
+<p>基板の紹介の前に、名前が決まったのでお伝えします。<br>
+以前の記事では「PicoRubyKaigi基板（仮）」と呼んでいましたが、正式な名前が <strong>Adventure Board</strong> に決まりました！</p>
+
+<p>この基板とPicoRubyで、Lチカのその先へ冒険に出かけましょう！</p>
+
+<div class="blog-dancers" aria-hidden="true"><div class="blog-dancer"><span class="blog-dancer-led"></span></div><div class="blog-dancer"><span class="blog-dancer-led"></span></div><div class="blog-dancer"><span class="blog-dancer-led"></span></div><div class="blog-dancer"><span class="blog-dancer-led"></span></div></div>
+
+<h2>試作基板が完成</h2>
+
+<p>最初の試作基板（R1）が手元に届き、ひととおりの機能を確かめました。</p>
+
+<p><img src="/2026/images/blog/adventure-board-dev.jpg" alt="試作基板R1を手に持ったところ。中央上に16×16のLEDマトリクスが実装されており、中央に赤いミニブレッドボードを貼りつけている"></p>
+
+<p>こちらが試作基板の実物です。手のひらに収まるくらいの大きさで、中央には市販のミニブレッドボードを貼りつけています。</p>
+
+<h3>基板のデバッグ</h3>
+
+<p>部品を実装した基板を作るのにはお金がかかりますが、量産の前に試作は欠かせません。<br>
+実際、今回も試作基板でいくつかミスを見つけて対策しました。</p>
+
+<ul>
+  <li>USBでつないでも基板を認識しない
+    <ul>
+      <li>USB周りの部品の使い方の問題でした。米粒より小さな部品を剥がし、デジタル顕微鏡を使ってジャンパ線をはんだ付けして、なんとかリワークして検証しました。</li>
+    </ul>
+  </li>
+  <li>GROVEコネクタのピンの順番が逆
+    <ul>
+      <li>こういう初歩的な見落としがあるのが恐ろしいです。似たようなミスはやりがちなので、基板を発注する前にはよく確認したいものです。</li>
+    </ul>
+  </li>
+  <li>スピーカーからの音が汚い
+    <ul>
+      <li>最初はアンプやフィルタ周りの問題かと思ってオシロスコープも使って確認していましたが、マイコン側のPWMの波形の作り方の問題でした。もう少し改善の余地はありそうです。</li>
+    </ul>
+  </li>
+</ul>
+
+<p>使ったことのないICだったので一番心配していたLEDマトリクスが、一発で動いてくれたのはありがたかったです。</p>
+
+<p>音質のチェックでは、ブレッドボードも活用してRP2350のADCを音声出力の回路につなぎ、基板自身で波形を測って、その結果を使ってAIにデバッグさせたりもしました。AIから使いやすいオシロスコープがあると、デバッグもはかどりそうだなと感じました。</p>
+
+<p><img src="/2026/images/blog/adventure-board-debug.jpg" alt="音のデバッグの様子"></p>
+
+<p>試作で見つかった修正点は量産試作版（PV1）に反映して、今はその生産が終わるのを待っているところです。</p>
+
+<h3>動いている様子</h3>
+
+<p><img src="/2026/images/blog/adventure-board-led-matrix.jpg" alt="LEDマトリクスを点灯させた様子"></p>
+
+<p>実際にRubyのコードでLEDマトリクスを点灯させた様子です。結構明るいです。</p>
+
+<p>次のような感じで、簡単に扱えるクラスを準備しています。</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">require</span> <span class="s1">'adventure_board'</span>
+<span class="no">GC</span><span class="p">.</span><span class="nf">start</span>           <span class="c1"># require で消費したメモリを解放</span>
+<span class="n">matrix</span> <span class="o">=</span> <span class="no">AdventureBoard</span><span class="p">.</span><span class="nf">matrix</span>
+
+<span class="n">matrix</span><span class="p">.</span><span class="nf">clear</span>       <span class="c1"># 全部消す</span>
+<span class="n">matrix</span><span class="p">.</span><span class="nf">set</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>   <span class="c1"># x=1, y=1（左上）を点ける。xy座標の範囲は1〜16。明るさも256段階で指定できる</span>
+<span class="n">matrix</span><span class="p">.</span><span class="nf">show</span>        <span class="c1"># ここでLEDが点灯する</span>
+</code></pre></div></div>
+
+<div class="blog-dancers" aria-hidden="true"><div class="blog-dancer"><span class="blog-dancer-led"></span></div><div class="blog-dancer"><span class="blog-dancer-led"></span></div><div class="blog-dancer"><span class="blog-dancer-led"></span></div><div class="blog-dancer"><span class="blog-dancer-led"></span></div></div>
+
+<h2>「Adventure Board Console」</h2>
+
+<p>PicoRubyには<a href="https://picoruby.org/terminal">Webブラウザで動くターミナル</a>がありますが、Adventure Boardでも簡単に使っていただけるように、シミュレータ付きのコンソールを準備しています。</p>
+
+<p>Adventure Board上で動くPicoRubyを、Wasmでブラウザの中で動かせる開発環境です。基板が手元になくても、PicoRubyのコードを書いて、基板をイメージした画像の上で結果を見ることができます。</p>
+
+<p>以下の動画に使ってみた様子をまとめているので、ご覧ください。</p>
+
+<video src="/2026/images/blog/adventure-board-console-demo.mp4" poster="/2026/images/blog/adventure-board-console-demo.jpg" controls="" muted="" playsinline="" preload="metadata" style="width:100%;height:auto"></video>
+
+<p>ここで書いたコードは、そのまま基板でも動くようになっています。</p>
+
+<p>次のようなことができます。</p>
+
+<h3>LEDマトリクス・ボタン・スピーカー</h3>
+
+<p>基板の絵の上のボタンをマウスでクリックして押したり、キーボードで操作したりできます。音も鳴ります。</p>
+
+<p><img src="/2026/images/blog/adventure-board-console-1.jpg" alt="Webコンソールの画面"></p>
+
+<h3>ブレッドボードのシミュレーション</h3>
+
+<p>Adventure Board Consoleの画面上の仮想ブレッドボードに、あらかじめ用意された部品（ジャンパ線・抵抗・LED・タクトスイッチ）を挿して、簡単な回路を組めます。実際に電流を計算していて、抵抗の数でLEDの明るさが変わります。抵抗を入れ忘れたり、GNDとショートしたりしていると注意が出ます。</p>
+
+<p><img src="/2026/images/blog/adventure-board-console-2.jpg" alt="ブレッドボードを拡大した画面"></p>
+
+<h3>実機に転送して実行</h3>
+
+<p>基板をUSBでつなぎ、Web Serialで接続すると、書いたコードをワンタッチで基板に送ってすぐに実行できます（Google ChromeとMicrosoft Edgeで使えます）。</p>
+
+<p>ターミナルとしてもつながっているので、R2P2のWebコンソールとしても使えます。</p>
+
+<p><img src="/2026/images/blog/adventure-board-console-connected.jpg" alt="実機に接続した画面"></p>
+
+<p>ちなみに、このWebコンソールの画面も、<a href="https://picoruby.org/wasm">PicoRuby.wasm</a>と<a href="https://picoruby.org/funicular">Funicular</a>（PicoRuby.wasmのUIフレームワーク）を使って、Rubyで書いています。</p>
+
+<p>Adventure Board Consoleは、イベントまでに公開する予定です。</p>
+
+<div class="blog-dancers" aria-hidden="true"><div class="blog-dancer"><span class="blog-dancer-led"></span></div><div class="blog-dancer"><span class="blog-dancer-led"></span></div><div class="blog-dancer"><span class="blog-dancer-led"></span></div><div class="blog-dancer"><span class="blog-dancer-led"></span></div></div>
+
+<h2>おわりに</h2>
+
+<p>Adventure Boardは、ご希望の方に有償で予約販売する予定です。<br>
+準備が進みましたら、またSNS等でお知らせしますので、お楽しみに。</p>
+
+<p>2026年10月31日(土)、浅草橋ヒューリックホール＆カンファレンスでお会いしましょう。</p>
+        </div>
+        <footer class="blog-footer">
+                      <a class="blog-nav blog-nav-prev" href="followup.html" rel="prev">
+              <span class="blog-nav-arrow">&lt;</span>
+              <span class="blog-nav-title">PicoRubyKaigiの翌日も、わいわい、もくもくしませんか？</span>
+            </a>
+          
+          <a class="blog-nav-index" href="./">Index</a>
+
+                      <span></span>
+                  </footer>
+        <div class="blog-dancers" aria-hidden="true"><div class="blog-dancer"><span class="blog-dancer-led"></span></div><div class="blog-dancer"><span class="blog-dancer-led"></span></div><div class="blog-dancer"><span class="blog-dancer-led"></span></div><div class="blog-dancer"><span class="blog-dancer-led"></span></div></div>
+      </article>
+    </div>
+  </main>
+</body>
+</html>

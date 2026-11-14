@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script src="/2026/content.js"></script>
+  <title>今回のイベントで販売予定のオリジナル電子基板のご紹介 | PicoRubyKaigi 2026 Assemble</title>
+  <link rel="icon" type="image/png" href="/2026/images/favicon.png">
+  <link rel="apple-touch-icon" href="/2026/images/apple-touch-icon.png">
+  <meta name="description" content="PicoRubyKaigi 2026 Assembleのために設計した専用基板をご紹介します">
+  <meta property="og:title" content="今回のイベントで販売予定のオリジナル電子基板のご紹介 | PicoRubyKaigi 2026 Assemble">
+  <meta property="og:description" content="PicoRubyKaigi 2026 Assembleのために設計した専用基板をご紹介します">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://picorubykaigi.org/2026/blog/board.html">
+  <meta property="og:site_name" content="PicoRubyKaigi 2026 Assemble">
+  <meta property="og:locale" content="ja_JP">
+  <meta property="og:image" content="https://picorubykaigi.org/2026/images/blog/picorubykaigi-board-r1-2.jpg">
+  <link rel="stylesheet" href="/2026/content.css">
+  <link rel="stylesheet" href="/2026/nav.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="inner">
+    <a class="logo" href="/2026/"><span class="logo-name"><span class="pico">P<span class="kern-pi">i</span><span class="kern-ic">c</span>oRuby</span><span class="kaigi"><span class="kern-yk">K</span>ai<span class="kern-ig">gi</span></span></span><span class="logo-meta"><span class="year">2026</span><span class="assemble">Assemble</span></span></a>
+    <nav class="site-nav">
+  <input type="checkbox" id="nav-open" class="nav-open" aria-label="メニュー">
+  <label for="nav-open" class="nav-burger" aria-hidden="true"><span></span><span></span><span></span></label>
+  <ul class="nav-list">
+    <li><a href="/2026/schedule/">Schedule</a></li>
+    <li><a href="/2026/speakers/">Speakers</a></li>
+    <li><a href="/2026/events/">Events</a></li>
+    <li><a href="/adventure-board/" target="_blank" rel="noopener">Board</a></li>
+    <li><a href="/2026/blog/">Blog</a></li>
+    <li><a href="/2026/sponsors/">Sponsors</a></li>
+    <li><a href="/2026/jobs/">Jobs</a></li>
+    <li><a href="/2026/goodies/">Goodies</a></li>
+    <li><a href="/2026/game/">Game</a></li>
+    <li><a href="/2026/policies/">Policies</a></li>
+    <li><a href="/2026/team/">Team</a></li>
+  </ul>
+</nav>
+  </div>
+</header>
+  <main class="container">
+    <div class="panel">
+      <article>
+        <header class="content-header">
+          <h1>今回のイベントで販売予定のオリジナル電子基板のご紹介</h1>
+          <time datetime="2026-08-31">2026.08.31.</time>
+        </header>
+        <div class="content-body">
+
+<p>こんにちは、PicoRubyKaigi 2026 Assembleのスタッフをしている<a href="https://github.com/kishima">kishima</a>と申します。</p>
+
+<p><a href="showcase.html">前回の記事</a>ではショーケースセッションについて書きましたが、今日は楽しいお知らせをさせてください。</p>
+
+<p>PicoRubyKaigi 2026 Assembleでは、このイベントのための電子基板を準備しています！愛称はまだ決まっていないので、ここではPicoRubyKaigi基板（仮）と呼びたいと思います。</p>
+
+<p>この基板はPicoRubyの入門にも使えますし、入門をこえた工作にも使える面白い基板になっています。今日はその基板の仕様について説明したいと思います。</p>
+
+<p><img src="/2026/images/blog/picorubykaigi-board-r1-2.jpg" alt="PicoRubyKaigi基板R1の3Dモデルを斜めから見たところ。中央上に16×16のLEDマトリクス、中央に赤いミニブレッドボード、左下に十字キー、右下にA/Bボタン"></p>
+
+<p>こちらが基板の外観図になります。Assembleにちなんで、Aの文字をかたどっています。中央の赤いブロックは、あとから貼り付けるミニブレッドボードです。</p>
+
+<div class="blog-dancers" aria-hidden="true"><div class="blog-dancer"><span class="blog-dancer-led"></span></div><div class="blog-dancer"><span class="blog-dancer-led"></span></div><div class="blog-dancer"><span class="blog-dancer-led"></span></div><div class="blog-dancer"><span class="blog-dancer-led"></span></div></div>
+
+<h2>コンセプト</h2>
+
+<p>PicoRubyを使った電子工作の楽しさは、毎回書いたコードをコンパイルしてFlashに書き込むことなく、手元で書いたスクリプトを簡単にマイコン上で実行して、その結果を見ることができる点が大きいと思います。</p>
+
+<p>まずは次のようなコードでGPIOを操作して、Lチカから始めるのが定石です。</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">require</span> <span class="s1">'gpio'</span>
+
+<span class="n">led</span> <span class="o">=</span> <span class="no">GPIO</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="no">GPIO</span><span class="o">::</span><span class="no">OUT</span><span class="p">)</span>
+
+<span class="k">while</span> <span class="kp">true</span>
+  <span class="n">led</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+  <span class="n">sleep_ms</span> <span class="mi">500</span>
+  <span class="n">led</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+  <span class="n">sleep_ms</span> <span class="mi">500</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>しかし、そのあと、何をしていいのかわからない、という話をよく聞きます。</p>
+
+<p>今回のPicoRubyKaigi基板（仮）では、そんな方にも次のステップに進んでもらえるよう設計しました。LEDマトリクスで動きのある図形を描いたり、PWM出力で音楽を奏でたり、ボタンを使って入力に応じて変わる処理を書いたり、ブレッドボードに電子部品を配置してジャンパ線でつないで制御してみたり。色々な使い方を知ってもらえる入り口になればと考えています。</p>
+
+<p>例えば、この基板では次のようなコードでLEDマトリクスを制御できるようにする予定です。</p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">require</span> <span class="s1">'picorubykaigi01'</span>
+
+<span class="n">matrix</span><span class="p">.</span><span class="nf">clear</span>
+<span class="n">i</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="k">while</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">16</span>
+  <span class="n">matrix</span><span class="p">.</span><span class="nf">set</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="mh">0x60</span><span class="p">)</span>   <span class="c1"># set(x,y,明るさ)</span>
+  <span class="n">matrix</span><span class="p">.</span><span class="nf">set</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>         <span class="c1"># set(x,y) 明るさ省略すると最大の明るさ</span>
+  <span class="n">matrix</span><span class="p">.</span><span class="nf">set</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
+  <span class="n">matrix</span><span class="p">.</span><span class="nf">set</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+  <span class="n">matrix</span><span class="p">.</span><span class="nf">set</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+  <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+<span class="k">end</span>
+<span class="n">matrix</span><span class="p">.</span><span class="nf">show</span>                <span class="c1"># ここでLED制御のICへ送る</span>
+</code></pre></div></div>
+
+<p>まずは <code>matrix.set</code> のような使いやすいAPIで、お手軽にLEDマトリクスなどで遊んでもらう。そのうえで、具体的なLEDドライバとの通信をしている <code>picorubykaigi01.rb</code> を読んだり編集したりしてもらうことで、実際どうやって制御しているのかも理解してもらえるようにしたいと考えています。</p>
+
+<p>LEDマトリクスや、ボタン、スピーカーを使って、ちょっとしたゲームも作れると思います。遊び方の幅はとても広い基板かなと思っています。</p>
+
+<div class="blog-dancers" aria-hidden="true"><div class="blog-dancer"><span class="blog-dancer-led"></span></div><div class="blog-dancer"><span class="blog-dancer-led"></span></div><div class="blog-dancer"><span class="blog-dancer-led"></span></div><div class="blog-dancer"><span class="blog-dancer-led"></span></div></div>
+
+<h2>基板の仕様</h2>
+
+<p>それでは、具体的にどんな部品が搭載されているのか見ていきましょう。</p>
+
+<p><img src="/2026/images/blog/picorubykaigi-board-r1-1-info.png" alt="各部品の配置、基板サイズは90×130mm"></p>
+
+<ul>
+  <li><strong>① LEDマトリクス</strong> — 16×16の256個の小型の白色LED。専用のドライバIC2個が駆動するので、PicoRubyからはI2Cで値を書くだけで1ドットずつ明るさを指定できます</li>
+  <li><strong>② ミニブレッドボード</strong> — 47×35mmのミニブレッドボードも併せて提供予定です</li>
+  <li><strong>③ ピンソケット</strong> — 2×10のメスソケット。GPIO13本に加えて、5V / 3.3V / GNDも出しています。うち2本はADC入力として使えます</li>
+  <li><strong>④ ボタン</strong> — 6mm角のタクトスイッチが6個。十字キー4個とA/Bとして使えます</li>
+  <li><strong>⑤ スピーカー</strong> — GPIOのPWM出力をRCフィルタとアンプを通して鳴らすことができます</li>
+  <li><strong>⑥ GROVEコネクタ1</strong> — I2Cとして使えます。GROVE端子に対応したデバイスが接続できます</li>
+  <li><strong>⑦ GROVEコネクタ2</strong> — GPIO、UART、ADCとして使えます。GROVE端子に対応したデバイスが接続できます</li>
+  <li><strong>⑧ USB-Cコネクタ</strong> — 電源と、PCとの通信を兼ねています</li>
+  <li><strong>⑨ 電源LED</strong> — 通電しているかどうかの確認用です</li>
+  <li><strong>⑩ ステータスLED</strong> — GPIOにつながっているので、プログラムから自由に光らせられます</li>
+  <li><strong>⑪ SWD / UARTヘッダ</strong> — デバッガ用の端子です。部品は実装せず、パッドだけ用意しています</li>
+  <li><strong>⑫ RP2350A</strong> — このボードのコアです。フラッシュは外付けで8MBです</li>
+  <li><strong>⑬ アンプ</strong> — Class-Dアンプ。⑤のスピーカーを駆動します</li>
+  <li><strong>⑭ BOOTとRESETボタン</strong> — BOOTを押しながらRESETすると書き込みモードで起動し、USBメモリとしてPCから見えるようになります</li>
+</ul>
+
+<div class="blog-dancers" aria-hidden="true"><div class="blog-dancer"><span class="blog-dancer-led"></span></div><div class="blog-dancer"><span class="blog-dancer-led"></span></div><div class="blog-dancer"><span class="blog-dancer-led"></span></div><div class="blog-dancer"><span class="blog-dancer-led"></span></div></div>
+
+<p>こちらの基板は、ご希望の方に有償で予約販売する予定です。<br>
+絶賛準備中ですので、正式な予約開始まで、楽しみにお待ちください。</p>
+
+<p>進捗はまたブログで報告できればと思います。</p>
+
+<div class="blog-dancers" aria-hidden="true"><div class="blog-dancer"><span class="blog-dancer-led"></span></div><div class="blog-dancer"><span class="blog-dancer-led"></span></div><div class="blog-dancer"><span class="blog-dancer-led"></span></div><div class="blog-dancer"><span class="blog-dancer-led"></span></div></div>
+
+<h2>お知らせ</h2>
+
+<p><strong>トークセッション・ショーケースセッションのプロポーザル応募〆切は、本日2026年8月31日(月)まで</strong>です。  <br>
+<a href="https://docs.google.com/forms/d/e/1FAIpQLSfW9gTxPQ0z_LCi-CDHz8_iQeY2gvXYqfjBtEddV-NCfhc0ZA/viewform">プロポーザルの応募はこちらから</a>。</p>
+
+<p>2026年10月31日(土)、浅草橋ヒューリックホール＆カンファレンスでお会いしましょう。</p>
+        </div>
+        <footer class="blog-footer">
+                      <a class="blog-nav blog-nav-prev" href="showcase.html" rel="prev">
+              <span class="blog-nav-arrow">&lt;</span>
+              <span class="blog-nav-title">ショーケースセッションとは</span>
+            </a>
+          
+          <a class="blog-nav-index" href="./">Index</a>
+
+                      <a class="blog-nav blog-nav-next" href="followup.html" rel="next">
+              <span class="blog-nav-title">PicoRubyKaigiの翌日も、わいわい、もくもくしませんか？</span>
+              <span class="blog-nav-arrow">&gt;</span>
+            </a>
+                  </footer>
+        <div class="blog-dancers" aria-hidden="true"><div class="blog-dancer"><span class="blog-dancer-led"></span></div><div class="blog-dancer"><span class="blog-dancer-led"></span></div><div class="blog-dancer"><span class="blog-dancer-led"></span></div><div class="blog-dancer"><span class="blog-dancer-led"></span></div></div>
+      </article>
+    </div>
+  </main>
+</body>
+</html>
